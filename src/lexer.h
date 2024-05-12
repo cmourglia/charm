@@ -3,7 +3,7 @@
 #include "common.h"
 #include "token.h"
 
-typedef struct {
+typedef struct Lexer {
 	const char *input;
 
 	const char *start;
