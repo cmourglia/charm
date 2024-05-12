@@ -1,36 +1,33 @@
-#include "token.h"
-#include <stdio.h>
-
+#include "parser.h"
 #include "lexer.h"
+#include "ast.h"
 
-const char *str = "function foo(a, b) {\n"
-				  "  return a + b;\n"
-				  "}\n"
-				  "\n"
-				  "// Comment\n"
-				  "if (a >= b or a < b or a == b) {\n"
-				  "  b = a;\n"
-				  "}\n"
-				  "a = 3.1415\n"
-				  "b = 42\n"
-				  "c = \"This is a string\"\n"
-				  "d = 4.";
+#include "debug.h"
 
 int main(void)
 {
+	const char *str = "-123 * (45.67)";
+
 	Lexer lexer = lexer_init(str);
+	Parser parser = parser_init(&lexer);
 
-	for (;;)
-	{
-		Token token = lexer_get_next_token(&lexer);
+	struct Expr *program = parser_parse_program(&parser);
 
-		char buf[512];
-		int sz = token_to_string(buf, 512, token);
-		printf("%s\n", buf);
+	debug_print_expr(program);
 
-		if (token.type == Token_EOF)
-		{
-			break;
-		}
-	}
+	//for (;;)
+	//{
+	//	Token token = lexer_get_next_token(&lexer);
+
+	//	char buf[512];
+	//	int sz = token_to_string(buf, 512, token);
+	//	UNUSED(sz);
+
+	//	printf("%s\n", buf);
+
+	//	if (token.type == Token_EOF)
+	//	{
+	//		break;
+	//	}
+	//}
 }

@@ -8,6 +8,7 @@ add_executable(gluon
 
     src/ast.h    src/ast.c
     src/lexer.h  src/lexer.c
+    src/parser.h src/parser.c
     src/token.h
 
     src/debug.h  src/debug.c
