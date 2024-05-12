@@ -62,5 +62,3 @@ typedef struct {
 	const char *lexeme_start;
 	int lexeme_len;
 } Token;
-
-int token_to_string(char *buffer, int capacity, Token token);
