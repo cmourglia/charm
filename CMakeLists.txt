@@ -10,3 +10,9 @@ add_executable(gluon
     src/ast.h    src/ast.c
     src/lexer.h  src/lexer.c
 )
+
+if (MSVC)
+    target_compile_options(gluon PRIVATE /W4 /WX)
+else()
+    target_compile_options(gluon PRIVATE -Wall -Werror)
+endif()

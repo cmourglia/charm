@@ -132,7 +132,7 @@ static Token token(Lexer *lexer, TokenType type)
 	Token token = {
 		.type = type,
 		.lexeme_start = lexer->start,
-		.lexeme_len = lexer->current - lexer->start,
+		.lexeme_len = (int)(lexer->current - lexer->start),
 	};
 
 	return token;
