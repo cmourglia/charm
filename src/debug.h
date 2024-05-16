@@ -1,8 +1,11 @@
 #pragma once
 
-struct Token;
-struct Expr;
+#include "token.h"
 
-int debug_token_to_string(char *buffer, int capacity, struct Token token);
+struct Program;
 
-void debug_print_expr(struct Expr *expr);
+const char *debug_get_token_type_str(TokenType type);
+
+int debug_token_to_string(char *buffer, int capacity, Token token);
+
+void debug_print_program(struct Program program);

@@ -3,17 +3,23 @@
 #include "ast.h"
 
 #include "debug.h"
+#include "interpreter.h"
 
 int main(void)
 {
-	const char *str = "-123 * (45.67)";
+	//const char *str = "-123 * (45.67);\nprint ((234 + 678) / 22) == 33;";
+	const char *str = ""
+					  "var toto = 2 * 3 + 4;\n"
+					  "var titi;\n";
 
 	Lexer lexer = lexer_init(str);
 	Parser parser = parser_init(&lexer);
 
-	struct Expr *program = parser_parse_program(&parser);
+	Program program = parser_parse_program(&parser);
 
-	debug_print_expr(program);
+	debug_print_program(program);
+
+	interpreter_run(program);
 
 	//for (;;)
 	//{

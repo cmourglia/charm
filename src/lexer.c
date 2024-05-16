@@ -220,6 +220,8 @@ static Token identifier_token(Lexer *lexer)
 			return check_keyword(lexer, 1, 1, "f", Token_If);
 		case 'o':
 			return check_keyword(lexer, 1, 1, "r", Token_Or);
+		case 'p':
+			return check_keyword(lexer, 1, 4, "rint", Token_Print);
 		case 'r':
 			return check_keyword(lexer, 1, 5, "eturn", Token_Return);
 		case 'v':

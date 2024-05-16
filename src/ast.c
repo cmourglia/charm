@@ -1,7 +1,22 @@
 #include "ast.h"
+
+#include <string.h>
+
 #include "common.h"
 
-static Expr *new_expr(ExprType type)
+Identifier ast_identifier(Token tk)
+{
+	Identifier ident = {
+		.str = malloc(tk.lexeme_len),
+		.len = tk.lexeme_len,
+	};
+
+	memcpy(ident.str, tk.lexeme_start, tk.lexeme_len);
+
+	return ident;
+}
+
+static Expr *make_expr(ExprType type)
 {
 	Expr *ptr = malloc(sizeof(Expr));
 
@@ -16,7 +31,7 @@ static Expr *new_expr(ExprType type)
 
 Expr *ast_expr_binary(TokenType op, Expr *left, Expr *right)
 {
-	Expr *node = new_expr(Expr_Binary);
+	Expr *node = make_expr(Expr_Binary);
 
 	node->binary.op = op;
 	node->binary.left = left;
@@ -27,7 +42,7 @@ Expr *ast_expr_binary(TokenType op, Expr *left, Expr *right)
 
 Expr *ast_expr_grouping(Expr *expr)
 {
-	Expr *node = new_expr(Expr_Grouping);
+	Expr *node = make_expr(Expr_Grouping);
 
 	node->grouping.expr = expr;
 
@@ -36,7 +51,7 @@ Expr *ast_expr_grouping(Expr *expr)
 
 Expr *ast_expr_unary(TokenType op, Expr *right)
 {
-	Expr *node = new_expr(Expr_Unary);
+	Expr *node = make_expr(Expr_Unary);
 
 	node->unary.op = op;
 	node->unary.right = right;
@@ -46,7 +61,7 @@ Expr *ast_expr_unary(TokenType op, Expr *right)
 
 Expr *ast_expr_number_literal(double value)
 {
-	Expr *node = new_expr(Expr_NumberLiteral);
+	Expr *node = make_expr(Expr_NumberLiteral);
 
 	node->number = value;
 
@@ -55,9 +70,50 @@ Expr *ast_expr_number_literal(double value)
 
 Expr *ast_expr_boolean_literal(bool value)
 {
-	Expr *node = new_expr(Expr_BooleanLiteral);
+	Expr *node = make_expr(Expr_BooleanLiteral);
 
 	node->boolean = value;
+
+	return node;
+}
+
+static Stmt *make_stmt(StmtType type)
+{
+	Stmt *ptr = malloc(sizeof(Stmt));
+
+	if (ptr == NULL)
+	{
+		UNREACHABLE();
+	}
+
+	ptr->stmt_type = type;
+	return ptr;
+}
+
+Stmt *ast_stmt_expression(Expr *expr)
+{
+	Stmt *node = make_stmt(Stmt_Expr);
+
+	node->expression.expr = expr;
+
+	return node;
+}
+
+Stmt *ast_stmt_print(Expr *expr)
+{
+	Stmt *node = make_stmt(Stmt_Print);
+
+	node->print.expr = expr;
+
+	return node;
+}
+
+Stmt *ast_stmt_var_decl(Identifier identifier, Expr *expr)
+{
+	Stmt *node = make_stmt(Stmt_VarDecl);
+
+	node->var_decl.identifier = identifier;
+	node->var_decl.expr = expr;
 
 	return node;
 }

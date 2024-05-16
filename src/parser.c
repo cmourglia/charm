@@ -1,5 +1,6 @@
 #include "parser.h"
 
+#include "debug.h"
 #include <string.h>
 #include <stdlib.h>
 
@@ -7,6 +8,7 @@
 #include "lexer.h"
 #include "ast.h"
 #include "token.h"
+#include "memory.h"
 
 Parser parser_init(struct Lexer *lexer)
 {
@@ -17,19 +19,31 @@ Parser parser_init(struct Lexer *lexer)
 	return parser;
 }
 
-static void consume_token(Parser *parser);
 static Token advance(Parser *parser);
+static Token consume(Parser *parser, TokenType expected);
 static bool match(Parser *parser, TokenType type);
 
-// expression -> equality ;
-// equality   -> comparison ( ( "!=" | "==" ) comparison )* ;
-// comparison -> term ( ( ">" | ">=" | "<" | "<=" ) term )* ;
-// term       -> factor ( ( "-" | "+" ) factor )* ;
-// factor     -> unary ( ( "/" | "*" ) unary )* ;
-// unary      -> ("not" | "-") unary
-//             | primary ;
-// primary    -> NUMBER | STRING | "true" | "false" | "nil"
-//             | "(" expression ")" ;
+// program      -> declaration* EOF ;
+// declaration  -> var_decl | statement
+// statement    -> expr_stmt | print_stmt ;
+// expr_stmt    -> expression ";" ;
+// print_stmt   -> "print" expression ";" ;
+// var_decl     -> "var" IDENTIFIER ( "=" expression )? ";" ;
+static Stmt *declaration(Parser *parser);
+static Stmt *statement(Parser *parser);
+static Stmt *expr_stmt(Parser *parser);
+static Stmt *print_stmt(Parser *parser);
+static Stmt *var_decl(Parser *parser);
+
+// expression   -> equality ;
+// equality     -> comparison ( ( "!=" | "==" ) comparison )* ;
+// comparison   -> term ( ( ">" | ">=" | "<" | "<=" ) term )* ;
+// term         -> factor ( ( "-" | "+" ) factor )* ;
+// factor       -> unary ( ( "/" | "*" ) unary )* ;
+// unary        -> ("not" | "-") unary
+//               | primary ;
+// primary      -> NUMBER | STRING | "true" | "false" | "nil"
+//               | "(" expression ")" | IDENTIFIER;
 static Expr *expression(Parser *parser);
 static Expr *equality(Parser *parser);
 static Expr *comparison(Parser *parser);
@@ -38,20 +52,34 @@ static Expr *factor(Parser *parser);
 static Expr *unary(Parser *parser);
 static Expr *primary(Parser *parser);
 
-struct Expr *parser_parse_program(Parser *parser)
-{
-	parser->curr_token = lexer_get_next_token(parser->lexer);
-	return expression(parser);
+static void append_stmt(Program *program, Stmt *stmt);
 
-	//	UNUSED(parser);
-	//
-	//	Expr *x = ast_expr_number_literal(123);
-	//	Expr *y = ast_expr_boolean_literal(false);
-	//	Expr *u = ast_expr_unary(Token_Minus, x);
-	//	Expr *g = ast_expr_grouping(y);
-	//	Expr *b = ast_expr_binary(Token_Star, u, g);
-	//
-	//	return b;
+struct Program parser_parse_program(Parser *parser)
+{
+	Program program = { .statement_capacity = 0 };
+
+	parser->curr_token = lexer_get_next_token(parser->lexer);
+
+	while (parser->curr_token.type != Token_EOF)
+	{
+		append_stmt(&program, declaration(parser));
+	}
+
+	return program;
+}
+
+static void append_stmt(Program *program, Stmt *stmt)
+{
+	if (program->statement_count + 1 > program->statement_capacity)
+	{
+		int new_capacity = MEM_GROW_CAPACITY(program->statement_capacity,
+											 program->statement_count + 1);
+		program->statements = MEM_GROW_ARRAY(Stmt *, program->statements,
+											 new_capacity);
+		program->statement_capacity = new_capacity;
+	}
+
+	program->statements[program->statement_count++] = stmt;
 }
 
 // expression -> equality;
@@ -172,7 +200,7 @@ static Expr *primary(Parser *parser)
 		}
 
 		case Token_LeftParen: {
-			consume_token(parser);
+			advance(parser);
 
 			Expr *expr = expression(parser);
 
@@ -191,6 +219,66 @@ static Expr *primary(Parser *parser)
 	}
 }
 
+// declaration -> var_decl | statement ;
+static Stmt *declaration(Parser *parser)
+{
+	if (match(parser, Token_Var))
+	{
+		return var_decl(parser);
+	}
+
+	return statement(parser);
+}
+
+// statement  -> expr_stmt | print_stmt ;
+static Stmt *statement(Parser *parser)
+{
+	if (match(parser, Token_Print))
+	{
+		return print_stmt(parser);
+	}
+
+	return expr_stmt(parser);
+}
+
+// expr_stmt  -> expression ";" ;
+static Stmt *expr_stmt(Parser *parser)
+{
+	Expr *expr = expression(parser);
+
+	consume(parser, Token_Semicolon);
+
+	return ast_stmt_expression(expr);
+}
+
+// print_stmt -> "print" expression ";" ;
+static Stmt *print_stmt(Parser *parser)
+{
+	Expr *expr = expression(parser);
+
+	consume(parser, Token_Semicolon);
+
+	return ast_stmt_print(expr);
+}
+
+// var_decl     -> "var" IDENTIFIER ( "=" expression )? ";" ;
+static Stmt *var_decl(Parser *parser)
+{
+	Token identifier_token = consume(parser, Token_Identifier);
+	Identifier identifier = ast_identifier(identifier_token);
+
+	Expr *expr = NULL;
+
+	if (match(parser, Token_Equal))
+	{
+		expr = expression(parser);
+	}
+
+	consume(parser, Token_Semicolon);
+
+	return ast_stmt_var_decl(identifier, expr);
+}
+
 static bool match(Parser *parser, TokenType type)
 {
 	if (parser->curr_token.type == type)
@@ -202,17 +290,26 @@ static bool match(Parser *parser, TokenType type)
 	return false;
 }
 
-static void consume_token(Parser *parser)
+// FIXME: Find a better name
+static Token consume(Parser *parser, TokenType expected)
 {
-	parser->prev_token = parser->curr_token;
-	parser->curr_token = lexer_get_next_token(parser->lexer);
+	if (parser->curr_token.type == expected)
+	{
+		return advance(parser);
+	}
+
+	printf("Expected token type `%s`, found `%s`\n",
+		   debug_get_token_type_str(expected),
+		   debug_get_token_type_str(parser->curr_token.type));
+	UNREACHABLE();
 }
 
 static Token advance(Parser *parser)
 {
 	if (parser->curr_token.type != Token_EOF)
 	{
-		consume_token(parser);
+		parser->prev_token = parser->curr_token;
+		parser->curr_token = lexer_get_next_token(parser->lexer);
 	}
 
 	return parser->prev_token;

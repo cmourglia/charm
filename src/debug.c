@@ -1,6 +1,8 @@
 #include "debug.h"
 
 #include "ast.h"
+#include "common.h"
+#include "parser.h"
 
 #define GRY "\x1B[30m"
 #define RED "\x1B[31m"
@@ -12,7 +14,7 @@
 #define WHT "\x1B[37m"
 #define RESET "\x1B[0m"
 
-static const char *token_type_str(TokenType type)
+const char *debug_get_token_type_str(TokenType type)
 {
 	switch (type)
 	{
@@ -100,6 +102,8 @@ static const char *token_type_str(TokenType type)
 			return "While";
 		case Token_Super:
 			return "Super";
+		case Token_Print:
+			return "Print";
 	}
 
 	UNREACHABLE();
@@ -108,17 +112,17 @@ static const char *token_type_str(TokenType type)
 int token_to_string(char *buffer, int capacity, Token token)
 {
 	return snprintf(buffer, capacity, "Token { %s: `%.*s` }",
-					token_type_str(token.type), token.lexeme_len,
+					debug_get_token_type_str(token.type), token.lexeme_len,
 					token.lexeme_start);
 }
 
 #define PRINT_EXPR_TYPE(t) printf(RED #t RESET "\n")
 #define PRINT_EXPR_LITERAL(t, format, value) \
-	printf(RED #t RESET " <" YEL format RESET ">", (value))
+	printf(RED #t RESET " <" GRY format RESET ">", (value))
 
 #define PRINT_EXPR_OP(tk)                                            \
 	printf(GRN "%*.cOp: " BLU "%s" RESET "\n", (level + 1) * 2, ' ', \
-		   token_type_str(tk))
+		   debug_get_token_type_str(tk))
 
 #define PRINT_EXPR_CHILD(name, e)                                  \
 	do                                                             \
@@ -126,6 +130,8 @@ int token_to_string(char *buffer, int capacity, Token token)
 		printf(GRN "%*.c" #name ": " RESET, (level + 1) * 2, ' '); \
 		print_expr(e, level + 1);                                  \
 	} while (false)
+
+#define PRINT_STMT_TYPE(t) printf(YEL #t RESET "\n")
 
 static void print_expr(Expr *expr, int level)
 {
@@ -137,7 +143,6 @@ static void print_expr(Expr *expr, int level)
 			PRINT_EXPR_CHILD(Left, expr->binary.left);
 			printf("\n");
 			PRINT_EXPR_CHILD(Right, expr->binary.right);
-			//int a = (1 + 2) * (get_value(42 + 1));
 		}
 		break;
 
@@ -162,14 +167,53 @@ static void print_expr(Expr *expr, int level)
 
 		case Expr_BooleanLiteral: {
 			PRINT_EXPR_LITERAL(Boolean, "%s", expr->boolean ? "true" : "false");
-			//(expr->boolean ? "true" : "false"));
 		}
 		break;
 	}
 }
 
-void debug_print_expr(Expr *expr)
+static void print_stmt(Stmt *stmt, int level)
 {
-	print_expr(expr, 0);
+	switch (stmt->stmt_type)
+	{
+		case Stmt_Expr: {
+			PRINT_STMT_TYPE(Expression statement);
+			printf("%*.c", (level + 1) * 2, ' ');
+			print_expr(stmt->expression.expr, level + 1);
+		}
+		break;
+
+		case Stmt_Print: {
+			PRINT_STMT_TYPE(Print statement);
+			printf("%*.c", (level + 1) * 2, ' ');
+			print_expr(stmt->expression.expr, level + 1);
+		}
+		break;
+
+		case Stmt_VarDecl: {
+			PRINT_STMT_TYPE(Variable Declaration);
+			printf("%*.c" GRN "Identifier: " BLU "%.*s" RESET, (level + 1) * 2,
+				   ' ', stmt->var_decl.identifier.len,
+				   stmt->var_decl.identifier.str);
+
+			if (stmt->var_decl.expr != NULL)
+			{
+				printf("\n");
+				printf("%*.c" GRN "Expression: ", (level + 1) * 2, ' ');
+				print_expr(stmt->var_decl.expr, level + 1);
+			}
+			//printf(RED #t RESET " <" GRY format RESET ">", (value))
+		}
+		break;
+	}
+
 	printf("\n");
+}
+
+void debug_print_program(Program program)
+{
+	for (int i = 0; i < program.statement_count; i++)
+	{
+		print_stmt(program.statements[i], 0);
+	}
 }
