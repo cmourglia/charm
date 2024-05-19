@@ -117,18 +117,18 @@ int token_to_string(char *buffer, int capacity, Token token)
 }
 
 #define PRINT_EXPR_TYPE(t) printf(RED #t RESET "\n")
-#define PRINT_EXPR_LITERAL(t, format, value) \
-	printf(RED #t RESET " <" GRY format RESET ">", (value))
+#define PRINT_EXPR_LITERAL(t, format, ...) \
+	printf(RED #t RESET " <" CYN format RESET ">", __VA_ARGS__)
 
-#define PRINT_EXPR_OP(tk)                                            \
-	printf(GRN "%*.cOp: " BLU "%s" RESET "\n", (level + 1) * 2, ' ', \
+#define PRINT_EXPR_OP(tk)                                          \
+	printf(GRN "%*sOp: " BLU "%s" RESET "\n", (level + 1) * 2, "", \
 		   debug_get_token_type_str(tk))
 
-#define PRINT_EXPR_CHILD(name, e)                                  \
-	do                                                             \
-	{                                                              \
-		printf(GRN "%*.c" #name ": " RESET, (level + 1) * 2, ' '); \
-		print_expr(e, level + 1);                                  \
+#define PRINT_EXPR_CHILD(name, e)                                \
+	do                                                           \
+	{                                                            \
+		printf(GRN "%*s" #name ": " RESET, (level + 1) * 2, ""); \
+		print_expr(e, level + 1);                                \
 	} while (false)
 
 #define PRINT_STMT_TYPE(t) printf(YEL #t RESET "\n")
@@ -148,7 +148,7 @@ static void print_expr(Expr *expr, int level)
 
 		case Expr_Grouping: {
 			PRINT_EXPR_TYPE(Grouping expression);
-			printf("%*.c", (level + 1) * 2, ' ');
+			printf("%*s", (level + 1) * 2, "");
 			print_expr(expr->grouping.expr, level + 1);
 		}
 		break;
@@ -169,6 +169,12 @@ static void print_expr(Expr *expr, int level)
 			PRINT_EXPR_LITERAL(Boolean, "%s", expr->boolean ? "true" : "false");
 		}
 		break;
+
+		case Expr_Identifier: {
+			PRINT_EXPR_LITERAL(Identifier, "%*s", expr->identifier.len,
+							   expr->identifier.str);
+		}
+		break;
 	}
 }
 
@@ -178,28 +184,28 @@ static void print_stmt(Stmt *stmt, int level)
 	{
 		case Stmt_Expr: {
 			PRINT_STMT_TYPE(Expression statement);
-			printf("%*.c", (level + 1) * 2, ' ');
+			printf("%*s", (level + 1) * 2, "");
 			print_expr(stmt->expression.expr, level + 1);
 		}
 		break;
 
 		case Stmt_Print: {
 			PRINT_STMT_TYPE(Print statement);
-			printf("%*.c", (level + 1) * 2, ' ');
+			printf("%*s", (level + 1) * 2, "");
 			print_expr(stmt->expression.expr, level + 1);
 		}
 		break;
 
 		case Stmt_VarDecl: {
 			PRINT_STMT_TYPE(Variable Declaration);
-			printf("%*.c" GRN "Identifier: " BLU "%.*s" RESET, (level + 1) * 2,
-				   ' ', stmt->var_decl.identifier.len,
+			printf("%*s" GRN "Identifier: " BLU "%.*s" RESET, (level + 1) * 2,
+				   "", stmt->var_decl.identifier.len,
 				   stmt->var_decl.identifier.str);
 
 			if (stmt->var_decl.expr != NULL)
 			{
 				printf("\n");
-				printf("%*.c" GRN "Expression: ", (level + 1) * 2, ' ');
+				printf("%*s" GRN "Expression: ", (level + 1) * 2, "");
 				print_expr(stmt->var_decl.expr, level + 1);
 			}
 			//printf(RED #t RESET " <" GRY format RESET ">", (value))

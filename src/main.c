@@ -10,7 +10,9 @@ int main(void)
 	//const char *str = "-123 * (45.67);\nprint ((234 + 678) / 22) == 33;";
 	const char *str = ""
 					  "var toto = 2 * 3 + 4;\n"
-					  "var titi;\n";
+					  "var titi;\n"
+					  "print toto;\n"
+					  "print titi;\n";
 
 	Lexer lexer = lexer_init(str);
 	Parser parser = parser_init(&lexer);

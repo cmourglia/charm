@@ -1,12 +1,15 @@
 #pragma once
 
 #include "token.h"
+#include "hash_table.h"
 
 typedef struct Parser {
 	struct Lexer *lexer;
 
 	Token curr_token;
 	Token prev_token;
+
+	HashTable identifiers;
 } Parser;
 
 typedef struct Program {

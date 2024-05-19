@@ -16,6 +16,8 @@ Parser parser_init(struct Lexer *lexer)
 		.lexer = lexer,
 	};
 
+	hash_table_init(&parser.identifiers);
+
 	return parser;
 }
 
@@ -169,7 +171,7 @@ static Expr *unary(Parser *parser)
 }
 
 // primary    -> NUMBER | STRING | "true" | "false" | "nil"
-//             | "(" expression ")" ;
+//             | "(" expression ")" | IDENTIFIER ;
 static Expr *primary(Parser *parser)
 {
 	switch (parser->curr_token.type)
@@ -211,6 +213,13 @@ static Expr *primary(Parser *parser)
 			}
 
 			return ast_expr_grouping(expr);
+		}
+		break;
+
+		case Token_Identifier: {
+			Token tk = advance(parser);
+			Identifier identifier = ast_identifier(&parser->identifiers, tk);
+			return ast_expr_identifier(identifier);
 		}
 		break;
 
@@ -265,7 +274,8 @@ static Stmt *print_stmt(Parser *parser)
 static Stmt *var_decl(Parser *parser)
 {
 	Token identifier_token = consume(parser, Token_Identifier);
-	Identifier identifier = ast_identifier(identifier_token);
+	Identifier identifier = ast_identifier(&parser->identifiers,
+										   identifier_token);
 
 	Expr *expr = NULL;
 

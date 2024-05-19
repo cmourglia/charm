@@ -3,9 +3,12 @@
 #include <string.h>
 
 #include "common.h"
+#include "hash_table.h"
 
-Identifier ast_identifier(Token tk)
+Identifier ast_identifier(HashTable *table, Token tk)
 {
+	UNUSED(table);
+
 	Identifier ident = {
 		.str = malloc(tk.lexeme_len),
 		.len = tk.lexeme_len,
@@ -73,6 +76,15 @@ Expr *ast_expr_boolean_literal(bool value)
 	Expr *node = make_expr(Expr_BooleanLiteral);
 
 	node->boolean = value;
+
+	return node;
+}
+
+Expr *ast_expr_identifier(Identifier identifier)
+{
+	Expr *node = make_expr(Expr_Identifier);
+
+	node->identifier = identifier;
 
 	return node;
 }

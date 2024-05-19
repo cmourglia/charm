@@ -13,6 +13,7 @@ typedef enum {
 	Expr_Unary,
 	Expr_BooleanLiteral,
 	Expr_NumberLiteral,
+	Expr_Identifier,
 } ExprType;
 
 struct Expr;
@@ -36,6 +37,7 @@ typedef struct Expr {
 
 		double number;
 		bool boolean;
+		Identifier identifier;
 	};
 
 	ExprType expr_type;
@@ -68,14 +70,15 @@ typedef struct Stmt {
 	StmtType stmt_type;
 } Stmt;
 
-// Allocs memory
-Identifier ast_identifier(Token tk);
+struct HashTable;
+Identifier ast_identifier(struct HashTable *table, Token tk);
 
 Expr *ast_expr_binary(TokenType op, Expr *left, Expr *right);
 Expr *ast_expr_grouping(Expr *expr);
 Expr *ast_expr_unary(TokenType op, Expr *right);
 Expr *ast_expr_number_literal(double value);
 Expr *ast_expr_boolean_literal(bool value);
+Expr *ast_expr_identifier(Identifier identifier);
 
 Stmt *ast_stmt_expression(Expr *expr);
 Stmt *ast_stmt_print(Expr *expr);

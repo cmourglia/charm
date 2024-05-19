@@ -1,51 +1,22 @@
 #include "interpreter.h"
 
-#include <string.h>
-
+#include "hash_table.h"
 #include "parser.h"
 
 #include "ast.h"
 #include "common.h"
 #include "token.h"
-
-typedef enum {
-	Value_Number,
-	Value_Bool,
-	Value_String,
-	Value_UserType,
-} ValueType;
-
-typedef struct {
-	union {
-		double number;
-		bool boolean;
-		// TODO: others
-	};
-
-	ValueType value_type;
-} Value;
-
-static Value value_number(double n)
-{
-	return (Value){
-		.number = n,
-		.value_type = Value_Number,
-	};
-}
-
-static Value value_bool(bool b)
-{
-	return (Value){
-		.boolean = b,
-		.value_type = Value_Bool,
-	};
-}
+#include "value.h"
 
 static Value interpret_expr(Expr *expr);
 static void interpret_stmt(Stmt *stmt);
 
+static HashTable variables;
+
 void interpreter_run(struct Program program)
 {
+	hash_table_init(&variables);
+
 	for (int i = 0; i < program.statement_count; i++)
 	{
 		interpret_stmt(program.statements[i]);
@@ -230,6 +201,13 @@ static Value interpret_expr(Expr *expr)
 		}
 		break;
 
+		case Expr_Identifier: {
+			Value value;
+			hash_table_get(&variables, expr->identifier, &value);
+			return value;
+		}
+		break;
+
 		default:
 			UNREACHABLE();
 	}
@@ -250,6 +228,11 @@ static void interpret_stmt(Stmt *stmt)
 
 			switch (value.value_type)
 			{
+				case Value_Nil: {
+					printf("<NIL>\n");
+				}
+				break;
+
 				case Value_Bool: {
 					printf("%s\n", (value.boolean ? "true" : "false"));
 				}
@@ -267,7 +250,14 @@ static void interpret_stmt(Stmt *stmt)
 		break;
 
 		case Stmt_VarDecl: {
-			// TODO
+			Value value = value_nil();
+
+			if (stmt->var_decl.expr != NULL)
+			{
+				value = interpret_expr(stmt->var_decl.expr);
+			}
+
+			hash_table_set(&variables, stmt->var_decl.identifier, value);
 		}
 		break;
 	}
