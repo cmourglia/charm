@@ -14,7 +14,7 @@
 #define WHT "\x1B[37m"
 #define RESET "\x1B[0m"
 
-const char *debug_get_token_type_str(TokenType type)
+const char *debug_get_token_type_str(Token_Type type)
 {
 	switch (type)
 	{

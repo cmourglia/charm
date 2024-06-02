@@ -5,28 +5,29 @@
 typedef struct {
 	usize capacity;
 	usize length;
-} DA_Header;
+} Dyn_Array_Header;
 
 static const usize INITIAL_CAPACITY = 8;
 static const usize GROWTH_FACTOR = 2;
 
-static DA_Header *da_header(void *arr)
+static Dyn_Array_Header *da_header(void *arr)
 {
 	if (arr == NULL)
 	{
 		return NULL;
 	}
 
-	u8 *header_raw = (u8 *)arr - sizeof(DA_Header);
-	return (DA_Header *)header_raw;
+	u8 *header_raw = (u8 *)arr - sizeof(Dyn_Array_Header);
+	return (Dyn_Array_Header *)header_raw;
 }
 
-static DA_Header *da_resize(DA_Header *old, usize capacity, usize stride)
+static Dyn_Array_Header *da_resize(Dyn_Array_Header *old, usize capacity,
+								   usize stride)
 {
 	usize array_size = capacity * stride;
-	usize total_size = array_size + sizeof(DA_Header);
+	usize total_size = array_size + sizeof(Dyn_Array_Header);
 	usize length = old ? old->length : 0;
-	DA_Header *header = realloc(old, total_size);
+	Dyn_Array_Header *header = realloc(old, total_size);
 	header->capacity = capacity;
 	header->length = length;
 
@@ -35,7 +36,7 @@ static DA_Header *da_resize(DA_Header *old, usize capacity, usize stride)
 
 void *_beard_darray_push(void *arr, void *elem, usize stride)
 {
-	DA_Header *header = da_header(arr);
+	Dyn_Array_Header *header = da_header(arr);
 	if (header == NULL)
 	{
 		header = da_resize(NULL, INITIAL_CAPACITY, stride);
@@ -46,7 +47,7 @@ void *_beard_darray_push(void *arr, void *elem, usize stride)
 		header = da_resize(header, new_capacity, stride);
 	}
 
-	byte *array = (byte *)header + sizeof(DA_Header);
+	byte *array = (byte *)header + sizeof(Dyn_Array_Header);
 
 	BEARD_MEMCPY(array + stride * header->length, elem, stride);
 	header->length += 1;
@@ -65,7 +66,7 @@ usize _beard_darray_len(void *arr)
 
 void _beard_darray_free(void *arr)
 {
-	DA_Header *header = da_header(arr);
+	Dyn_Array_Header *header = da_header(arr);
 	BEARD_FREE(header);
 }
 

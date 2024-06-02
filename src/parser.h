@@ -9,7 +9,7 @@ typedef struct Parser {
 	Token curr_token;
 	Token prev_token;
 
-	HashTable identifiers;
+	Hash_Table identifiers;
 } Parser;
 
 typedef struct Program {

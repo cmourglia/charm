@@ -15,7 +15,7 @@ typedef enum {
 	Expr_NumberLiteral,
 	Expr_Identifier,
 	Expr_Assignment, // TODO: Make this an expression at some point
-} ExprType;
+} Expr_Type;
 
 struct Expr;
 
@@ -24,7 +24,7 @@ typedef struct Expr {
 		struct {
 			struct Expr *left;
 			struct Expr *right;
-			TokenType op;
+			Token_Type op;
 		} binary;
 
 		struct {
@@ -33,7 +33,7 @@ typedef struct Expr {
 
 		struct {
 			struct Expr *right;
-			TokenType op;
+			Token_Type op;
 		} unary;
 
 		struct {
@@ -46,17 +46,17 @@ typedef struct Expr {
 		Identifier identifier;
 	};
 
-	ExprType expr_type;
+	Expr_Type expr_type;
 } Expr;
 
-typedef enum StmtType {
+typedef enum Stmt_Type {
 	Stmt_Expr,
 	Stmt_Print,
 	Stmt_VarDecl,
 	Stmt_Block,
 	Stmt_If,
 	Stmt_While,
-} StmtType;
+} Stmt_Type;
 
 struct Stmt;
 
@@ -91,19 +91,19 @@ typedef struct Stmt {
 		} while_stmt;
 	};
 
-	StmtType stmt_type;
+	Stmt_Type stmt_type;
 } Stmt;
 
-struct HashTable;
-Identifier ast_identifier(struct HashTable *table, Token tk);
+struct Hash_Table;
+Identifier ast_identifier(struct Hash_Table *table, Token tk);
 
-Expr *ast_expr_binary(TokenType op, Expr *left, Expr *right);
+Expr *ast_expr_binary(Token_Type op, Expr *left, Expr *right);
 Expr *ast_expr_grouping(Expr *expr);
-Expr *ast_expr_unary(TokenType op, Expr *right);
+Expr *ast_expr_unary(Token_Type op, Expr *right);
 Expr *ast_expr_number_literal(double value);
 Expr *ast_expr_boolean_literal(bool value);
 Expr *ast_expr_identifier(Identifier identifier);
-Expr *ast_expr_assignment(Identifier identifier, Expr *value);
+Expr *ast_expr_assignment(Identifier name, Expr *value);
 
 Stmt *ast_stmt_expression(Expr *expr);
 Stmt *ast_stmt_print(Expr *expr);

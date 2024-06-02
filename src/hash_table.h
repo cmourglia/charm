@@ -12,15 +12,15 @@ typedef struct Entry {
 	Value value;
 } Entry;
 
-typedef struct HashTable {
+typedef struct Hash_Table {
 	int count;
 	int capacity;
 	struct Entry *entries;
-} HashTable;
+} Hash_Table;
 
-void hash_table_init(HashTable *table);
-void hash_table_free(HashTable *table);
+void hash_table_init(Hash_Table *table);
+void hash_table_free(Hash_Table *table);
 
-bool hash_table_set(HashTable *table, Key key, Value value);
-bool hash_table_get(HashTable *table, Key key, Value *value);
-bool hash_table_delete(HashTable *table, Key key);
+bool hash_table_set(Hash_Table *table, Key key, Value value);
+bool hash_table_get(Hash_Table *table, Key key, Value *value);
+bool hash_table_delete(Hash_Table *table, Key key);

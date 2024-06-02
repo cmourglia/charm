@@ -11,7 +11,7 @@
 static Value interpret_expr(Expr *expr);
 static void interpret_stmt(Stmt *stmt);
 
-static HashTable variables;
+static Hash_Table variables;
 
 void interpreter_run(struct Program program)
 {

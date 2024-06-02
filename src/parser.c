@@ -22,8 +22,8 @@ Parser parser_init(struct Lexer *lexer)
 }
 
 static Token advance(Parser *parser);
-static Token consume(Parser *parser, TokenType expected);
-static bool match(Parser *parser, TokenType type);
+static Token consume(Parser *parser, Token_Type expected);
+static bool match(Parser *parser, Token_Type type);
 
 // program      -> declaration* EOF ;
 // declaration  -> var_decl | statement
@@ -126,7 +126,7 @@ static Expr *logic_or(Parser *parser)
 
 	while (match(parser, Token_Or))
 	{
-		TokenType op = parser->prev_token.type;
+		Token_Type op = parser->prev_token.type;
 		Expr *right = logic_and(parser);
 
 		expr = ast_expr_binary(op, expr, right);
@@ -142,7 +142,7 @@ static Expr *logic_and(Parser *parser)
 
 	while (match(parser, Token_And))
 	{
-		TokenType op = parser->prev_token.type;
+		Token_Type op = parser->prev_token.type;
 		Expr *right = equality(parser);
 
 		expr = ast_expr_binary(op, expr, right);
@@ -158,7 +158,7 @@ static Expr *equality(Parser *parser)
 
 	while (match(parser, Token_BangEqual) || match(parser, Token_EqualEqual))
 	{
-		TokenType op = parser->prev_token.type;
+		Token_Type op = parser->prev_token.type;
 		Expr *right = comparison(parser);
 
 		expr = ast_expr_binary(op, expr, right);
@@ -175,7 +175,7 @@ static Expr *comparison(Parser *parser)
 	while (match(parser, Token_Greater) || match(parser, Token_GreaterEqual) ||
 		   match(parser, Token_Less) || match(parser, Token_LessEqual))
 	{
-		TokenType op = parser->prev_token.type;
+		Token_Type op = parser->prev_token.type;
 		Expr *right = term(parser);
 
 		expr = ast_expr_binary(op, expr, right);
@@ -191,7 +191,7 @@ static Expr *term(Parser *parser)
 
 	while (match(parser, Token_Minus) || match(parser, Token_Plus))
 	{
-		TokenType op = parser->prev_token.type;
+		Token_Type op = parser->prev_token.type;
 		Expr *right = factor(parser);
 
 		expr = ast_expr_binary(op, expr, right);
@@ -207,7 +207,7 @@ static Expr *factor(Parser *parser)
 
 	while (match(parser, Token_Slash) || match(parser, Token_Star))
 	{
-		TokenType op = parser->prev_token.type;
+		Token_Type op = parser->prev_token.type;
 		Expr *right = unary(parser);
 
 		expr = ast_expr_binary(op, expr, right);
@@ -222,7 +222,7 @@ static Expr *unary(Parser *parser)
 {
 	if (match(parser, Token_Not) || match(parser, Token_Minus))
 	{
-		TokenType op = parser->prev_token.type;
+		Token_Type op = parser->prev_token.type;
 		Expr *right = unary(parser);
 
 		return ast_expr_unary(op, right);
@@ -420,7 +420,7 @@ static Stmt *while_stmt(Parser *parser)
 	return ast_stmt_while(cond, body);
 }
 
-static bool match(Parser *parser, TokenType type)
+static bool match(Parser *parser, Token_Type type)
 {
 	if (parser->curr_token.type == type)
 	{
@@ -432,7 +432,7 @@ static bool match(Parser *parser, TokenType type)
 }
 
 // FIXME: Find a better name
-static Token consume(Parser *parser, TokenType expected)
+static Token consume(Parser *parser, Token_Type expected)
 {
 	if (parser->curr_token.type == expected)
 	{

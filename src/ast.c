@@ -5,7 +5,7 @@
 #include "common.h"
 #include "hash_table.h"
 
-Identifier ast_identifier(HashTable *table, Token tk)
+Identifier ast_identifier(Hash_Table *table, Token tk)
 {
 	UNUSED(table);
 
@@ -19,7 +19,7 @@ Identifier ast_identifier(HashTable *table, Token tk)
 	return ident;
 }
 
-static Expr *make_expr(ExprType type)
+static Expr *make_expr(Expr_Type type)
 {
 	Expr *ptr = malloc(sizeof(Expr));
 
@@ -32,7 +32,7 @@ static Expr *make_expr(ExprType type)
 	return ptr;
 }
 
-Expr *ast_expr_binary(TokenType op, Expr *left, Expr *right)
+Expr *ast_expr_binary(Token_Type op, Expr *left, Expr *right)
 {
 	Expr *node = make_expr(Expr_Binary);
 
@@ -52,7 +52,7 @@ Expr *ast_expr_grouping(Expr *expr)
 	return node;
 }
 
-Expr *ast_expr_unary(TokenType op, Expr *right)
+Expr *ast_expr_unary(Token_Type op, Expr *right)
 {
 	Expr *node = make_expr(Expr_Unary);
 
@@ -99,7 +99,7 @@ Expr *ast_expr_assignment(Identifier name, Expr *expr)
 	return node;
 }
 
-static Stmt *make_stmt(StmtType type)
+static Stmt *make_stmt(Stmt_Type type)
 {
 	Stmt *ptr = malloc(sizeof(Stmt));
 

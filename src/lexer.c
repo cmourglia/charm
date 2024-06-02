@@ -25,8 +25,9 @@ static char advance(Lexer *lexer);
 static char peek(Lexer *lexer);
 static char peek_next(Lexer *lexer);
 
-static Token token(Lexer *lexer, TokenType type);
-static Token equal_token(Lexer *lexer, TokenType one_char, TokenType two_char);
+static Token token(Lexer *lexer, Token_Type type);
+static Token equal_token(Lexer *lexer, Token_Type one_char,
+						 Token_Type two_char);
 static Token string_token(Lexer *lexer);
 static Token number_token(Lexer *lexer);
 static Token identifier_token(Lexer *lexer);
@@ -127,7 +128,7 @@ static char peek_next(Lexer *lexer)
 	return lexer->current[1];
 }
 
-static Token token(Lexer *lexer, TokenType type)
+static Token token(Lexer *lexer, Token_Type type)
 {
 	Token token = {
 		.type = type,
@@ -138,7 +139,7 @@ static Token token(Lexer *lexer, TokenType type)
 	return token;
 }
 
-static Token equal_token(Lexer *lexer, TokenType one_char, TokenType two_char)
+static Token equal_token(Lexer *lexer, Token_Type one_char, Token_Type two_char)
 {
 	if (peek(lexer) == '=')
 	{
@@ -193,7 +194,7 @@ static Token number_token(Lexer *lexer)
 }
 
 static Token check_keyword(Lexer *lexer, int start, int length,
-						   const char *rest, TokenType type)
+						   const char *rest, Token_Type type)
 {
 	if (lexer->current - lexer->start == start + length &&
 		memcmp(lexer->start + start, rest, length) == 0)
