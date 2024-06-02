@@ -256,16 +256,22 @@ static Value interpret_expr(Expr *expr)
 		}
 		break;
 
+		case Expr_Assignment: {
+			Value value = interpret_expr(expr->assignment.value);
+			hash_table_set(&variables, expr->assignment.name, value);
+			return value;
+		}
+		break;
+
 		case Expr_Identifier: {
 			Value value;
 			hash_table_get(&variables, expr->identifier, &value);
 			return value;
 		}
 		break;
-
-		default:
-			UNREACHABLE();
 	}
+
+	return value_nil();
 }
 
 static void interpret_stmt(Stmt *stmt)

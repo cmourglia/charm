@@ -27,7 +27,7 @@ static bool match(Parser *parser, TokenType type);
 
 // program      -> declaration* EOF ;
 // declaration  -> var_decl | statement
-// statement    -> expr_stmt | print_stmt | if_stmt | block_stmt;
+// statement    -> expr_stmt | print_stmt | if_stmt | block_stmt | while_stmt ;
 // expr_stmt    -> expression ";" ;
 // print_stmt   -> "print" expression ";" ;
 // var_decl     -> "var" IDENTIFIER ( "=" expression )? ";" ;
@@ -41,7 +41,8 @@ static Stmt *var_decl(Parser *parser);
 static Stmt *if_stmt(Parser *parser);
 static Stmt *block_stmt(Parser *parser);
 
-// expression   -> logic_or ;
+// expression   -> assignment ;
+// assignment   -> IDENTIFIER "=" assignment | logic_or ;
 // logic_or     -> logic_and ( "or" logic_and )* ;
 // logic_and    -> equality ( "and" equality )* ;
 // equality     -> comparison ( ( "!=" | "==" ) comparison )* ;
@@ -53,6 +54,7 @@ static Stmt *block_stmt(Parser *parser);
 // primary      -> NUMBER | STRING | "true" | "false" | "nil"
 //               | "(" expression ")" | IDENTIFIER;
 static Expr *expression(Parser *parser);
+static Expr *assignment(Parser *parser);
 static Expr *logic_or(Parser *parser);
 static Expr *logic_and(Parser *parser);
 static Expr *equality(Parser *parser);
@@ -85,10 +87,33 @@ static void append_stmt(Program *program, Stmt *stmt)
 	darray_push(program->statements, stmt);
 }
 
-// expression -> equality;
+// expression   -> assignment;
 static Expr *expression(Parser *parser)
 {
-	return logic_or(parser);
+	return assignment(parser);
+}
+
+// assignment   -> IDENTIFIER "=" assignment | logic_or ;
+static Expr *assignment(Parser *parser)
+{
+	Expr *expr = logic_or(parser);
+
+	if (match(parser, Token_Equal))
+	{
+		Expr *value = logic_or(parser);
+
+		if (expr->expr_type == Expr_Identifier)
+		{
+			Identifier name = expr->identifier;
+			free(expr);
+
+			return ast_expr_assignment(name, value);
+		}
+
+		UNREACHABLE();
+	}
+
+	return expr;
 }
 
 // logic_or     -> logic_and ( "or" logic_and )* ;

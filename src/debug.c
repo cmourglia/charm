@@ -120,9 +120,18 @@ int token_to_string(char *buffer, int capacity, Token token)
 #define PRINT_EXPR_LITERAL(t, format, ...) \
 	printf(RED #t RESET " <" CYN format RESET ">", __VA_ARGS__)
 
+#define PRINT_HEADER(name) \
+	printf(GRN "%*s" #name ": " RESET, (level + 1) * 2, "")
+
+#define PRINT_IDENTIFIER(color, identifier) \
+	printf(color "%*s" RESET, identifier.len, identifier.str);
+
 #define PRINT_EXPR_OP(tk)                                          \
-	printf(GRN "%*sOp: " BLU "%s" RESET "\n", (level + 1) * 2, "", \
-		   debug_get_token_type_str(tk))
+	do                                                             \
+	{                                                              \
+		PRINT_HEADER(Op);                                          \
+		printf(BLU "%s" RESET "\n", debug_get_token_type_str(tk)); \
+	} while (false)
 
 #define PRINT_EXPR_CHILD(name, e)                                \
 	do                                                           \
@@ -153,7 +162,7 @@ static void print_expr(Expr *expr, int level)
 
 		case Expr_Grouping: {
 			PRINT_EXPR_TYPE(Grouping expression);
-			printf("%*s", (level + 1) * 2, "");
+			INDENT();
 			print_expr(expr->grouping.expr, level + 1);
 		}
 		break;
@@ -162,6 +171,15 @@ static void print_expr(Expr *expr, int level)
 			PRINT_EXPR_TYPE(Unary Expression);
 			PRINT_EXPR_OP(expr->unary.op);
 			PRINT_EXPR_CHILD(Right, expr->unary.right);
+		}
+		break;
+
+		case Expr_Assignment: {
+			PRINT_EXPR_TYPE(Assignment);
+			PRINT_HEADER(Name);
+			PRINT_IDENTIFIER(BLU, expr->assignment.name);
+			printf("\n");
+			PRINT_EXPR_CHILD(Value, expr->assignment.value);
 		}
 		break;
 
@@ -204,9 +222,8 @@ static void print_stmt(Stmt *stmt, int level)
 
 		case Stmt_VarDecl: {
 			PRINT_STMT_TYPE(Variable Declaration);
-			printf("%*s" GRN "Identifier: " BLU "%.*s" RESET, (level + 1) * 2,
-				   "", stmt->var_decl.identifier.len,
-				   stmt->var_decl.identifier.str);
+			PRINT_HEADER(Name);
+			PRINT_IDENTIFIER(BLU, stmt->var_decl.identifier);
 
 			if (stmt->var_decl.expr != NULL)
 			{

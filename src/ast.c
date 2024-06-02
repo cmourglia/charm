@@ -89,6 +89,16 @@ Expr *ast_expr_identifier(Identifier identifier)
 	return node;
 }
 
+Expr *ast_expr_assignment(Identifier name, Expr *expr)
+{
+	Expr *node = make_expr(Expr_Assignment);
+
+	node->assignment.name = name;
+	node->assignment.value = expr;
+
+	return node;
+}
+
 static Stmt *make_stmt(StmtType type)
 {
 	Stmt *ptr = malloc(sizeof(Stmt));

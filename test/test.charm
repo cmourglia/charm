@@ -1,5 +1,6 @@
 var toto = 2 * 3 + 4;
 
+toto = 8 * toto;
 
 if false or (true or not true) {
     print toto;

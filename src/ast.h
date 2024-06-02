@@ -14,6 +14,7 @@ typedef enum {
 	Expr_BooleanLiteral,
 	Expr_NumberLiteral,
 	Expr_Identifier,
+	Expr_Assignment, // TODO: Make this an expression at some point
 } ExprType;
 
 struct Expr;
@@ -34,6 +35,11 @@ typedef struct Expr {
 			struct Expr *right;
 			TokenType op;
 		} unary;
+
+		struct {
+			Identifier name;
+			struct Expr *value;
+		} assignment;
 
 		double number;
 		bool boolean;
@@ -91,6 +97,7 @@ Expr *ast_expr_unary(TokenType op, Expr *right);
 Expr *ast_expr_number_literal(double value);
 Expr *ast_expr_boolean_literal(bool value);
 Expr *ast_expr_identifier(Identifier identifier);
+Expr *ast_expr_assignment(Identifier identifier, Expr *value);
 
 Stmt *ast_stmt_expression(Expr *expr);
 Stmt *ast_stmt_print(Expr *expr);
