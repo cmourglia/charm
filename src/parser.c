@@ -33,6 +33,8 @@ static bool match(Parser *parser, TokenType type);
 // var_decl     -> "var" IDENTIFIER ( "=" expression )? ";" ;
 // if_stmt      -> "if" expression block_stmt ( "else" if_stmt | block_stmt ) ? ;
 // block_stmt   -> "{" ( statement )* "}" ;
+// while_stmt   -> "while" expression block_stmt ;
+// for_stmt     -> "for" ...
 static Stmt *declaration(Parser *parser);
 static Stmt *statement(Parser *parser);
 static Stmt *expr_stmt(Parser *parser);
@@ -40,6 +42,7 @@ static Stmt *print_stmt(Parser *parser);
 static Stmt *var_decl(Parser *parser);
 static Stmt *if_stmt(Parser *parser);
 static Stmt *block_stmt(Parser *parser);
+static Stmt *while_stmt(Parser *parser);
 
 // expression   -> assignment ;
 // assignment   -> IDENTIFIER "=" assignment | logic_or ;
@@ -308,6 +311,11 @@ static Stmt *statement(Parser *parser)
 		return if_stmt(parser);
 	}
 
+	if (match(parser, Token_While))
+	{
+		return while_stmt(parser);
+	}
+
 	if (match(parser, Token_LeftBrace))
 	{
 		return block_stmt(parser);
@@ -399,6 +407,17 @@ static Stmt *block_stmt(Parser *parser)
 	consume(parser, Token_RightBrace);
 
 	return ast_stmt_block(statements);
+}
+
+// while_stmt   -> "while" expression block_stmt ;
+static Stmt *while_stmt(Parser *parser)
+{
+	Expr *cond = expression(parser);
+
+	consume(parser, Token_LeftBrace);
+	Stmt *body = block_stmt(parser);
+
+	return ast_stmt_while(cond, body);
 }
 
 static bool match(Parser *parser, TokenType type)

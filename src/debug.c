@@ -262,6 +262,16 @@ static void print_stmt(Stmt *stmt, int level)
 			}
 		}
 		break;
+
+		case Stmt_While: {
+			PRINT_STMT_TYPE(While);
+			PRINT_STMT_CHILD(Condition);
+			print_expr(stmt->while_stmt.cond, level + 1);
+			printf("\n");
+			PRINT_STMT_CHILD(Body);
+			print_stmt(stmt->while_stmt.body, level + 1);
+		}
+		break;
 	}
 }
 

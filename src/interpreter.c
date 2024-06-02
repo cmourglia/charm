@@ -352,5 +352,27 @@ static void interpret_stmt(Stmt *stmt)
 			}
 		}
 		break;
+
+		case Stmt_While: {
+			while (true)
+			{
+				Value value = interpret_expr(stmt->while_stmt.cond);
+
+				if (value.value_type != Value_Bool)
+				{
+					printf(
+						"Error: while condition is not a boolean expression\n");
+					break;
+				}
+
+				if (!value.boolean)
+				{
+					break;
+				}
+
+				interpret_stmt(stmt->while_stmt.body);
+			}
+		}
+		break;
 	}
 }

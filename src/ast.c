@@ -159,3 +159,13 @@ Stmt *ast_stmt_if(Expr *cond, Stmt *then_branch, Stmt *else_branch)
 
 	return node;
 }
+
+Stmt *ast_stmt_while(Expr *cond, Stmt *body)
+{
+	Stmt *node = make_stmt(Stmt_While);
+
+	node->while_stmt.cond = cond;
+	node->while_stmt.body = body;
+
+	return node;
+}

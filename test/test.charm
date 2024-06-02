@@ -12,3 +12,10 @@ if false or (true or not true) {
 } else {
     print -42;
 }
+
+var foo = 42;
+
+while foo != 0 {
+    print foo;
+    foo = foo - 1;
+}
