@@ -15,7 +15,20 @@ if false or (true or not true) {
 
 var foo = 42;
 
-while foo != 0 {
-    print foo;
-    foo = foo - 1;
+//while foo != 0 {
+//    print foo;
+//    foo = foo - 1;
+//}
+
+for var bar = 0; bar < 10; bar = bar + 1 {
+    print bar;
+}
+
+var f = 0;
+var g = 1;
+
+for var i = 0; i <= 10; i = i + 1 {
+    print f;
+    f = f + g;
+    g = f - g;
 }

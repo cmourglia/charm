@@ -24,17 +24,21 @@ Parser parser_init(struct Lexer *lexer)
 static Token advance(Parser *parser);
 static Token consume(Parser *parser, Token_Type expected);
 static bool match(Parser *parser, Token_Type type);
+static bool check(Parser *parser, Token_Type type);
 
 // program      -> declaration* EOF ;
 // declaration  -> var_decl | statement
-// statement    -> expr_stmt | print_stmt | if_stmt | block_stmt | while_stmt ;
+// statement    -> expr_stmt | print_stmt | if_stmt | block_stmt | while_stmt
+//               | for_stmt ;
 // expr_stmt    -> expression ";" ;
 // print_stmt   -> "print" expression ";" ;
 // var_decl     -> "var" IDENTIFIER ( "=" expression )? ";" ;
 // if_stmt      -> "if" expression block_stmt ( "else" if_stmt | block_stmt ) ? ;
 // block_stmt   -> "{" ( statement )* "}" ;
 // while_stmt   -> "while" expression block_stmt ;
-// for_stmt     -> "for" ...
+// for_stmt     -> "for" ( var_decl | expr_stmt | ";" )
+//                  expression? ";"
+//                  expression? block_stmt ;
 static Stmt *declaration(Parser *parser);
 static Stmt *statement(Parser *parser);
 static Stmt *expr_stmt(Parser *parser);
@@ -43,6 +47,7 @@ static Stmt *var_decl(Parser *parser);
 static Stmt *if_stmt(Parser *parser);
 static Stmt *block_stmt(Parser *parser);
 static Stmt *while_stmt(Parser *parser);
+static Stmt *for_stmt(Parser *parser);
 
 // expression   -> assignment ;
 // assignment   -> IDENTIFIER "=" assignment | logic_or ;
@@ -86,7 +91,7 @@ struct Program parser_parse_program(Parser *parser)
 static void append_stmt(Program *program, Stmt *stmt)
 {
 	// NOTE: clang-tidy complains about sizeof(Stmt*), which is fine here
-	// NOLINTNEXTLINE
+	// NOLINTNEXTLINE(bugprone-sizeof-expression)
 	darray_push(program->statements, stmt);
 }
 
@@ -288,6 +293,8 @@ static Expr *primary(Parser *parser)
 		break;
 
 		default:
+			printf("Unexpected token %s\n",
+				   debug_get_token_type_str(parser->curr_token.type));
 			UNREACHABLE();
 	}
 }
@@ -295,6 +302,11 @@ static Expr *primary(Parser *parser)
 // declaration -> var_decl | statement ;
 static Stmt *declaration(Parser *parser)
 {
+	while (match(parser, Token_Comment))
+	{
+		// Skip comments
+	}
+
 	if (match(parser, Token_Var))
 	{
 		return var_decl(parser);
@@ -314,6 +326,11 @@ static Stmt *statement(Parser *parser)
 	if (match(parser, Token_While))
 	{
 		return while_stmt(parser);
+	}
+
+	if (match(parser, Token_For))
+	{
+		return for_stmt(parser);
 	}
 
 	if (match(parser, Token_LeftBrace))
@@ -400,7 +417,7 @@ static Stmt *block_stmt(Parser *parser)
 	while (parser->curr_token.type != Token_EOF &&
 		   parser->curr_token.type != Token_RightBrace)
 	{
-		// NOLINTNEXTLINE
+		// NOLINTNEXTLINE(bugprone-sizeof-expression)
 		darray_push(statements, declaration(parser));
 	}
 
@@ -420,6 +437,69 @@ static Stmt *while_stmt(Parser *parser)
 	return ast_stmt_while(cond, body);
 }
 
+// for_stmt     -> "for" ( var_decl | expr_stmt | ";" )
+//                  expression? ";"
+//                  expression? block_stmt ;
+static Stmt *for_stmt(Parser *parser)
+{
+	Stmt *initializer = NULL;
+	if (match(parser, Token_Semicolon))
+	{
+		initializer = NULL;
+	}
+	else if (match(parser, Token_Var))
+	{
+		initializer = var_decl(parser);
+	}
+	else
+	{
+		initializer = expr_stmt(parser);
+	}
+
+	Expr *condition = NULL;
+	if (!check(parser, Token_Semicolon))
+	{
+		condition = expression(parser);
+	}
+
+	consume(parser, Token_Semicolon);
+
+	Expr *increment = NULL;
+	if (!check(parser, Token_LeftBrace))
+	{
+		increment = expression(parser);
+	}
+	consume(parser, Token_LeftBrace);
+
+	Stmt *body = block_stmt(parser);
+
+	if (increment != NULL)
+	{
+		// NOLINTNEXTLINE(bugprone-sizeof-expression)
+		darray_push(body->block.statements, ast_stmt_expression(increment));
+	}
+
+	Stmt **while_stmts = NULL;
+
+	if (initializer != NULL)
+	{
+		// NOLINTNEXTLINE(bugprone-sizeof-expression)
+		darray_push(while_stmts, initializer);
+	}
+
+	if (condition == NULL)
+	{
+		condition = ast_expr_boolean_literal(true);
+	}
+
+	Stmt *while_stmt = ast_stmt_while(condition, body);
+
+	// NOLINTNEXTLINE(bugprone-sizeof-expression)
+	darray_push(while_stmts, while_stmt);
+
+	return ast_stmt_block(while_stmts);
+}
+
 static bool match(Parser *parser, Token_Type type)
 {
 	if (parser->curr_token.type == type)
@@ -429,6 +509,11 @@ static bool match(Parser *parser, Token_Type type)
 	}
 
 	return false;
+}
+
+static bool check(Parser *parser, Token_Type type)
+{
+	return parser->curr_token.type == type;
 }
 
 // FIXME: Find a better name

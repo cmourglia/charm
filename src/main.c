@@ -5,6 +5,8 @@
 #include "debug.h"
 #include "interpreter.h"
 
+#include "beard_lib.h"
+
 static void usage(int argc, char **argv);
 
 int main(int argc, char **argv)

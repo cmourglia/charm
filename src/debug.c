@@ -282,4 +282,5 @@ void debug_print_program(Program program)
 	{
 		print_stmt(program.statements[i], 0);
 	}
+	printf("\n");
 }
