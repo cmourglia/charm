@@ -13,9 +13,7 @@ typedef struct Parser {
 } Parser;
 
 typedef struct Program {
-	struct Stmt **statements;
-	int statement_count;
-	int statement_capacity;
+	Stmt **statements;
 } Program;
 
 Parser parser_init(struct Lexer *lexer);

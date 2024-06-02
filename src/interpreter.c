@@ -17,7 +17,8 @@ void interpreter_run(struct Program program)
 {
 	hash_table_init(&variables);
 
-	for (int i = 0; i < program.statement_count; i++)
+	int count = darray_len(program.statements);
+	for (int i = 0; i < count; i++)
 	{
 		interpret_stmt(program.statements[i]);
 	}
@@ -127,6 +128,56 @@ static Value geq(Expr *lhs, Expr *rhs)
 	BIN_COMP(>=);
 }
 
+static Value logic_and(Expr *lhs, Expr *rhs)
+{
+	Value left = interpret_expr(lhs);
+	if (left.value_type != Value_Bool)
+	{
+		printf("Operands to `and` must be of type boolean\n");
+		// TODO: Proper error handling
+		return value_bool(false);
+	}
+
+	if (!left.boolean)
+	{
+		return left;
+	}
+
+	Value right = interpret_expr(rhs);
+	if (right.value_type != Value_Bool)
+	{
+		printf("Operands to `and` must be of type boolean\n");
+		return value_bool(false);
+	}
+
+	return right;
+}
+
+static Value logic_or(Expr *lhs, Expr *rhs)
+{
+	Value left = interpret_expr(lhs);
+	if (left.value_type != Value_Bool)
+	{
+		printf("Operands to `or` must be of type boolean\n");
+		// TODO: Proper error handling
+		return value_bool(false);
+	}
+
+	if (left.boolean)
+	{
+		return left;
+	}
+
+	Value right = interpret_expr(rhs);
+	if (right.value_type != Value_Bool)
+	{
+		printf("Operands to `or` must be of type boolean\n");
+		return value_bool(false);
+	}
+
+	return right;
+}
+
 static Value interpret_expr(Expr *expr)
 {
 	switch (expr->expr_type)
@@ -163,6 +214,10 @@ static Value interpret_expr(Expr *expr)
 					return lt(expr->binary.left, expr->binary.right);
 				case Token_LessEqual:
 					return leq(expr->binary.left, expr->binary.right);
+				case Token_And:
+					return logic_and(expr->binary.left, expr->binary.right);
+				case Token_Or:
+					return logic_or(expr->binary.left, expr->binary.right);
 
 				default:
 					UNREACHABLE();
@@ -258,6 +313,37 @@ static void interpret_stmt(Stmt *stmt)
 			}
 
 			hash_table_set(&variables, stmt->var_decl.identifier, value);
+		}
+		break;
+
+		case Stmt_Block: {
+			int count = darray_len(stmt->block.statements);
+			for (int i = 0; i < count; i++)
+			{
+				interpret_stmt(stmt->block.statements[i]);
+			}
+		}
+		break;
+
+		case Stmt_If: {
+			Value value = interpret_expr(stmt->if_stmt.cond);
+			if (value.value_type != Value_Bool)
+			{
+				printf("Error: if condition is not a boolean expression\n");
+				return;
+			}
+
+			if (value.boolean)
+			{
+				interpret_stmt(stmt->if_stmt.then_branch);
+			}
+			else
+			{
+				if (stmt->if_stmt.else_branch != NULL)
+				{
+					interpret_stmt(stmt->if_stmt.else_branch);
+				}
+			}
 		}
 		break;
 	}

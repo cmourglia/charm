@@ -129,3 +129,23 @@ Stmt *ast_stmt_var_decl(Identifier identifier, Expr *expr)
 
 	return node;
 }
+
+Stmt *ast_stmt_block(Stmt **statements)
+{
+	Stmt *node = make_stmt(Stmt_Block);
+
+	node->block.statements = statements;
+
+	return node;
+}
+
+Stmt *ast_stmt_if(Expr *cond, Stmt *then_branch, Stmt *else_branch)
+{
+	Stmt *node = make_stmt(Stmt_If);
+
+	node->if_stmt.cond = cond;
+	node->if_stmt.then_branch = then_branch;
+	node->if_stmt.else_branch = else_branch;
+
+	return node;
+}

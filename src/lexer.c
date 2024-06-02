@@ -215,9 +215,11 @@ static Token identifier_token(Lexer *lexer)
 		case 'a':
 			return check_keyword(lexer, 1, 2, "nd", Token_And);
 		case 'e':
-			return check_keyword(lexer, 1, 3, "else", Token_Else);
+			return check_keyword(lexer, 1, 3, "lse", Token_Else);
 		case 'i':
 			return check_keyword(lexer, 1, 1, "f", Token_If);
+		case 'n':
+			return check_keyword(lexer, 1, 2, "ot", Token_Not);
 		case 'o':
 			return check_keyword(lexer, 1, 1, "r", Token_Or);
 		case 'p':

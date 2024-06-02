@@ -6,6 +6,8 @@ set(CMAKE_C_STANDARD 11)
 add_executable(${PROJECT_NAME}
     src/main.c
 
+    src/beard_lib.h     src/beard_lib.c
+
     src/memory.h        src/memory.c
     src/value.h         src/value.c
     src/hash_table.h    src/hash_table.c
@@ -22,5 +24,5 @@ add_executable(${PROJECT_NAME}
 if (MSVC)
     target_compile_options(${PROJECT_NAME} PRIVATE /W4 /w44062 /WX)
 else()
-    target_compile_options(${PROJECT_NAME} PRIVATE -Wall -Werror)
+    target_compile_options(${PROJECT_NAME} PRIVATE -Wall -Werror -Werror=pointer-arith)
 endif()

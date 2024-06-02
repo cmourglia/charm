@@ -1,0 +1,13 @@
+var toto = 2 * 3 + 4;
+
+
+if false or (true or not true) {
+    print toto;
+    print 2 * 3;
+    print false;
+} else if true {
+    var zouz = 2 + 2;
+    print zouz;
+} else {
+    print -42;
+}

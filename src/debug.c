@@ -133,6 +133,11 @@ int token_to_string(char *buffer, int capacity, Token token)
 
 #define PRINT_STMT_TYPE(t) printf(YEL #t RESET "\n")
 
+#define PRINT_STMT_CHILD(name) \
+	printf("%*s" GRN #name ": " RESET, (level + 1) * 2, "");
+
+#define INDENT() printf("%*s", (level + 1) * 2, "")
+
 static void print_expr(Expr *expr, int level)
 {
 	switch (expr->expr_type)
@@ -184,15 +189,16 @@ static void print_stmt(Stmt *stmt, int level)
 	{
 		case Stmt_Expr: {
 			PRINT_STMT_TYPE(Expression statement);
-			printf("%*s", (level + 1) * 2, "");
+			INDENT();
 			print_expr(stmt->expression.expr, level + 1);
 		}
 		break;
 
 		case Stmt_Print: {
 			PRINT_STMT_TYPE(Print statement);
-			printf("%*s", (level + 1) * 2, "");
+			INDENT();
 			print_expr(stmt->expression.expr, level + 1);
+			printf("\n");
 		}
 		break;
 
@@ -208,17 +214,44 @@ static void print_stmt(Stmt *stmt, int level)
 				printf("%*s" GRN "Expression: ", (level + 1) * 2, "");
 				print_expr(stmt->var_decl.expr, level + 1);
 			}
+
+			printf("\n");
 			//printf(RED #t RESET " <" GRY format RESET ">", (value))
 		}
 		break;
-	}
 
-	printf("\n");
+		case Stmt_Block: {
+			PRINT_STMT_TYPE(Block);
+			int count = darray_len(stmt->block.statements);
+			for (int i = 0; i < count; i++)
+			{
+				INDENT();
+				print_stmt(stmt->block.statements[i], level + 1);
+			}
+		}
+		break;
+
+		case Stmt_If: {
+			PRINT_STMT_TYPE(If);
+			PRINT_STMT_CHILD(Condition);
+			print_expr(stmt->if_stmt.cond, level + 1);
+			printf("\n");
+			PRINT_STMT_CHILD(Then);
+			print_stmt(stmt->if_stmt.then_branch, level + 1);
+			if (stmt->if_stmt.else_branch != NULL)
+			{
+				PRINT_STMT_CHILD(Else);
+				print_stmt(stmt->if_stmt.else_branch, level + 1);
+			}
+		}
+		break;
+	}
 }
 
 void debug_print_program(Program program)
 {
-	for (int i = 0; i < program.statement_count; i++)
+	int count = darray_len(program.statements);
+	for (int i = 0; i < count; i++)
 	{
 		print_stmt(program.statements[i], 0);
 	}

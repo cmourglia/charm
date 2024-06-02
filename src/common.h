@@ -1,27 +1,14 @@
 #pragma once
 
-#include <stdint.h>
 #include <stdlib.h>
 #include <stdio.h>
 #include <stdbool.h>
 
-typedef unsigned char byte;
+#include "memory.h"
 
-typedef int8_t i8;
-typedef int16_t i16;
-typedef int32_t i32;
-typedef int64_t i64;
-
-typedef uint8_t u8;
-typedef uint16_t u16;
-typedef uint32_t u32;
-typedef uint64_t u64;
-
-typedef intptr_t isize;
-typedef uintptr_t usize;
-
-typedef float f32;
-typedef double f64;
+#define BEARD_REALLOC(ptr, size) mem_reallocate(ptr, size)
+#define BEARD_FREE(ptr) mem_reallocate(ptr, 0)
+#include "beard_lib.h"
 
 #define UNUSED(x) (void)x
 

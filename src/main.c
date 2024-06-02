@@ -5,16 +5,24 @@
 #include "debug.h"
 #include "interpreter.h"
 
-int main(void)
-{
-	//const char *str = "-123 * (45.67);\nprint ((234 + 678) / 22) == 33;";
-	const char *str = ""
-					  "var toto = 2 * 3 + 4;\n"
-					  "var titi;\n"
-					  "print toto;\n"
-					  "print titi;\n";
+static void usage(int argc, char **argv);
 
-	Lexer lexer = lexer_init(str);
+int main(int argc, char **argv)
+{
+	if (argc != 2)
+	{
+		usage(argc, argv);
+		return 1;
+	}
+
+	const char *src = beard_read_whole_file(argv[1]);
+
+	if (src == NULL)
+	{
+		return 2;
+	}
+
+	Lexer lexer = lexer_init(src);
 	Parser parser = parser_init(&lexer);
 
 	Program program = parser_parse_program(&parser);
@@ -38,4 +46,9 @@ int main(void)
 	//		break;
 	//	}
 	//}
+}
+
+static void usage(int argc, char **argv)
+{
+	printf("Usage: %s <filename.charm>\n", argv[0]);
 }

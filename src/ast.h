@@ -47,6 +47,8 @@ typedef enum StmtType {
 	Stmt_Expr,
 	Stmt_Print,
 	Stmt_VarDecl,
+	Stmt_Block,
+	Stmt_If,
 } StmtType;
 
 struct Stmt;
@@ -65,6 +67,16 @@ typedef struct Stmt {
 			Identifier identifier;
 			Expr *expr;
 		} var_decl;
+
+		struct {
+			Expr *cond;
+			struct Stmt *then_branch;
+			struct Stmt *else_branch;
+		} if_stmt;
+
+		struct {
+			struct Stmt **statements;
+		} block;
 	};
 
 	StmtType stmt_type;
@@ -83,3 +95,5 @@ Expr *ast_expr_identifier(Identifier identifier);
 Stmt *ast_stmt_expression(Expr *expr);
 Stmt *ast_stmt_print(Expr *expr);
 Stmt *ast_stmt_var_decl(Identifier identifier, Expr *expr);
+Stmt *ast_stmt_block(Stmt **statements);
+Stmt *ast_stmt_if(Expr *cond, Stmt *then_branch, Stmt *else_branch);
