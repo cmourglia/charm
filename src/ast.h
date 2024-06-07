@@ -2,12 +2,14 @@
 
 #include "token.h"
 
-typedef struct Identifier {
+typedef struct Identifier
+{
 	char *str;
 	int len;
 } Identifier;
 
-typedef enum {
+typedef enum
+{
 	Expr_Binary,
 	Expr_Grouping,
 	Expr_Unary,
@@ -20,29 +22,36 @@ typedef enum {
 
 struct Expr;
 
-typedef struct Expr {
-	union {
-		struct {
+typedef struct Expr
+{
+	union
+	{
+		struct
+		{
 			struct Expr *left;
 			struct Expr *right;
 			Token_Type op;
 		} binary;
 
-		struct {
+		struct
+		{
 			struct Expr *expr;
 		} grouping;
 
-		struct {
+		struct
+		{
 			struct Expr *right;
 			Token_Type op;
 		} unary;
 
-		struct {
+		struct
+		{
 			Identifier name;
 			struct Expr *value;
 		} assignment;
 
-		struct {
+		struct
+		{
 			struct Expr *callee;
 			struct Expr **arguments;
 		} call;
@@ -55,7 +64,8 @@ typedef struct Expr {
 	Expr_Type expr_type;
 } Expr;
 
-typedef enum Stmt_Type {
+typedef enum Stmt_Type
+{
 	Stmt_Expr,
 	Stmt_VarDecl,
 	Stmt_FunctionDecl,
@@ -67,39 +77,48 @@ typedef enum Stmt_Type {
 
 struct Stmt;
 
-typedef struct Stmt {
-	union {
-		struct {
+typedef struct Stmt
+{
+	union
+	{
+		struct
+		{
 			Expr *expr;
 		} expression;
 
-		struct {
+		struct
+		{
 			Identifier name;
 			Expr *expr;
 		} var_decl;
 
-		struct {
+		struct
+		{
 			Identifier name;
 			Identifier *args;
 			struct Stmt *body;
 		} function_decl;
 
-		struct {
+		struct
+		{
 			Expr *cond;
 			struct Stmt *then_branch;
 			struct Stmt *else_branch;
 		} if_stmt;
 
-		struct {
+		struct
+		{
 			struct Stmt **statements;
 		} block;
 
-		struct {
+		struct
+		{
 			Expr *cond;
 			struct Stmt *body;
 		} while_stmt;
 
-		struct {
+		struct
+		{
 			Expr *expr;
 		} return_stmt;
 	};

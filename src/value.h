@@ -2,7 +2,8 @@
 
 #include "common.h"
 
-enum ValueType {
+enum ValueType
+{
 	Value_Nil = 0,
 	Value_Number,
 	Value_Bool,
@@ -17,16 +18,20 @@ struct Frame_Stack;
 
 typedef struct Result (*NativeFunction)(struct Frame_Stack *);
 
-struct Value {
-	union {
+struct Value
+{
+	union
+	{
 		f64 number;
 		bool boolean;
 		// TODO: others
-		struct {
+		struct
+		{
 			struct Identifier *args;
 			struct Stmt *body;
 		} function;
-		struct {
+		struct
+		{
 			struct Identifier *args;
 			NativeFunction function;
 		} native_function;
@@ -45,7 +50,8 @@ Value value_native_function(struct Identifier *args, NativeFunction function);
 #define VALUE_IS_NIL(v) ((v).value_type == Value_Nil)
 
 // TODO: Statement result
-enum Result_Type {
+enum Result_Type
+{
 	Result_None,
 	Result_Return,
 	// TODO: Continue,
@@ -54,9 +60,12 @@ enum Result_Type {
 };
 typedef enum Result_Type Result_Type;
 
-struct Result {
-	union {
-		struct {
+struct Result
+{
+	union
+	{
+		struct
+		{
 			Value value;
 		} return_result;
 	};

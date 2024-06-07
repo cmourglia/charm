@@ -2,7 +2,8 @@
 
 #include <stdio.h>
 
-typedef struct {
+typedef struct
+{
 	usize capacity;
 	usize length;
 } Dyn_Array_Header;

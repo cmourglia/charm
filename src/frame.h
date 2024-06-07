@@ -3,7 +3,8 @@
 #include "ast.h"
 #include "value.h"
 
-struct Frame_Stack {
+struct Frame_Stack
+{
 	struct Frame *frames;
 };
 

@@ -7,12 +7,14 @@
 
 typedef Identifier Key;
 
-typedef struct Entry {
+typedef struct Entry
+{
 	Key key;
 	Value value;
 } Entry;
 
-typedef struct Hash_Table {
+typedef struct Hash_Table
+{
 	int count;
 	int capacity;
 	struct Entry *entries;

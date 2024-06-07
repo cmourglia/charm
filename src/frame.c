@@ -3,7 +3,8 @@
 #include "beard_lib.h"
 #include "hash_table.h"
 
-typedef struct Frame {
+typedef struct Frame
+{
 	Hash_Table variables;
 } Frame;
 

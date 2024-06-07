@@ -3,7 +3,8 @@
 #include "token.h"
 #include "hash_table.h"
 
-typedef struct Parser {
+typedef struct Parser
+{
 	struct Lexer *lexer;
 
 	Token curr_token;
@@ -12,7 +13,8 @@ typedef struct Parser {
 	Hash_Table identifiers;
 } Parser;
 
-typedef struct Program {
+typedef struct Program
+{
 	Stmt **statements;
 } Program;
 

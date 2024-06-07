@@ -51,17 +51,20 @@ static Result native_print(Frame_Stack *stack)
 
 	switch (value.value_type)
 	{
-		case Value_Nil: {
+		case Value_Nil:
+		{
 			printf("<NIL>\n");
 		}
 		break;
 
-		case Value_Bool: {
+		case Value_Bool:
+		{
 			printf("%s\n", (value.boolean ? "true" : "false"));
 		}
 		break;
 
-		case Value_Number: {
+		case Value_Number:
+		{
 			printf("%f\n", value.number);
 		}
 		break;
@@ -256,7 +259,8 @@ static Value interpret_expr(Expr *expr)
 		case Expr_Grouping:
 			return interpret_expr(expr->grouping.expr);
 
-		case Expr_Binary: {
+		case Expr_Binary:
+		{
 			switch (expr->binary.op)
 			{
 				case Token_Minus:
@@ -290,10 +294,12 @@ static Value interpret_expr(Expr *expr)
 		}
 		break;
 
-		case Expr_Unary: {
+		case Expr_Unary:
+		{
 			switch (expr->unary.op)
 			{
-				case Token_Minus: {
+				case Token_Minus:
+				{
 					Value v = interpret_expr(expr->unary.right);
 					if (v.value_type == Value_Number)
 					{
@@ -304,7 +310,8 @@ static Value interpret_expr(Expr *expr)
 				}
 				break;
 
-				case Token_Not: {
+				case Token_Not:
+				{
 					Value v = interpret_expr(expr->unary.right);
 					if (v.value_type == Value_Bool)
 					{
@@ -321,7 +328,8 @@ static Value interpret_expr(Expr *expr)
 		}
 		break;
 
-		case Expr_Assignment: {
+		case Expr_Assignment:
+		{
 			Value value = interpret_expr(expr->assignment.value);
 			if (!frame_stack_set_variable(&frame_stack, expr->assignment.name,
 										  value))
@@ -334,7 +342,8 @@ static Value interpret_expr(Expr *expr)
 		}
 		break;
 
-		case Expr_Identifier: {
+		case Expr_Identifier:
+		{
 			Value value = value_nil();
 			if (!frame_stack_get_value(&frame_stack, expr->identifier, &value))
 			{
@@ -346,7 +355,8 @@ static Value interpret_expr(Expr *expr)
 		}
 		break;
 
-		case Expr_Call: {
+		case Expr_Call:
+		{
 			Value callee = interpret_expr(expr->call.callee);
 
 			frame_stack_push_frame(&frame_stack);
@@ -355,12 +365,14 @@ static Value interpret_expr(Expr *expr)
 
 			switch (callee.value_type)
 			{
-				case Value_Function: {
+				case Value_Function:
+				{
 					args = callee.function.args;
 				}
 				break;
 
-				case Value_NativeFunction: {
+				case Value_NativeFunction:
+				{
 					args = callee.native_function.args;
 				}
 				break;
@@ -385,12 +397,14 @@ static Value interpret_expr(Expr *expr)
 
 			switch (callee.value_type)
 			{
-				case Value_Function: {
+				case Value_Function:
+				{
 					result = interpret_stmt(callee.function.body);
 				}
 				break;
 
-				case Value_NativeFunction: {
+				case Value_NativeFunction:
+				{
 					result = callee.native_function.function(&frame_stack);
 				}
 				break;
@@ -420,14 +434,16 @@ static NODISCARD Result interpret_stmt(Stmt *stmt)
 {
 	switch (stmt->stmt_type)
 	{
-		case Stmt_Expr: {
+		case Stmt_Expr:
+		{
 			Value value = interpret_expr(stmt->expression.expr);
 			UNUSED(value);
 			return result_none();
 		}
 		break;
 
-		case Stmt_VarDecl: {
+		case Stmt_VarDecl:
+		{
 			Value value = value_nil();
 			if (stmt->var_decl.expr != NULL)
 			{
@@ -441,7 +457,8 @@ static NODISCARD Result interpret_stmt(Stmt *stmt)
 		}
 		break;
 
-		case Stmt_FunctionDecl: {
+		case Stmt_FunctionDecl:
+		{
 			Value value = value_function(stmt->function_decl.args,
 										 stmt->function_decl.body);
 
@@ -452,7 +469,8 @@ static NODISCARD Result interpret_stmt(Stmt *stmt)
 		}
 		break;
 
-		case Stmt_Block: {
+		case Stmt_Block:
+		{
 			frame_stack_push_frame(&frame_stack);
 
 			Result block_result = result_none();
@@ -474,7 +492,8 @@ static NODISCARD Result interpret_stmt(Stmt *stmt)
 		}
 		break;
 
-		case Stmt_If: {
+		case Stmt_If:
+		{
 			Value value = interpret_expr(stmt->if_stmt.cond);
 			if (value.value_type != Value_Bool)
 			{
@@ -499,7 +518,8 @@ static NODISCARD Result interpret_stmt(Stmt *stmt)
 		}
 		break;
 
-		case Stmt_While: {
+		case Stmt_While:
+		{
 			Result block_result = result_none();
 
 			while (true)
@@ -530,7 +550,8 @@ static NODISCARD Result interpret_stmt(Stmt *stmt)
 		}
 		break;
 
-		case Stmt_Return: {
+		case Stmt_Return:
+		{
 			Value result = value_nil();
 			if (stmt->return_stmt.expr != NULL)
 			{

@@ -150,7 +150,8 @@ static void print_expr(Expr *expr, int level)
 {
 	switch (expr->expr_type)
 	{
-		case Expr_Binary: {
+		case Expr_Binary:
+		{
 			PRINT_EXPR_TYPE(Binary expression);
 			PRINT_EXPR_OP(expr->binary.op);
 			PRINT_EXPR_CHILD(Left, expr->binary.left);
@@ -159,21 +160,24 @@ static void print_expr(Expr *expr, int level)
 		}
 		break;
 
-		case Expr_Grouping: {
+		case Expr_Grouping:
+		{
 			PRINT_EXPR_TYPE(Grouping expression);
 			INDENT();
 			print_expr(expr->grouping.expr, level + 1);
 		}
 		break;
 
-		case Expr_Unary: {
+		case Expr_Unary:
+		{
 			PRINT_EXPR_TYPE(Unary Expression);
 			PRINT_EXPR_OP(expr->unary.op);
 			PRINT_EXPR_CHILD(Right, expr->unary.right);
 		}
 		break;
 
-		case Expr_Assignment: {
+		case Expr_Assignment:
+		{
 			PRINT_EXPR_TYPE(Assignment);
 			PRINT_HEADER(Name);
 			PRINT_IDENTIFIER(BLU, expr->assignment.name);
@@ -182,7 +186,8 @@ static void print_expr(Expr *expr, int level)
 		}
 		break;
 
-		case Expr_Call: {
+		case Expr_Call:
+		{
 			PRINT_EXPR_TYPE(Call);
 			PRINT_EXPR_CHILD(Callee, expr->call.callee);
 			if (darray_len(expr->call.arguments) > 0)
@@ -202,17 +207,20 @@ static void print_expr(Expr *expr, int level)
 		}
 		break;
 
-		case Expr_NumberLiteral: {
+		case Expr_NumberLiteral:
+		{
 			PRINT_EXPR_LITERAL(Number, "%f", expr->number);
 		}
 		break;
 
-		case Expr_BooleanLiteral: {
+		case Expr_BooleanLiteral:
+		{
 			PRINT_EXPR_LITERAL(Boolean, "%s", expr->boolean ? "true" : "false");
 		}
 		break;
 
-		case Expr_Identifier: {
+		case Expr_Identifier:
+		{
 			PRINT_EXPR_LITERAL(Identifier, "%*s", expr->identifier.len,
 							   expr->identifier.str);
 		}
@@ -224,14 +232,16 @@ static void print_stmt(Stmt *stmt, int level)
 {
 	switch (stmt->stmt_type)
 	{
-		case Stmt_Expr: {
+		case Stmt_Expr:
+		{
 			PRINT_STMT_TYPE(Expression statement);
 			INDENT();
 			print_expr(stmt->expression.expr, level + 1);
 		}
 		break;
 
-		case Stmt_VarDecl: {
+		case Stmt_VarDecl:
+		{
 			PRINT_STMT_TYPE(Variable Declaration);
 			PRINT_HEADER(Name);
 			PRINT_IDENTIFIER(BLU, stmt->var_decl.name);
@@ -248,7 +258,8 @@ static void print_stmt(Stmt *stmt, int level)
 		}
 		break;
 
-		case Stmt_FunctionDecl: {
+		case Stmt_FunctionDecl:
+		{
 			PRINT_STMT_TYPE(Function Declaration);
 			PRINT_HEADER(Name);
 			PRINT_IDENTIFIER(BLU, stmt->function_decl.name);
@@ -279,7 +290,8 @@ static void print_stmt(Stmt *stmt, int level)
 		}
 		break;
 
-		case Stmt_Block: {
+		case Stmt_Block:
+		{
 			PRINT_STMT_TYPE(Block);
 			int count = darray_len(stmt->block.statements);
 			for (int i = 0; i < count; i++)
@@ -290,7 +302,8 @@ static void print_stmt(Stmt *stmt, int level)
 		}
 		break;
 
-		case Stmt_If: {
+		case Stmt_If:
+		{
 			PRINT_STMT_TYPE(If);
 			PRINT_STMT_CHILD(Condition);
 			print_expr(stmt->if_stmt.cond, level + 1);
@@ -305,7 +318,8 @@ static void print_stmt(Stmt *stmt, int level)
 		}
 		break;
 
-		case Stmt_While: {
+		case Stmt_While:
+		{
 			PRINT_STMT_TYPE(While);
 			PRINT_STMT_CHILD(Condition);
 			print_expr(stmt->while_stmt.cond, level + 1);
@@ -315,7 +329,8 @@ static void print_stmt(Stmt *stmt, int level)
 		}
 		break;
 
-		case Stmt_Return: {
+		case Stmt_Return:
+		{
 			PRINT_STMT_TYPE(Return);
 			PRINT_STMT_CHILD(Expression);
 			if (stmt->return_stmt.expr == NULL)

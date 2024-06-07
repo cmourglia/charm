@@ -2,7 +2,8 @@
 
 #include "common.h"
 
-enum Token_Type {
+enum Token_Type
+{
 	Token_EOF,
 	Token_Invalid,
 	Token_Comment,
@@ -57,7 +58,8 @@ enum Token_Type {
 };
 typedef enum Token_Type Token_Type;
 
-struct Token {
+struct Token
+{
 	const char *lexeme_start;
 	Token_Type type;
 	int lexeme_len;

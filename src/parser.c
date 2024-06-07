@@ -282,7 +282,8 @@ static Expr *primary(Parser *parser)
 {
 	switch (parser->curr_token.type)
 	{
-		case Token_Number: {
+		case Token_Number:
+		{
 			Token tk = advance(parser);
 
 			char buf[512];
@@ -294,23 +295,27 @@ static Expr *primary(Parser *parser)
 		}
 		break;
 
-		case Token_String: {
+		case Token_String:
+		{
 			// TODO
 			UNREACHABLE();
 		}
 		break;
 
-		case Token_True: {
+		case Token_True:
+		{
 			advance(parser);
 			return ast_expr_boolean_literal(true);
 		}
 
-		case Token_False: {
+		case Token_False:
+		{
 			advance(parser);
 			return ast_expr_boolean_literal(false);
 		}
 
-		case Token_LeftParen: {
+		case Token_LeftParen:
+		{
 			advance(parser);
 
 			Expr *expr = expression(parser);
@@ -325,7 +330,8 @@ static Expr *primary(Parser *parser)
 		}
 		break;
 
-		case Token_Identifier: {
+		case Token_Identifier:
+		{
 			Token tk = advance(parser);
 			Identifier identifier = ast_identifier(&parser->identifiers, tk);
 			return ast_expr_identifier(identifier);
