@@ -1,8 +1,7 @@
 #include "ast/parser.h"
 #include "ast/lexer.h"
-#include "ast/ast.h"
 
-#include "debug/debug.h"
+#include "debug/ast_printer.h"
 #include "interpreter/treewalk.h"
 
 #include "core/beard_lib.h"

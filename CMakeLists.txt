@@ -21,6 +21,7 @@ add_executable(${PROJECT_NAME}
     src/interpreter/treewalk.h      src/interpreter/treewalk.c
 
     src/debug/debug.h               src/debug/debug.c
+    src/debug/ast_printer.h         src/debug/ast_printer.c
 )
 
 if (MSVC)
