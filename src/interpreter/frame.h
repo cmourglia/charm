@@ -1,7 +1,8 @@
 #pragma once
 
-#include "ast.h"
-#include "value.h"
+#include "core/value.h"
+
+#include "ast/ast.h"
 
 struct Frame_Stack
 {

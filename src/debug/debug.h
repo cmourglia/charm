@@ -1,6 +1,6 @@
 #pragma once
 
-#include "token.h"
+#include "ast/token.h"
 
 struct Program;
 

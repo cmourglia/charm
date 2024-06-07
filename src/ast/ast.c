@@ -2,8 +2,8 @@
 
 #include <string.h>
 
-#include "common.h"
-#include "hash_table.h"
+#include "core/common.h"
+#include "core/hash_table.h"
 
 Identifier ast_identifier(Hash_Table *table, Token tk)
 {

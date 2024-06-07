@@ -1,7 +1,7 @@
 #include "frame.h"
 
-#include "beard_lib.h"
-#include "hash_table.h"
+#include "core/beard_lib.h"
+#include "core/hash_table.h"
 
 typedef struct Frame
 {

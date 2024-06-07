@@ -2,7 +2,8 @@
 
 #include "common.h"
 
-#include "ast.h"
+#include "ast/ast.h"
+
 #include "value.h"
 
 typedef Identifier Key;

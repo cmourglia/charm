@@ -2,11 +2,12 @@
 
 #include <time.h>
 
-#include "parser.h"
+#include "core/value.h"
 
-#include "ast.h"
-#include "token.h"
-#include "value.h"
+#include "ast/parser.h"
+#include "ast/ast.h"
+#include "ast/token.h"
+
 #include "frame.h"
 
 static Value interpret_expr(Expr *expr);

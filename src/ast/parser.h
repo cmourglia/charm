@@ -1,7 +1,8 @@
 #pragma once
 
+#include "core/hash_table.h"
+
 #include "token.h"
-#include "hash_table.h"
 
 typedef struct Parser
 {

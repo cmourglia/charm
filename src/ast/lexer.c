@@ -1,9 +1,8 @@
 #include "lexer.h"
 
-#include "common.h"
-#include "token.h"
-
 #include <string.h>
+
+#include "token.h"
 
 Lexer lexer_init(const char *source)
 {

@@ -1,9 +1,10 @@
 #include "debug.h"
 
-#include "ast.h"
-#include "beard_lib.h"
-#include "common.h"
-#include "parser.h"
+#include "core/beard_lib.h"
+#include "core/common.h"
+
+#include "ast/ast.h"
+#include "ast/parser.h"
 
 #define GRY "\x1B[30m"
 #define RED "\x1B[31m"

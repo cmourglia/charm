@@ -1,11 +1,11 @@
-#include "parser.h"
-#include "lexer.h"
-#include "ast.h"
+#include "ast/parser.h"
+#include "ast/lexer.h"
+#include "ast/ast.h"
 
-#include "debug.h"
-#include "interpreter.h"
+#include "debug/debug.h"
+#include "interpreter/interpreter.h"
 
-#include "beard_lib.h"
+#include "core/beard_lib.h"
 
 static void usage(int argc, char **argv);
 

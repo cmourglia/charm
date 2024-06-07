@@ -1,14 +1,16 @@
 #include "parser.h"
 
-#include "beard_lib.h"
-#include "debug.h"
 #include <string.h>
 #include <stdlib.h>
 
-#include "common.h"
+#include "core/common.h"
+#include "core/beard_lib.h"
+
 #include "lexer.h"
 #include "ast.h"
 #include "token.h"
+
+#include "debug/debug.h"
 
 Parser parser_init(struct Lexer *lexer)
 {

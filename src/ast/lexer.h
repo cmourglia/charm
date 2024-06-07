@@ -1,6 +1,7 @@
 #pragma once
 
-#include "common.h"
+#include "core/common.h"
+
 #include "token.h"
 
 typedef struct Lexer
