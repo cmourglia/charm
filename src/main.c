@@ -3,7 +3,7 @@
 #include "ast/ast.h"
 
 #include "debug/debug.h"
-#include "interpreter/interpreter.h"
+#include "interpreter/treewalk.h"
 
 #include "core/beard_lib.h"
 
@@ -31,7 +31,7 @@ int main(int argc, char **argv)
 
 	debug_print_program(program);
 
-	interpreter_run(program);
+	treewalk_interpreter_run(program);
 
 	//for (;;)
 	//{

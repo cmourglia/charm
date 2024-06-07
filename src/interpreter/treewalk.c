@@ -1,4 +1,4 @@
-#include "interpreter.h"
+#include "treewalk.h"
 
 #include <time.h>
 
@@ -77,7 +77,7 @@ static Result native_print(Frame_Stack *stack)
 	return result_none();
 }
 
-void interpreter_run(struct Program program)
+void treewalk_interpreter_run(struct Program program)
 {
 	frame_stack_init(&frame_stack);
 	frame_stack_push_frame(&frame_stack);

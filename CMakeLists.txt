@@ -18,7 +18,7 @@ add_executable(${PROJECT_NAME}
     src/ast/token.h
 
     src/interpreter/frame.h         src/interpreter/frame.c
-    src/interpreter/interpreter.h   src/interpreter/interpreter.c
+    src/interpreter/treewalk.h      src/interpreter/treewalk.c
 
     src/debug/debug.h               src/debug/debug.c
 )

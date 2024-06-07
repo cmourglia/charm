@@ -4,4 +4,4 @@
 
 struct Program;
 
-void interpreter_run(struct Program program);
+void treewalk_interpreter_run(struct Program program);
