@@ -26,24 +26,28 @@ static Token consume(Parser *parser, Token_Type expected);
 static bool match(Parser *parser, Token_Type type);
 static bool check(Parser *parser, Token_Type type);
 
-// program      -> declaration* EOF ;
-// declaration  -> var_decl | statement
-// statement    -> expr_stmt | print_stmt | if_stmt | block_stmt | while_stmt
-//               | for_stmt ;
-// expr_stmt    -> expression ";" ;
-// print_stmt   -> "print" expression ";" ;
-// var_decl     -> "var" IDENTIFIER ( "=" expression )? ";" ;
-// if_stmt      -> "if" expression block_stmt ( "else" if_stmt | block_stmt ) ? ;
-// block_stmt   -> "{" ( statement )* "}" ;
-// while_stmt   -> "while" expression block_stmt ;
-// for_stmt     -> "for" ( var_decl | expr_stmt | ";" )
-//                  expression? ";"
-//                  expression? block_stmt ;
+// program          -> declaration* EOF ;
+// declaration      -> var_decl | fun_decl | statement
+// statement        -> expr_stmt | print_stmt | if_stmt | block_stmt
+//                   | while_stmt | for_stmt | return_stmt ;
+// expr_stmt        -> expression ";" ;
+// print_stmt       -> "print" expression ";" ;
+// var_decl         -> "var" IDENTIFIER ( "=" expression )? ";" ;
+// function_decl    -> "function" function ;
+// function         -> IDENTIFIER "(" parameters? ")" block_stmt ;
+// if_stmt          -> "if" expression block_stmt
+//                     ( "else" if_stmt | block_stmt ) ? ;
+// block_stmt       -> "{" ( statement )* "}" ;
+// while_stmt       -> "while" expression block_stmt ;
+// for_stmt         -> "for" ( var_decl | expr_stmt | ";" )
+//                     expression? ";"
+//                     expression? block_stmt ;
 static Stmt *declaration(Parser *parser);
 static Stmt *statement(Parser *parser);
 static Stmt *expr_stmt(Parser *parser);
 static Stmt *print_stmt(Parser *parser);
 static Stmt *var_decl(Parser *parser);
+static Stmt *function(Parser *parser);
 static Stmt *if_stmt(Parser *parser);
 static Stmt *block_stmt(Parser *parser);
 static Stmt *while_stmt(Parser *parser);
@@ -58,7 +62,9 @@ static Stmt *for_stmt(Parser *parser);
 // term         -> factor ( ( "-" | "+" ) factor )* ;
 // factor       -> unary ( ( "/" | "*" ) unary )* ;
 // unary        -> ("not" | "-") unary
-//               | primary ;
+//               | call ;
+// call         -> primary ( "(" arguments? ")" "* ;
+// arguments    -> expression ( "," expression )* ;
 // primary      -> NUMBER | STRING | "true" | "false" | "nil"
 //               | "(" expression ")" | IDENTIFIER;
 static Expr *expression(Parser *parser);
@@ -70,6 +76,7 @@ static Expr *comparison(Parser *parser);
 static Expr *term(Parser *parser);
 static Expr *factor(Parser *parser);
 static Expr *unary(Parser *parser);
+static Expr *call(Parser *parser);
 static Expr *primary(Parser *parser);
 
 static void append_stmt(Program *program, Stmt *stmt);
@@ -95,13 +102,11 @@ static void append_stmt(Program *program, Stmt *stmt)
 	darray_push(program->statements, stmt);
 }
 
-// expression   -> assignment;
 static Expr *expression(Parser *parser)
 {
 	return assignment(parser);
 }
 
-// assignment   -> IDENTIFIER "=" assignment | logic_or ;
 static Expr *assignment(Parser *parser)
 {
 	Expr *expr = logic_or(parser);
@@ -124,7 +129,6 @@ static Expr *assignment(Parser *parser)
 	return expr;
 }
 
-// logic_or     -> logic_and ( "or" logic_and )* ;
 static Expr *logic_or(Parser *parser)
 {
 	Expr *expr = logic_and(parser);
@@ -140,7 +144,6 @@ static Expr *logic_or(Parser *parser)
 	return expr;
 }
 
-// logic_and    -> equality ( "and" equality )* ;
 static Expr *logic_and(Parser *parser)
 {
 	Expr *expr = equality(parser);
@@ -156,7 +159,6 @@ static Expr *logic_and(Parser *parser)
 	return expr;
 }
 
-// equality -> comparison ( ( "!=" | "==" ) comparison )* ;
 static Expr *equality(Parser *parser)
 {
 	Expr *expr = comparison(parser);
@@ -172,7 +174,6 @@ static Expr *equality(Parser *parser)
 	return expr;
 }
 
-// comparison -> term ( ( ">" | ">=" | "<" | "<=" ) term )? ;
 static Expr *comparison(Parser *parser)
 {
 	Expr *expr = term(parser);
@@ -189,7 +190,6 @@ static Expr *comparison(Parser *parser)
 	return expr;
 }
 
-// term       -> factor ( ( "-" | "+" ) factor )* ;
 static Expr *term(Parser *parser)
 {
 	Expr *expr = factor(parser);
@@ -205,7 +205,6 @@ static Expr *term(Parser *parser)
 	return expr;
 }
 
-// factor     -> unary ( ( "/" | "*" ) unary )* ;
 static Expr *factor(Parser *parser)
 {
 	Expr *expr = unary(parser);
@@ -221,8 +220,6 @@ static Expr *factor(Parser *parser)
 	return expr;
 }
 
-// unary      -> ("not" | "-") unary
-//             | primary ;
 static Expr *unary(Parser *parser)
 {
 	if (match(parser, Token_Not) || match(parser, Token_Minus))
@@ -233,11 +230,50 @@ static Expr *unary(Parser *parser)
 		return ast_expr_unary(op, right);
 	}
 
-	return primary(parser);
+	return call(parser);
 }
 
-// primary    -> NUMBER | STRING | "true" | "false" | "nil"
-//             | "(" expression ")" | IDENTIFIER ;
+static Expr *finish_call(Parser *parser, Expr *expr);
+
+static Expr *call(Parser *parser)
+{
+	Expr *expr = primary(parser);
+
+	while (true)
+	{
+		if (match(parser, Token_LeftParen))
+		{
+			expr = finish_call(parser, expr);
+		}
+		else
+		{
+			break;
+		}
+	}
+
+	return expr;
+}
+
+static Expr *finish_call(Parser *parser, Expr *callee)
+{
+	Expr **arguments = NULL;
+
+	if (!check(parser, Token_RightParen))
+	{
+		do
+		{
+			// FIXME: Limit the number of arguments ?
+
+			// NOLINTNEXTLINE(bugprone-sizeof-expression)
+			darray_push(arguments, expression(parser));
+		} while (match(parser, Token_Comma));
+	}
+
+	consume(parser, Token_RightParen);
+
+	return ast_expr_call(callee, arguments);
+}
+
 static Expr *primary(Parser *parser)
 {
 	switch (parser->curr_token.type)
@@ -299,7 +335,6 @@ static Expr *primary(Parser *parser)
 	}
 }
 
-// declaration -> var_decl | statement ;
 static Stmt *declaration(Parser *parser)
 {
 	while (match(parser, Token_Comment))
@@ -312,10 +347,14 @@ static Stmt *declaration(Parser *parser)
 		return var_decl(parser);
 	}
 
+	if (match(parser, Token_Function))
+	{
+		return function(parser);
+	}
+
 	return statement(parser);
 }
 
-// statement  -> expr_stmt | print_stmt | if_stmt | block_stmt;
 static Stmt *statement(Parser *parser)
 {
 	if (match(parser, Token_If))
@@ -346,7 +385,6 @@ static Stmt *statement(Parser *parser)
 	return expr_stmt(parser);
 }
 
-// expr_stmt  -> expression ";" ;
 static Stmt *expr_stmt(Parser *parser)
 {
 	Expr *expr = expression(parser);
@@ -356,7 +394,6 @@ static Stmt *expr_stmt(Parser *parser)
 	return ast_stmt_expression(expr);
 }
 
-// print_stmt -> "print" expression ";" ;
 static Stmt *print_stmt(Parser *parser)
 {
 	Expr *expr = expression(parser);
@@ -366,7 +403,6 @@ static Stmt *print_stmt(Parser *parser)
 	return ast_stmt_print(expr);
 }
 
-// var_decl     -> "var" IDENTIFIER ( "=" expression )? ";" ;
 static Stmt *var_decl(Parser *parser)
 {
 	Token identifier_token = consume(parser, Token_Identifier);
@@ -385,7 +421,33 @@ static Stmt *var_decl(Parser *parser)
 	return ast_stmt_var_decl(identifier, expr);
 }
 
-// if_stmt      -> "if" expression block_stmt ( "else" block_stmt | if_stmt) ? ;
+static Stmt *function(Parser *parser)
+{
+	Token name_token = consume(parser, Token_Identifier);
+	Identifier name = ast_identifier(&parser->identifiers, name_token);
+
+	consume(parser, Token_LeftParen);
+
+	Identifier *args = NULL;
+
+	if (!check(parser, Token_RightParen))
+	{
+		do
+		{
+			Token arg_token = consume(parser, Token_Identifier);
+			darray_push(args, ast_identifier(&parser->identifiers, arg_token));
+		} while (match(parser, Token_Comma));
+	}
+
+	consume(parser, Token_RightParen);
+
+	// Read args
+	consume(parser, Token_LeftBrace);
+	Stmt *body = block_stmt(parser);
+
+	return ast_stmt_function_decl(name, args, body);
+}
+
 static Stmt *if_stmt(Parser *parser)
 {
 	Expr *cond = expression(parser);
@@ -410,7 +472,6 @@ static Stmt *if_stmt(Parser *parser)
 	return ast_stmt_if(cond, then_branch, else_branch);
 }
 
-// block_stmt   -> "{" ( declaration )* "}" ;
 static Stmt *block_stmt(Parser *parser)
 {
 	Stmt **statements = NULL;
@@ -426,7 +487,6 @@ static Stmt *block_stmt(Parser *parser)
 	return ast_stmt_block(statements);
 }
 
-// while_stmt   -> "while" expression block_stmt ;
 static Stmt *while_stmt(Parser *parser)
 {
 	Expr *cond = expression(parser);
@@ -437,9 +497,6 @@ static Stmt *while_stmt(Parser *parser)
 	return ast_stmt_while(cond, body);
 }
 
-// for_stmt     -> "for" ( var_decl | expr_stmt | ";" )
-//                  expression? ";"
-//                  expression? block_stmt ;
 static Stmt *for_stmt(Parser *parser)
 {
 	Stmt *initializer = NULL;

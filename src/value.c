@@ -20,3 +20,14 @@ Value value_bool(bool b)
 		.value_type = Value_Bool,
 	};
 }
+
+Value value_function(struct Identifier *args, struct Stmt *body)
+{
+	return (Value){
+		.function = {
+            .args = args,
+            .body = body,
+        },
+		.value_type = Value_Function,
+	};
+}

@@ -1,6 +1,7 @@
 #include "debug.h"
 
 #include "ast.h"
+#include "beard_lib.h"
 #include "common.h"
 #include "parser.h"
 
@@ -183,6 +184,26 @@ static void print_expr(Expr *expr, int level)
 		}
 		break;
 
+		case Expr_Call: {
+			PRINT_EXPR_TYPE(Call);
+			PRINT_EXPR_CHILD(Callee, expr->call.callee);
+			if (darray_len(expr->call.arguments) > 0)
+			{
+				printf("\n");
+				PRINT_HEADER(Arguments);
+				level += 1;
+				for (int i = 0; i < darray_len(expr->call.arguments); i++)
+				{
+					printf("\n");
+					INDENT();
+					print_expr(expr->call.arguments[i], level + 1);
+				}
+				level -= 1;
+			}
+			printf("\n");
+		}
+		break;
+
 		case Expr_NumberLiteral: {
 			PRINT_EXPR_LITERAL(Number, "%f", expr->number);
 		}
@@ -223,7 +244,7 @@ static void print_stmt(Stmt *stmt, int level)
 		case Stmt_VarDecl: {
 			PRINT_STMT_TYPE(Variable Declaration);
 			PRINT_HEADER(Name);
-			PRINT_IDENTIFIER(BLU, stmt->var_decl.identifier);
+			PRINT_IDENTIFIER(BLU, stmt->var_decl.name);
 
 			if (stmt->var_decl.expr != NULL)
 			{
@@ -234,6 +255,37 @@ static void print_stmt(Stmt *stmt, int level)
 
 			printf("\n");
 			//printf(RED #t RESET " <" GRY format RESET ">", (value))
+		}
+		break;
+
+		case Stmt_FunctionDecl: {
+			PRINT_STMT_TYPE(Function Declaration);
+			PRINT_HEADER(Name);
+			PRINT_IDENTIFIER(BLU, stmt->function_decl.name);
+			printf("\n");
+
+			int arity = darray_len(stmt->function_decl.args);
+			PRINT_HEADER(Arity);
+			printf("%d\n", arity);
+
+			if (arity > 0)
+			{
+				PRINT_HEADER(Args);
+				for (int i = 0; i < arity; i++)
+				{
+					if (i != 0)
+					{
+						printf(", ");
+					}
+
+					PRINT_IDENTIFIER(BLU, stmt->function_decl.args[i]);
+				}
+
+				printf("\n");
+			}
+
+			PRINT_HEADER(Body);
+			print_stmt(stmt->function_decl.body, level + 1);
 		}
 		break;
 

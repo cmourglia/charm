@@ -99,6 +99,16 @@ Expr *ast_expr_assignment(Identifier name, Expr *expr)
 	return node;
 }
 
+Expr *ast_expr_call(Expr *callee, Expr **arguments)
+{
+	Expr *node = make_expr(Expr_Call);
+
+	node->call.callee = callee;
+	node->call.arguments = arguments;
+
+	return node;
+}
+
 static Stmt *make_stmt(Stmt_Type type)
 {
 	Stmt *ptr = malloc(sizeof(Stmt));
@@ -130,12 +140,23 @@ Stmt *ast_stmt_print(Expr *expr)
 	return node;
 }
 
-Stmt *ast_stmt_var_decl(Identifier identifier, Expr *expr)
+Stmt *ast_stmt_var_decl(Identifier name, Expr *expr)
 {
 	Stmt *node = make_stmt(Stmt_VarDecl);
 
-	node->var_decl.identifier = identifier;
+	node->var_decl.name = name;
 	node->var_decl.expr = expr;
+
+	return node;
+}
+
+Stmt *ast_stmt_function_decl(Identifier name, Identifier *args, Stmt *body)
+{
+	Stmt *node = make_stmt(Stmt_FunctionDecl);
+
+	node->function_decl.name = name;
+	node->function_decl.args = args;
+	node->function_decl.body = body;
 
 	return node;
 }

@@ -46,21 +46,31 @@ extern "C" {
 #endif
 
 extern void *_beard_darray_push(void *arr, void *elem, usize stride);
+extern void _beard_darray_pop(void *arr);
 extern void _beard_darray_free(void *arr);
 extern usize _beard_darray_len(void *arr);
 
 #define beard_darray_free(arr) _beard_darray_free(arr)
 #define beard_darray_len(arr) _beard_darray_len(arr)
+#define beard_darray_empty(arr) (beard_darray_len(arr) == 0)
 #define beard_darray_push(arr, elem)                          \
 	do                                                        \
 	{                                                         \
 		typeof(elem) _temp = elem;                            \
 		arr = _beard_darray_push(arr, &_temp, sizeof(_temp)); \
 	} while (false)
+#define beard_darray_pop(arr) \
+	(_beard_darray_pop(arr), (arr)[beard_darray_len(arr)])
+#define beard_darray_last(arr) (arr)[beard_darray_len(arr) - 1]
+#define beard_darray_back beard_darray_last
 
 #ifndef BEARD_NO_SHORT_NAMES
 #define darray_push beard_darray_push
+#define darray_pop beard_darray_pop
 #define darray_len beard_darray_len
+#define darray_last beard_darray_last
+#define darray_back beard_darray_back
+#define darray_empty beard_darray_empty
 #define darray_free beard_darray_free
 #endif
 

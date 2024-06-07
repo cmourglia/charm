@@ -18,6 +18,7 @@ add_executable(${PROJECT_NAME}
     src/token.h
 
     src/debug.h         src/debug.c
+    src/frame.h         src/frame.c
     src/interpreter.h   src/interpreter.c
 )
 

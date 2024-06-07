@@ -7,15 +7,21 @@
 #include "common.h"
 #include "token.h"
 #include "value.h"
+#include "frame.h"
 
 static Value interpret_expr(Expr *expr);
 static void interpret_stmt(Stmt *stmt);
 
-static Hash_Table variables;
+// TODO: Statement result
+// enum StmtResultType { None, Return, Continue, Break, };
+// struct StmtResult { union {}; StmtResultType type; };
+
+static Frame_Stack frame_stack;
 
 void interpreter_run(struct Program program)
 {
-	hash_table_init(&variables);
+	frame_stack_init(&frame_stack);
+	frame_stack_push_frame(&frame_stack);
 
 	int count = darray_len(program.statements);
 	for (int i = 0; i < count; i++)
@@ -258,15 +264,50 @@ static Value interpret_expr(Expr *expr)
 
 		case Expr_Assignment: {
 			Value value = interpret_expr(expr->assignment.value);
-			hash_table_set(&variables, expr->assignment.name, value);
+			if (!frame_stack_set_variable(&frame_stack, expr->assignment.name,
+										  value))
+			{
+				// TODO: Error
+				printf("Variable '%.*s' does not exist or types do not match\n",
+					   expr->assignment.name.len, expr->assignment.name.str);
+			}
 			return value;
 		}
 		break;
 
 		case Expr_Identifier: {
-			Value value;
-			hash_table_get(&variables, expr->identifier, &value);
+			Value value = value_nil();
+			if (!frame_stack_get_value(&frame_stack, expr->identifier, &value))
+			{
+				// TODO: Error
+				printf("Variable '%.*s' does not exist\n",
+					   expr->assignment.name.len, expr->assignment.name.str);
+			}
 			return value;
+		}
+		break;
+
+		case Expr_Call: {
+			Value callee = interpret_expr(expr->call.callee);
+
+			assert(callee.value_type == Value_Function);
+
+			frame_stack_push_frame(&frame_stack);
+
+			int arity = darray_len(callee.function.args);
+			assert(arity == darray_len(expr->call.arguments));
+
+			for (int i = 0; i < arity; i++)
+			{
+				Identifier arg_name = callee.function.args[i];
+				Value arg_value = interpret_expr(expr->call.arguments[i]);
+
+				frame_stack_declare_variable(&frame_stack, arg_name, arg_value);
+			}
+
+			interpret_stmt(callee.function.body);
+
+			frame_stack_pop_frame(&frame_stack);
 		}
 		break;
 	}
@@ -312,13 +353,22 @@ static void interpret_stmt(Stmt *stmt)
 
 		case Stmt_VarDecl: {
 			Value value = value_nil();
-
 			if (stmt->var_decl.expr != NULL)
 			{
 				value = interpret_expr(stmt->var_decl.expr);
 			}
 
-			hash_table_set(&variables, stmt->var_decl.identifier, value);
+			frame_stack_declare_variable(&frame_stack, stmt->var_decl.name,
+										 value);
+		}
+		break;
+
+		case Stmt_FunctionDecl: {
+			Value value = value_function(stmt->function_decl.args,
+										 stmt->function_decl.body);
+
+			frame_stack_declare_variable(&frame_stack, stmt->function_decl.name,
+										 value);
 		}
 		break;
 

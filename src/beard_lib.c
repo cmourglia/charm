@@ -10,16 +10,8 @@ typedef struct {
 static const usize INITIAL_CAPACITY = 8;
 static const usize GROWTH_FACTOR = 2;
 
-static Dyn_Array_Header *da_header(void *arr)
-{
-	if (arr == NULL)
-	{
-		return NULL;
-	}
-
-	u8 *header_raw = (u8 *)arr - sizeof(Dyn_Array_Header);
-	return (Dyn_Array_Header *)header_raw;
-}
+#define da_header(arr) \
+	(((arr) != NULL) ? ((Dyn_Array_Header *)(arr) - 1) : NULL)
 
 static Dyn_Array_Header *da_resize(Dyn_Array_Header *old, usize capacity,
 								   usize stride)
@@ -37,6 +29,7 @@ static Dyn_Array_Header *da_resize(Dyn_Array_Header *old, usize capacity,
 void *_beard_darray_push(void *arr, void *elem, usize stride)
 {
 	Dyn_Array_Header *header = da_header(arr);
+
 	if (header == NULL)
 	{
 		header = da_resize(NULL, INITIAL_CAPACITY, stride);
@@ -53,6 +46,17 @@ void *_beard_darray_push(void *arr, void *elem, usize stride)
 	header->length += 1;
 
 	return array;
+}
+
+void _beard_darray_pop(void *arr)
+{
+	Dyn_Array_Header *header = da_header(arr);
+	if (header == NULL || header->length == 0)
+	{
+		return;
+	}
+
+	header->length -= 1;
 }
 
 usize _beard_darray_len(void *arr)
