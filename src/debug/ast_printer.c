@@ -1,4 +1,4 @@
-#include "ast_printer.h"
+#include "debug.h"
 
 #include <stdio.h>
 

@@ -17,11 +17,15 @@ add_executable(${PROJECT_NAME}
     src/ast/parser.h                src/ast/parser.c
     src/ast/token.h
 
+    src/compiler/chunk.h            src/compiler/chunk.c
+
     src/interpreter/frame.h         src/interpreter/frame.c
     src/interpreter/treewalk.h      src/interpreter/treewalk.c
+    src/interpreter/vm.h            src/interpreter/vm.c
 
     src/debug/debug.h               src/debug/debug.c
-    src/debug/ast_printer.h         src/debug/ast_printer.c
+                                    src/debug/ast_printer.c
+                                    src/debug/disassembler.c
 )
 
 if (MSVC)

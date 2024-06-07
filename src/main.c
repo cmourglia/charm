@@ -1,7 +1,12 @@
+#include "core/value.h"
+
 #include "ast/parser.h"
 #include "ast/lexer.h"
 
-#include "debug/ast_printer.h"
+#include "compiler/chunk.h"
+
+#include "debug/debug.h"
+
 #include "interpreter/treewalk.h"
 
 #include "core/beard_lib.h"
@@ -31,6 +36,18 @@ int main(int argc, char **argv)
 	debug_print_program(program);
 
 	treewalk_interpreter_run(program);
+
+	printf("\n\n");
+
+	Chunk chunk;
+	chunk_init(&chunk);
+
+	chunk_write_constant(&chunk, value_number(42));
+
+	chunk_write(&chunk, Op_Return);
+	debug_disassemble_chunk(&chunk, "test chunk");
+
+	chunk_free(&chunk);
 
 	//for (;;)
 	//{
