@@ -1,6 +1,7 @@
 #include "chunk.h"
 
 #include "core/value.h"
+#include "core/dyn_array.h"
 
 static i32 add_constant(Chunk *chunk, struct Value value);
 

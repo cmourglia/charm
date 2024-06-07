@@ -20,8 +20,3 @@ void *mem_reallocate(void *buffer, int new_capacity)
 
 	return result;
 }
-
-void mem_copy(void *destination, const void *source, int size)
-{
-	memcpy(destination, source, size);
-}

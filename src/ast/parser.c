@@ -4,7 +4,7 @@
 #include <stdlib.h>
 
 #include "core/common.h"
-#include "core/beard_lib.h"
+#include "core/dyn_array.h"
 
 #include "lexer.h"
 #include "ast.h"

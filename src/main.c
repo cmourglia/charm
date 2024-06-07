@@ -1,3 +1,6 @@
+#include <stdio.h>
+
+#include "core/memory.h"
 #include "core/value.h"
 
 #include "ast/parser.h"
@@ -9,9 +12,8 @@
 
 #include "interpreter/treewalk.h"
 
-#include "core/beard_lib.h"
-
 static void usage(int argc, char **argv);
+static char *read_whole_file(const char *filename);
 
 int main(int argc, char **argv)
 {
@@ -21,7 +23,7 @@ int main(int argc, char **argv)
 		return 1;
 	}
 
-	const char *src = beard_read_whole_file(argv[1]);
+	const char *src = read_whole_file(argv[1]);
 
 	if (src == NULL)
 	{
@@ -69,4 +71,39 @@ int main(int argc, char **argv)
 static void usage(int argc, char **argv)
 {
 	printf("Usage: %s <filename.charm>\n", argv[0]);
+}
+
+static char *read_whole_file(const char *filename)
+{
+	FILE *file = fopen(filename, "rb");
+
+	if (file == NULL)
+	{
+		printf("Could not find file '%s'\n", filename);
+		return NULL;
+	}
+
+	fseek(file, 0, SEEK_END);
+	u64 size = ftell(file);
+	rewind(file);
+
+	char *content = (char *)mem_realloc(NULL, size + 1);
+	if (content == NULL)
+	{
+		printf("Could not alloc %zu bytes to read file\n", size + 1);
+		fclose(file);
+		return NULL;
+	}
+
+	int read = fread(content, size, 1, file);
+
+	if (read != 1)
+	{
+		printf("Something went wrong while reading file\n");
+		fclose(file);
+		mem_free(content);
+		return NULL;
+	}
+
+	return content;
 }

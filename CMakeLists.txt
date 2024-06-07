@@ -6,10 +6,10 @@ set(CMAKE_C_STANDARD 11)
 add_executable(${PROJECT_NAME}
     src/main.c
 
-    src/core/beard_lib.h            src/core/beard_lib.c
-
     src/core/memory.h               src/core/memory.c
+    src/core/string.h               src/core/string.c
     src/core/value.h                src/core/value.c
+    src/core/dyn_array.h            src/core/dyn_array.c
     src/core/hash_table.h           src/core/hash_table.c
 
     src/ast/ast.h                   src/ast/ast.c

@@ -4,6 +4,7 @@
 
 #include "core/common.h"
 #include "core/value.h"
+#include "core/dyn_array.h"
 
 #include "compiler/chunk.h"
 

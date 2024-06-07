@@ -23,12 +23,12 @@ static u32 hash_string(Key key)
 
 void hash_table_init(Hash_Table *table)
 {
-	MEM_ZERO(table, Hash_Table, 1);
+	mem_zero(table, Hash_Table, 1);
 }
 
 void hash_table_free(Hash_Table *table)
 {
-	MEM_FREE_ARRAY(Entry, table->entries);
+	mem_free_array(Entry, table->entries);
 	hash_table_init(table);
 }
 
@@ -42,7 +42,7 @@ bool hash_table_set(Hash_Table *table, Key key, Value value)
 {
 	if (table->count + 1 > table->capacity * TABLE_MAX_LOAD)
 	{
-		int capacity = MEM_GROW_CAPACITY(table->capacity, 0);
+		int capacity = mem_grow_capacity(table->capacity, 0);
 		adjust_capacity(table, capacity);
 	}
 
@@ -101,9 +101,9 @@ bool hash_table_delete(Hash_Table *table, Key key)
 
 static void adjust_capacity(Hash_Table *table, int new_capacity)
 {
-	Entry *entries = MEM_ALLOCATE(Entry, new_capacity);
+	Entry *entries = mem_allocate(Entry, new_capacity);
 
-	MEM_ZERO(entries, Entry, new_capacity);
+	mem_zero(entries, Entry, new_capacity);
 
 	table->count = 0;
 
@@ -121,7 +121,7 @@ static void adjust_capacity(Hash_Table *table, int new_capacity)
 		table->count += 1;
 	}
 
-	MEM_FREE_ARRAY(Entry, table->entries);
+	mem_free_array(Entry, table->entries);
 
 	table->entries = entries;
 	table->capacity = new_capacity;

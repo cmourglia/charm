@@ -3,6 +3,7 @@
 #include <time.h>
 
 #include "core/value.h"
+#include "core/dyn_array.h"
 
 #include "ast/parser.h"
 #include "ast/ast.h"

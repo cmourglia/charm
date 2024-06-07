@@ -1,6 +1,6 @@
 #include "frame.h"
 
-#include "core/beard_lib.h"
+#include "core/dyn_array.h"
 #include "core/hash_table.h"
 
 typedef struct Frame

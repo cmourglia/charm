@@ -2,6 +2,8 @@
 
 #include <stdio.h>
 
+#include "core/dyn_array.h"
+
 #include "ast/ast.h"
 #include "ast/parser.h"
 
