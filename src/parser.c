@@ -42,6 +42,7 @@ static bool check(Parser *parser, Token_Type type);
 // for_stmt         -> "for" ( var_decl | expr_stmt | ";" )
 //                     expression? ";"
 //                     expression? block_stmt ;
+// return_stmt      -> "return" expression? ";" ;
 static Stmt *declaration(Parser *parser);
 static Stmt *statement(Parser *parser);
 static Stmt *expr_stmt(Parser *parser);
@@ -52,6 +53,7 @@ static Stmt *if_stmt(Parser *parser);
 static Stmt *block_stmt(Parser *parser);
 static Stmt *while_stmt(Parser *parser);
 static Stmt *for_stmt(Parser *parser);
+static Stmt *return_stmt(Parser *parser);
 
 // expression   -> assignment ;
 // assignment   -> IDENTIFIER "=" assignment | logic_or ;
@@ -89,7 +91,11 @@ struct Program parser_parse_program(Parser *parser)
 
 	while (parser->curr_token.type != Token_EOF)
 	{
-		append_stmt(&program, declaration(parser));
+		Stmt *stmt = declaration(parser);
+		if (stmt != NULL)
+		{
+			append_stmt(&program, stmt);
+		}
 	}
 
 	return program;
@@ -342,6 +348,11 @@ static Stmt *declaration(Parser *parser)
 		// Skip comments
 	}
 
+	if (check(parser, Token_EOF))
+	{
+		return NULL;
+	}
+
 	if (match(parser, Token_Var))
 	{
 		return var_decl(parser);
@@ -380,6 +391,11 @@ static Stmt *statement(Parser *parser)
 	if (match(parser, Token_Print))
 	{
 		return print_stmt(parser);
+	}
+
+	if (match(parser, Token_Return))
+	{
+		return return_stmt(parser);
 	}
 
 	return expr_stmt(parser);
@@ -555,6 +571,20 @@ static Stmt *for_stmt(Parser *parser)
 	darray_push(while_stmts, while_stmt);
 
 	return ast_stmt_block(while_stmts);
+}
+
+static Stmt *return_stmt(Parser *parser)
+{
+	Expr *return_expr = NULL;
+
+	if (!check(parser, Token_Semicolon))
+	{
+		return_expr = expression(parser);
+	}
+
+	consume(parser, Token_Semicolon);
+
+	return ast_stmt_return(return_expr);
 }
 
 static bool match(Parser *parser, Token_Type type)

@@ -63,6 +63,7 @@ typedef enum Stmt_Type {
 	Stmt_Block,
 	Stmt_If,
 	Stmt_While,
+	Stmt_Return,
 } Stmt_Type;
 
 struct Stmt;
@@ -102,6 +103,10 @@ typedef struct Stmt {
 			Expr *cond;
 			struct Stmt *body;
 		} while_stmt;
+
+		struct {
+			Expr *expr;
+		} return_stmt;
 	};
 
 	Stmt_Type stmt_type;
@@ -126,3 +131,4 @@ Stmt *ast_stmt_function_decl(Identifier name, Identifier *args, Stmt *body);
 Stmt *ast_stmt_block(Stmt **statements);
 Stmt *ast_stmt_if(Expr *cond, Stmt *then_branch, Stmt *else_branch);
 Stmt *ast_stmt_while(Expr *cond, Stmt *body);
+Stmt *ast_stmt_return(Expr *expr);

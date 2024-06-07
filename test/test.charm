@@ -33,29 +33,52 @@
 //    g = f - g;
 //}
 
-function foo() {
-    print 42;
+//function a() {
+//    for var i = 0; i <= 10; i = i + 1 {
+//        print i;
+//        if i == 5 {
+//            return i;
+//        }
+//    }
+//}
+//
+//var b = a();
+//print b;
+//
+//function foo() {
+//    print 42;
+//}
+//
+//function bar(a) {
+//    print a + 42;
+//}
+//
+//function baz(a, b, c, d) {
+//    print (a + b) * (c + d);
+//}
+//
+//foo();
+//bar(1337 - 42);
+//baz(1, 2, 3, 4);
+
+
+//function count(n) {
+//    if n > 1 { count(n - 1); }
+//    print(n);
+//}
+//
+//count(3);
+
+function fib(n) {
+    if n <= 1 {
+        return n;
+    }
+    return fib(n - 2) + fib(n - 1);
 }
 
-function bar(a) {
-    print a + 42;
-}
+//for var i = 0; i < 30; i = i + 1 {
+    //print fib(i);
+//}
 
-function baz(a, b, c, d) {
-    print (a + b) * (c + d);
-}
+print fib(25);
 
-foo();
-bar(1337 - 42);
-baz(1, 2, 3, 4);
-
-
-function count(n) {
-    if n > 1 { count(n - 1); }
-    print(n);
-}
-
-count(3);
-
-
-}

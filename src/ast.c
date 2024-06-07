@@ -190,3 +190,12 @@ Stmt *ast_stmt_while(Expr *cond, Stmt *body)
 
 	return node;
 }
+
+Stmt *ast_stmt_return(Expr *expr)
+{
+	Stmt *node = make_stmt(Stmt_Return);
+
+	node->return_stmt.expr = expr;
+
+	return node;
+}

@@ -1,5 +1,6 @@
 #include "interpreter.h"
 
+#include "beard_lib.h"
 #include "hash_table.h"
 #include "parser.h"
 
@@ -9,12 +10,41 @@
 #include "value.h"
 #include "frame.h"
 
-static Value interpret_expr(Expr *expr);
-static void interpret_stmt(Stmt *stmt);
-
 // TODO: Statement result
-// enum StmtResultType { None, Return, Continue, Break, };
-// struct StmtResult { union {}; StmtResultType type; };
+typedef enum {
+	Result_None,
+	Result_Return,
+	// TODO: Continue,
+	// TODO: Break,
+	// TODO: Error ?
+} ResultType;
+
+typedef struct {
+	union {
+		struct {
+			Value value;
+		} return_result;
+	};
+
+	ResultType result_type;
+} Result;
+
+static Value interpret_expr(Expr *expr);
+
+static NODISCARD Result interpret_stmt(Stmt *stmt);
+
+static Result result_none()
+{
+	return (Result){ .result_type = Result_None };
+}
+
+static Result result_return(Value value)
+{
+	return (Result){
+		.return_result = { .value = value },
+		.result_type = Result_Return,
+	};
+}
 
 static Frame_Stack frame_stack;
 
@@ -26,7 +56,9 @@ void interpreter_run(struct Program program)
 	int count = darray_len(program.statements);
 	for (int i = 0; i < count; i++)
 	{
-		interpret_stmt(program.statements[i]);
+		Result result = interpret_stmt(program.statements[i]);
+		// TODO: Handle errors here ?
+		UNUSED(result);
 	}
 }
 
@@ -305,23 +337,33 @@ static Value interpret_expr(Expr *expr)
 				frame_stack_declare_variable(&frame_stack, arg_name, arg_value);
 			}
 
-			interpret_stmt(callee.function.body);
+			Result result = interpret_stmt(callee.function.body);
 
 			frame_stack_pop_frame(&frame_stack);
+
+			switch (result.result_type)
+			{
+				case Result_None:
+					return value_nil();
+
+				case Result_Return:
+					return result.return_result.value;
+			}
 		}
 		break;
 	}
 
-	return value_nil();
+	UNREACHABLE();
 }
 
-static void interpret_stmt(Stmt *stmt)
+static NODISCARD Result interpret_stmt(Stmt *stmt)
 {
 	switch (stmt->stmt_type)
 	{
 		case Stmt_Expr: {
 			Value value = interpret_expr(stmt->expression.expr);
 			UNUSED(value);
+			return result_none();
 		}
 		break;
 
@@ -348,6 +390,8 @@ static void interpret_stmt(Stmt *stmt)
 				default:
 					UNREACHABLE();
 			}
+
+			return result_none();
 		}
 		break;
 
@@ -360,6 +404,8 @@ static void interpret_stmt(Stmt *stmt)
 
 			frame_stack_declare_variable(&frame_stack, stmt->var_decl.name,
 										 value);
+
+			return result_none();
 		}
 		break;
 
@@ -369,19 +415,30 @@ static void interpret_stmt(Stmt *stmt)
 
 			frame_stack_declare_variable(&frame_stack, stmt->function_decl.name,
 										 value);
+
+			return result_none();
 		}
 		break;
 
 		case Stmt_Block: {
 			frame_stack_push_frame(&frame_stack);
 
+			Result block_result = result_none();
+
 			int count = darray_len(stmt->block.statements);
 			for (int i = 0; i < count; i++)
 			{
-				interpret_stmt(stmt->block.statements[i]);
+				Result result = interpret_stmt(stmt->block.statements[i]);
+				if (result.result_type == Result_Return)
+				{
+					block_result = result;
+					break;
+				}
 			}
 
 			frame_stack_pop_frame(&frame_stack);
+
+			return block_result;
 		}
 		break;
 
@@ -390,24 +447,29 @@ static void interpret_stmt(Stmt *stmt)
 			if (value.value_type != Value_Bool)
 			{
 				printf("Error: if condition is not a boolean expression\n");
-				return;
+				// FIXME: Return error ?
+				return result_none();
 			}
 
 			if (value.boolean)
 			{
-				interpret_stmt(stmt->if_stmt.then_branch);
+				return interpret_stmt(stmt->if_stmt.then_branch);
 			}
 			else
 			{
 				if (stmt->if_stmt.else_branch != NULL)
 				{
-					interpret_stmt(stmt->if_stmt.else_branch);
+					return interpret_stmt(stmt->if_stmt.else_branch);
 				}
+
+				return result_none();
 			}
 		}
 		break;
 
 		case Stmt_While: {
+			Result block_result = result_none();
+
 			while (true)
 			{
 				Value value = interpret_expr(stmt->while_stmt.cond);
@@ -424,9 +486,29 @@ static void interpret_stmt(Stmt *stmt)
 					break;
 				}
 
-				interpret_stmt(stmt->while_stmt.body);
+				Result result = interpret_stmt(stmt->while_stmt.body);
+				if (result.result_type == Result_Return)
+				{
+					block_result = result;
+					break;
+				}
 			}
+
+			return block_result;
+		}
+		break;
+
+		case Stmt_Return: {
+			Value result = value_nil();
+			if (stmt->return_stmt.expr != NULL)
+			{
+				result = interpret_expr(stmt->return_stmt.expr);
+			}
+
+			return result_return(result);
 		}
 		break;
 	}
+
+	UNREACHABLE();
 }

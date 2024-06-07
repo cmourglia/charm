@@ -324,6 +324,21 @@ static void print_stmt(Stmt *stmt, int level)
 			print_stmt(stmt->while_stmt.body, level + 1);
 		}
 		break;
+
+		case Stmt_Return: {
+			PRINT_STMT_TYPE(Return);
+			PRINT_STMT_CHILD(Expression);
+			if (stmt->return_stmt.expr == NULL)
+			{
+				printf("<NONE>");
+			}
+			else
+			{
+				print_expr(stmt->return_stmt.expr, level + 1);
+			}
+
+			printf("\n");
+		}
 	}
 }
 

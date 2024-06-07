@@ -41,6 +41,8 @@ typedef double f64;
 #define BEARD_ASSERT assert
 #endif
 
+#define NODISCARD __attribute__((warn_unused_result))
+
 #ifdef __cplusplus
 extern "C" {
 #endif
