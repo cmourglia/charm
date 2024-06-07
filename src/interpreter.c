@@ -373,11 +373,15 @@ static void interpret_stmt(Stmt *stmt)
 		break;
 
 		case Stmt_Block: {
+			frame_stack_push_frame(&frame_stack);
+
 			int count = darray_len(stmt->block.statements);
 			for (int i = 0; i < count; i++)
 			{
 				interpret_stmt(stmt->block.statements[i]);
 			}
+
+			frame_stack_pop_frame(&frame_stack);
 		}
 		break;
 
