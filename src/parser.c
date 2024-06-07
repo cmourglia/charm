@@ -31,7 +31,6 @@ static bool check(Parser *parser, Token_Type type);
 // statement        -> expr_stmt | print_stmt | if_stmt | block_stmt
 //                   | while_stmt | for_stmt | return_stmt ;
 // expr_stmt        -> expression ";" ;
-// print_stmt       -> "print" expression ";" ;
 // var_decl         -> "var" IDENTIFIER ( "=" expression )? ";" ;
 // function_decl    -> "function" function ;
 // function         -> IDENTIFIER "(" parameters? ")" block_stmt ;
@@ -46,7 +45,6 @@ static bool check(Parser *parser, Token_Type type);
 static Stmt *declaration(Parser *parser);
 static Stmt *statement(Parser *parser);
 static Stmt *expr_stmt(Parser *parser);
-static Stmt *print_stmt(Parser *parser);
 static Stmt *var_decl(Parser *parser);
 static Stmt *function(Parser *parser);
 static Stmt *if_stmt(Parser *parser);
@@ -388,11 +386,6 @@ static Stmt *statement(Parser *parser)
 		return block_stmt(parser);
 	}
 
-	if (match(parser, Token_Print))
-	{
-		return print_stmt(parser);
-	}
-
 	if (match(parser, Token_Return))
 	{
 		return return_stmt(parser);
@@ -408,15 +401,6 @@ static Stmt *expr_stmt(Parser *parser)
 	consume(parser, Token_Semicolon);
 
 	return ast_stmt_expression(expr);
-}
-
-static Stmt *print_stmt(Parser *parser)
-{
-	Expr *expr = expression(parser);
-
-	consume(parser, Token_Semicolon);
-
-	return ast_stmt_print(expr);
 }
 
 static Stmt *var_decl(Parser *parser)

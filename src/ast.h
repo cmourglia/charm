@@ -57,7 +57,6 @@ typedef struct Expr {
 
 typedef enum Stmt_Type {
 	Stmt_Expr,
-	Stmt_Print,
 	Stmt_VarDecl,
 	Stmt_FunctionDecl,
 	Stmt_Block,
@@ -73,10 +72,6 @@ typedef struct Stmt {
 		struct {
 			Expr *expr;
 		} expression;
-
-		struct {
-			Expr *expr;
-		} print;
 
 		struct {
 			Identifier name;
@@ -114,6 +109,7 @@ typedef struct Stmt {
 
 struct Hash_Table;
 Identifier ast_identifier(struct Hash_Table *table, Token tk);
+Identifier ast_identifier_from_cstr(struct Hash_Table *table, const char *str);
 
 Expr *ast_expr_binary(Token_Type op, Expr *left, Expr *right);
 Expr *ast_expr_grouping(Expr *expr);
@@ -125,7 +121,6 @@ Expr *ast_expr_assignment(Identifier name, Expr *value);
 Expr *ast_expr_call(Expr *callee, Expr **arguments);
 
 Stmt *ast_stmt_expression(Expr *expr);
-Stmt *ast_stmt_print(Expr *expr);
 Stmt *ast_stmt_var_decl(Identifier identifier, Expr *expr);
 Stmt *ast_stmt_function_decl(Identifier name, Identifier *args, Stmt *body);
 Stmt *ast_stmt_block(Stmt **statements);

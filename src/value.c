@@ -31,3 +31,27 @@ Value value_function(struct Identifier *args, struct Stmt *body)
 		.value_type = Value_Function,
 	};
 }
+
+Value value_native_function(struct Identifier *args, NativeFunction function)
+{
+	return (Value) {
+        .native_function = {
+            .args = args,
+            .function = function,
+        },
+        .value_type = Value_NativeFunction,
+    };
+}
+
+Result result_none()
+{
+	return (Result){ .result_type = Result_None };
+}
+
+Result result_return(Value value)
+{
+	return (Result){
+		.return_result = { .value = value },
+		.result_type = Result_Return,
+	};
+}

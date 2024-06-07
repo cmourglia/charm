@@ -19,6 +19,22 @@ Identifier ast_identifier(Hash_Table *table, Token tk)
 	return ident;
 }
 
+Identifier ast_identifier_from_cstr(Hash_Table *table, const char *str)
+{
+	UNUSED(table);
+
+	int len = strlen(str);
+
+	Identifier ident = {
+		.str = malloc(len),
+		.len = len,
+	};
+
+	memcpy(ident.str, str, len);
+
+	return ident;
+}
+
 static Expr *make_expr(Expr_Type type)
 {
 	Expr *ptr = malloc(sizeof(Expr));
@@ -127,15 +143,6 @@ Stmt *ast_stmt_expression(Expr *expr)
 	Stmt *node = make_stmt(Stmt_Expr);
 
 	node->expression.expr = expr;
-
-	return node;
-}
-
-Stmt *ast_stmt_print(Expr *expr)
-{
-	Stmt *node = make_stmt(Stmt_Print);
-
-	node->print.expr = expr;
 
 	return node;
 }

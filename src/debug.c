@@ -103,8 +103,6 @@ const char *debug_get_token_type_str(Token_Type type)
 			return "While";
 		case Token_Super:
 			return "Super";
-		case Token_Print:
-			return "Print";
 	}
 
 	UNREACHABLE();
@@ -230,14 +228,6 @@ static void print_stmt(Stmt *stmt, int level)
 			PRINT_STMT_TYPE(Expression statement);
 			INDENT();
 			print_expr(stmt->expression.expr, level + 1);
-		}
-		break;
-
-		case Stmt_Print: {
-			PRINT_STMT_TYPE(Print statement);
-			INDENT();
-			print_expr(stmt->expression.expr, level + 1);
-			printf("\n");
 		}
 		break;
 

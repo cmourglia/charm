@@ -1,57 +1,84 @@
 #include "interpreter.h"
 
-#include "beard_lib.h"
-#include "hash_table.h"
+#include <time.h>
+
 #include "parser.h"
 
 #include "ast.h"
-#include "common.h"
 #include "token.h"
 #include "value.h"
 #include "frame.h"
-
-// TODO: Statement result
-typedef enum {
-	Result_None,
-	Result_Return,
-	// TODO: Continue,
-	// TODO: Break,
-	// TODO: Error ?
-} ResultType;
-
-typedef struct {
-	union {
-		struct {
-			Value value;
-		} return_result;
-	};
-
-	ResultType result_type;
-} Result;
 
 static Value interpret_expr(Expr *expr);
 
 static NODISCARD Result interpret_stmt(Stmt *stmt);
 
-static Result result_none()
-{
-	return (Result){ .result_type = Result_None };
-}
-
-static Result result_return(Value value)
-{
-	return (Result){
-		.return_result = { .value = value },
-		.result_type = Result_Return,
-	};
-}
-
 static Frame_Stack frame_stack;
+
+static Result native_print(Frame_Stack *stack);
+static Result native_time(Frame_Stack *stack);
+
+static void register_native_functions()
+{
+	Value time_fn = value_native_function(NULL, native_time);
+	frame_stack_declare_variable(
+		&frame_stack, ast_identifier_from_cstr(NULL, "time"), time_fn);
+
+	Identifier *print_args = NULL;
+	darray_push(print_args, ast_identifier_from_cstr(NULL, "print_a"));
+	Value print_fn = value_native_function(print_args, native_print);
+	frame_stack_declare_variable(
+		&frame_stack, ast_identifier_from_cstr(NULL, "print"), print_fn);
+}
+
+static Result native_time(Frame_Stack *stack)
+{
+	UNUSED(stack);
+
+	struct timespec clock;
+	clock_gettime(CLOCK_REALTIME, &clock);
+
+	f64 t = (f64)clock.tv_nsec * 1e-9 + clock.tv_sec;
+
+	return result_return(value_number(t));
+}
+
+static Result native_print(Frame_Stack *stack)
+{
+	Value value;
+	frame_stack_get_value(stack, ast_identifier_from_cstr(NULL, "print_a"),
+						  &value);
+
+	switch (value.value_type)
+	{
+		case Value_Nil: {
+			printf("<NIL>\n");
+		}
+		break;
+
+		case Value_Bool: {
+			printf("%s\n", (value.boolean ? "true" : "false"));
+		}
+		break;
+
+		case Value_Number: {
+			printf("%f\n", value.number);
+		}
+		break;
+
+		default:
+			UNREACHABLE();
+	}
+
+	return result_none();
+}
 
 void interpreter_run(struct Program program)
 {
 	frame_stack_init(&frame_stack);
 	frame_stack_push_frame(&frame_stack);
+
+	register_native_functions();
 
 	int count = darray_len(program.statements);
 	for (int i = 0; i < count; i++)
@@ -322,22 +349,55 @@ static Value interpret_expr(Expr *expr)
 		case Expr_Call: {
 			Value callee = interpret_expr(expr->call.callee);
 
-			assert(callee.value_type == Value_Function);
-
 			frame_stack_push_frame(&frame_stack);
 
-			int arity = darray_len(callee.function.args);
+			Identifier *args = NULL;
+
+			switch (callee.value_type)
+			{
+				case Value_Function: {
+					args = callee.function.args;
+				}
+				break;
+
+				case Value_NativeFunction: {
+					args = callee.native_function.args;
+				}
+				break;
+
+				default:
+					UNREACHABLE();
+			}
+
+			int arity = darray_len(args);
+
 			assert(arity == darray_len(expr->call.arguments));
 
 			for (int i = 0; i < arity; i++)
 			{
-				Identifier arg_name = callee.function.args[i];
+				Identifier arg_name = args[i];
 				Value arg_value = interpret_expr(expr->call.arguments[i]);
 
 				frame_stack_declare_variable(&frame_stack, arg_name, arg_value);
 			}
 
-			Result result = interpret_stmt(callee.function.body);
+			Result result = result_none();
+
+			switch (callee.value_type)
+			{
+				case Value_Function: {
+					result = interpret_stmt(callee.function.body);
+				}
+				break;
+
+				case Value_NativeFunction: {
+					result = callee.native_function.function(&frame_stack);
+				}
+				break;
+
+				default:
+					UNREACHABLE();
+			}
 
 			frame_stack_pop_frame(&frame_stack);
 
@@ -363,34 +423,6 @@ static NODISCARD Result interpret_stmt(Stmt *stmt)
 		case Stmt_Expr: {
 			Value value = interpret_expr(stmt->expression.expr);
 			UNUSED(value);
-			return result_none();
-		}
-		break;
-
-		case Stmt_Print: {
-			Value value = interpret_expr(stmt->print.expr);
-
-			switch (value.value_type)
-			{
-				case Value_Nil: {
-					printf("<NIL>\n");
-				}
-				break;
-
-				case Value_Bool: {
-					printf("%s\n", (value.boolean ? "true" : "false"));
-				}
-				break;
-
-				case Value_Number: {
-					printf("%f\n", value.number);
-				}
-				break;
-
-				default:
-					UNREACHABLE();
-			}
-
 			return result_none();
 		}
 		break;

@@ -3,39 +3,39 @@
 //toto = 8 * toto;
 //
 //if false or (true or not true) {
-//    print toto;
-//    print 2 * 3;
-//    print false;
+//    print(toto);
+//    print(2 * 3);
+//    print(false);
 //} else if true {
 //    var zouz = 2 + 2;
-//    print zouz;
+//    print(zouz);
 //} else {
-//    print -42;
+//    print(-42);
 //}
 
 //var foo = 42;
 
 //while foo != 0 {
-//    print foo;
+//    print(foo);
 //    foo = foo - 1;
 //}
 
 //for var bar = 0; bar < 10; bar = bar + 1 {
-//    print bar;
+//    print(bar);
 //}
 
 //var f = 0;
 //var g = 1;
 
 //for var i = 0; i <= 10; i = i + 1 {
-//    print f;
+//    print(f);
 //    f = f + g;
 //    g = f - g;
 //}
 
 //function a() {
 //    for var i = 0; i <= 10; i = i + 1 {
-//        print i;
+//        print(i);
 //        if i == 5 {
 //            return i;
 //        }
@@ -43,18 +43,18 @@
 //}
 //
 //var b = a();
-//print b;
+//print(b);
 //
 //function foo() {
-//    print 42;
+//    print(42);
 //}
 //
 //function bar(a) {
-//    print a + 42;
+//    print(a + 42);
 //}
 //
 //function baz(a, b, c, d) {
-//    print (a + b) * (c + d);
+//    print((a + b) * (c + d));
 //}
 //
 //foo();
@@ -69,6 +69,8 @@
 //
 //count(3);
 
+print(42);
+
 function fib(n) {
     if n <= 1 {
         return n;
@@ -77,8 +79,12 @@ function fib(n) {
 }
 
 //for var i = 0; i < 30; i = i + 1 {
-    //print fib(i);
+    //print(fib(i));
 //}
 
-print fib(25);
+var a = time();
+print(fib(30));
+var b = time();
+
+print(b - a);
 

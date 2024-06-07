@@ -54,7 +54,6 @@ enum Token_Type {
 	// Remove at some point
 	Token_Super,
 	Token_This,
-	Token_Print,
 };
 typedef enum Token_Type Token_Type;
 
