@@ -169,7 +169,11 @@ static Token string_token(Lexer *lexer)
 
 	advance(lexer);
 
-	return token(lexer, Token_String);
+	lexer->start += 1;
+	lexer->current -= 1;
+	Token tk = token(lexer, Token_String);
+	lexer->current += 1;
+	return tk;
 }
 
 static Token number_token(Lexer *lexer)

@@ -24,10 +24,10 @@
 	printf(RED #t RESET " <" CYN format RESET ">", __VA_ARGS__)
 
 #define PRINT_HEADER(name) \
-	printf(GRN "%*s" #name ": " RESET, (level + 1) * 2, "")
+	printf(GRN "%*.s" #name ": " RESET, (level + 1) * 2, "")
 
 #define PRINT_IDENTIFIER(color, identifier) \
-	printf(color "%*s" RESET, identifier.len, identifier.str);
+	printf(color "%*.s" RESET, identifier.len, identifier.str);
 
 #define PRINT_EXPR_OP(tk)                                          \
 	do                                                             \
@@ -36,19 +36,19 @@
 		printf(BLU "%s" RESET "\n", debug_get_token_type_str(tk)); \
 	} while (false)
 
-#define PRINT_EXPR_CHILD(name, e)                                \
-	do                                                           \
-	{                                                            \
-		printf(GRN "%*s" #name ": " RESET, (level + 1) * 2, ""); \
-		print_expr(e, level + 1);                                \
+#define PRINT_EXPR_CHILD(name, e)                                 \
+	do                                                            \
+	{                                                             \
+		printf(GRN "%*.s" #name ": " RESET, (level + 1) * 2, ""); \
+		print_expr(e, level + 1);                                 \
 	} while (false)
 
 #define PRINT_STMT_TYPE(t) printf(YEL #t RESET "\n")
 
 #define PRINT_STMT_CHILD(name) \
-	printf("%*s" GRN #name ": " RESET, (level + 1) * 2, "");
+	printf("%*.s" GRN #name ": " RESET, (level + 1) * 2, "");
 
-#define INDENT() printf("%*s", (level + 1) * 2, "")
+#define INDENT() printf("%*.s", (level + 1) * 2, "")
 
 static void print_expr(Expr *expr, int level)
 {
@@ -122,9 +122,16 @@ static void print_expr(Expr *expr, int level)
 		}
 		break;
 
+		case Expr_StringLiteral:
+		{
+			PRINT_EXPR_LITERAL(String, "%.*s", expr->string.len,
+							   expr->string.str);
+		}
+		break;
+
 		case Expr_Identifier:
 		{
-			PRINT_EXPR_LITERAL(Identifier, "%*s", expr->identifier.len,
+			PRINT_EXPR_LITERAL(Identifier, "%.*s", expr->identifier.len,
 							   expr->identifier.str);
 		}
 		break;
@@ -153,7 +160,7 @@ static void print_stmt(Stmt *stmt, int level)
 			if (stmt->var_decl.expr != NULL)
 			{
 				printf("\n");
-				printf("%*s" GRN "Expression: ", (level + 1) * 2, "");
+				printf("%*.s" GRN "Expression: ", (level + 1) * 2, "");
 				print_expr(stmt->var_decl.expr, level + 1);
 			}
 

@@ -1,76 +1,82 @@
-//var toto = 2 * 3 + 4;
-//
-//toto = 8 * toto;
-//
-//if false or (true or not true) {
-//    print(toto);
-//    print(2 * 3);
-//    print(false);
-//} else if true {
-//    var zouz = 2 + 2;
-//    print(zouz);
-//} else {
-//    print(-42);
-//}
+print("-=-=- Test if -=-=-");
 
-//var foo = 42;
+var toto = 2 * 3 + 4;
 
-//while foo != 0 {
-//    print(foo);
-//    foo = foo - 1;
-//}
+toto = 8 * toto;
 
-//for var bar = 0; bar < 10; bar = bar + 1 {
-//    print(bar);
-//}
+if false or (true or not true) {
+    print(toto);
+    print(2 * 3);
+    print(false);
+} else if true {
+    var zouz = 2 + 2;
+    print(zouz);
+} else {
+    print(-42);
+}
 
-//var f = 0;
-//var g = 1;
+print("\n-=-=- Test while -=-=-");
 
-//for var i = 0; i <= 10; i = i + 1 {
-//    print(f);
-//    f = f + g;
-//    g = f - g;
-//}
+var foo = 42;
 
-//function a() {
-//    for var i = 0; i <= 10; i = i + 1 {
-//        print(i);
-//        if i == 5 {
-//            return i;
-//        }
-//    }
-//}
-//
-//var b = a();
-//print(b);
-//
-//function foo() {
-//    print(42);
-//}
-//
-//function bar(a) {
-//    print(a + 42);
-//}
-//
-//function baz(a, b, c, d) {
-//    print((a + b) * (c + d));
-//}
-//
-//foo();
-//bar(1337 - 42);
-//baz(1, 2, 3, 4);
+while foo != 33 {
+    print(foo);
+    foo = foo - 1;
+}
 
+print("\n-=-=- Test for -=-=-");
+for var bar = 0; bar < 5; bar = bar + 1 {
+    print(bar);
+}
 
-//function count(n) {
-//    if n > 1 { count(n - 1); }
-//    print(n);
-//}
-//
-//count(3);
+var f = 0;
+var g = 1;
 
-print(42);
+for var i = 0; i <= 10; i = i + 1 {
+    print(f);
+    f = f + g;
+    g = f - g;
+}
 
+print("\n-=-=- Test functions -=-=-");
+
+function a() {
+    for var i = 0; i <= 10; i = i + 1 {
+        print(i);
+        if i == 5 {
+            return i;
+        }
+    }
+}
+
+var b = a();
+print(b);
+
+function foo() {
+    print(42);
+}
+
+function bar(a) {
+    print(a + 42);
+}
+
+function baz(a, b, c, d) {
+    print((a + b) * (c + d));
+}
+
+foo();
+bar(1337 - 42);
+baz(1, 2, 3, 4);
+
+print("\n-=-=- Test recursivity -=-=-");
+function count(n) {
+    if n > 1 { count(n - 1); }
+    print(n);
+}
+
+count(3);
+
+print("\n-=-=- Test Fibo -=-=-");
 function fib(n) {
     if n <= 1 {
         return n;
@@ -78,13 +84,23 @@ function fib(n) {
     return fib(n - 2) + fib(n - 1);
 }
 
-//for var i = 0; i < 30; i = i + 1 {
-    //print(fib(i));
-//}
+for var i = 0; i < 10; i = i + 1 {
+  print(fib(i));
+}
 
 var a = time();
-print(fib(30));
+print(fib(20));
 var b = time();
 
 print(b - a);
+
+//function make_counter() {
+//    var i = 0;
+//    function count() {
+//        i = i + 1;
+//        print(i);
+//    }
+//
+//    return count;
+//}
 

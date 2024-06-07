@@ -299,8 +299,11 @@ static Expr *primary(Parser *parser)
 
 		case Token_String:
 		{
-			// TODO
-			UNREACHABLE();
+			Token tk = advance(parser);
+
+			String string = string_init(tk.lexeme_start, tk.lexeme_len);
+			string_sanitize(&string);
+			return ast_expr_string_literal(string);
 		}
 		break;
 

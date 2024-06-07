@@ -96,6 +96,15 @@ Expr *ast_expr_boolean_literal(bool value)
 	return node;
 }
 
+Expr *ast_expr_string_literal(String value)
+{
+	Expr *node = make_expr(Expr_StringLiteral);
+
+	node->string = value;
+
+	return node;
+}
+
 Expr *ast_expr_identifier(Identifier identifier)
 {
 	Expr *node = make_expr(Expr_Identifier);

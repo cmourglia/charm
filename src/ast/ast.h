@@ -2,6 +2,8 @@
 
 #include "token.h"
 
+#include "core/string.h"
+
 typedef struct Identifier
 {
 	char *str;
@@ -15,6 +17,7 @@ typedef enum
 	Expr_Unary,
 	Expr_BooleanLiteral,
 	Expr_NumberLiteral,
+	Expr_StringLiteral,
 	Expr_Identifier,
 	Expr_Assignment, // TODO: Make this an expression at some point
 	Expr_Call,
@@ -58,6 +61,7 @@ typedef struct Expr
 
 		double number;
 		bool boolean;
+		String string;
 		Identifier identifier;
 	};
 
@@ -130,11 +134,12 @@ struct Hash_Table;
 Identifier ast_identifier(struct Hash_Table *table, Token tk);
 Identifier ast_identifier_from_cstr(struct Hash_Table *table, const char *str);
 
+Expr *ast_expr_number_literal(double value);
+Expr *ast_expr_boolean_literal(bool value);
+Expr *ast_expr_string_literal(String value);
 Expr *ast_expr_binary(Token_Type op, Expr *left, Expr *right);
 Expr *ast_expr_grouping(Expr *expr);
 Expr *ast_expr_unary(Token_Type op, Expr *right);
-Expr *ast_expr_number_literal(double value);
-Expr *ast_expr_boolean_literal(bool value);
 Expr *ast_expr_identifier(Identifier identifier);
 Expr *ast_expr_assignment(Identifier name, Expr *value);
 Expr *ast_expr_call(Expr *callee, Expr **arguments);

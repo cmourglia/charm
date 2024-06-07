@@ -21,6 +21,14 @@ Value value_bool(bool b)
 	};
 }
 
+Value value_string(String s)
+{
+	return (Value){
+		.string = s,
+		.value_type = Value_String,
+	};
+}
+
 Value value_function(struct Identifier *args, struct Stmt *body)
 {
 	return (Value){

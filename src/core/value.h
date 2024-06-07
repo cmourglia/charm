@@ -1,6 +1,7 @@
 #pragma once
 
 #include "common.h"
+#include "string.h"
 
 enum ValueType
 {
@@ -24,6 +25,7 @@ struct Value
 	{
 		f64 number;
 		bool boolean;
+		String string;
 		// TODO: others
 		struct
 		{
@@ -44,6 +46,7 @@ typedef struct Value Value;
 Value value_nil();
 Value value_number(f64 n);
 Value value_bool(bool b);
+Value value_string(String s);
 Value value_function(struct Identifier *args, struct Stmt *body);
 Value value_native_function(struct Identifier *args, NativeFunction function);
 

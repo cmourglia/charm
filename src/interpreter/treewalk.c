@@ -54,22 +54,20 @@ static Result native_print(Frame_Stack *stack)
 	switch (value.value_type)
 	{
 		case Value_Nil:
-		{
 			printf("<NIL>\n");
-		}
-		break;
+			break;
 
 		case Value_Bool:
-		{
 			printf("%s\n", (value.boolean ? "true" : "false"));
-		}
-		break;
+			break;
 
 		case Value_Number:
-		{
 			printf("%f\n", value.number);
-		}
-		break;
+			break;
+
+		case Value_String:
+			printf("%.*s\n", value.string.len, value.string.str);
+			break;
 
 		default:
 			UNREACHABLE();
@@ -257,6 +255,9 @@ static Value interpret_expr(Expr *expr)
 
 		case Expr_NumberLiteral:
 			return value_number(expr->number);
+
+		case Expr_StringLiteral:
+			return value_string(expr->string);
 
 		case Expr_Grouping:
 			return interpret_expr(expr->grouping.expr);
