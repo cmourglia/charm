@@ -4,19 +4,17 @@
 
 struct Value;
 
-enum Op_Code : u8
+typedef enum Op_Code : u8
 {
 	Op_Return,
 	Op_Constant,
-};
-typedef enum Op_Code Op_Code;
+} Op_Code;
 
-struct Chunk
+typedef struct Chunk
 {
 	u8 *code;
 	struct Value *constants;
-};
-typedef struct Chunk Chunk;
+} Chunk;
 
 void chunk_init(Chunk *chunk);
 void chunk_free(Chunk *chunk);

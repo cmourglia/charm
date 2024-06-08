@@ -4,12 +4,10 @@
 
 #include "ast/ast.h"
 
-struct Frame_Stack
+typedef struct Frame_Stack
 {
 	struct Frame *frames;
-};
-
-typedef struct Frame_Stack Frame_Stack;
+} Frame_Stack;
 
 void frame_stack_init(Frame_Stack *stack);
 void frame_stack_free(Frame_Stack *stack);

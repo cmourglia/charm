@@ -10,7 +10,7 @@ typedef struct Identifier
 	int len;
 } Identifier;
 
-typedef enum
+typedef enum Expr_Type
 {
 	Expr_Binary,
 	Expr_Grouping,
