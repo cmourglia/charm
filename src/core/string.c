@@ -23,9 +23,6 @@ void string_free(String *string)
 
 void string_sanitize(String *string)
 {
-	printf("String len: %d, string: '%*s'\n", string->len, string->len,
-		   string->str);
-
 	char *out = NULL;
 
 	for (int i = 0; i < string->len; i++)
