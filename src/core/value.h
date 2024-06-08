@@ -15,9 +15,8 @@ enum ValueType
 };
 typedef enum ValueType ValueType;
 
-struct Frame_Stack;
-
-typedef struct Result (*NativeFunction)(struct Frame_Stack *);
+struct Value;
+typedef struct Result (*NativeFunction)(struct Value *);
 
 struct Value
 {
@@ -34,7 +33,6 @@ struct Value
 		} function;
 		struct
 		{
-			struct Identifier *args;
 			NativeFunction function;
 		} native_function;
 	};
@@ -48,7 +46,7 @@ Value value_number(f64 n);
 Value value_bool(bool b);
 Value value_string(String s);
 Value value_function(struct Identifier *args, struct Stmt *body);
-Value value_native_function(struct Identifier *args, NativeFunction function);
+Value value_native_function(NativeFunction function);
 
 #define VALUE_IS_NIL(v) ((v).value_type == Value_Nil)
 

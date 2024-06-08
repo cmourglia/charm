@@ -40,11 +40,10 @@ Value value_function(struct Identifier *args, struct Stmt *body)
 	};
 }
 
-Value value_native_function(struct Identifier *args, NativeFunction function)
+Value value_native_function(NativeFunction function)
 {
 	return (Value) {
         .native_function = {
-            .args = args,
             .function = function,
         },
         .value_type = Value_NativeFunction,

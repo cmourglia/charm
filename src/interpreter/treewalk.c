@@ -2,6 +2,7 @@
 
 #include <time.h>
 
+#include "core/common.h"
 #include "core/value.h"
 #include "core/dyn_array.h"
 
@@ -16,27 +17,25 @@ static Value interpret_expr(Expr *expr);
 static NODISCARD Result interpret_stmt(Stmt *stmt);
 
 static Frame_Stack frame_stack;
+static Identifier native_call_args_name;
 
-static Result native_print(Frame_Stack *stack);
-static Result native_time(Frame_Stack *stack);
+static Result native_print(Value *args);
+static Result native_time(Value *args);
 
 static void register_native_functions()
 {
-	Value time_fn = value_native_function(NULL, native_time);
-	frame_stack_declare_variable(
-		&frame_stack, ast_identifier_from_cstr(NULL, "time"), time_fn);
+	native_call_args_name = ast_identifier_from_cstr(NULL, "native_call_args");
+	frame_stack_declare_variable(&frame_stack,
+								 ast_identifier_from_cstr(NULL, "time"),
+								 value_native_function(native_time));
 
-	Identifier *print_args = NULL;
-	darray_push(print_args, ast_identifier_from_cstr(NULL, "print_a"));
-	Value print_fn = value_native_function(print_args, native_print);
-	frame_stack_declare_variable(
-		&frame_stack, ast_identifier_from_cstr(NULL, "print"), print_fn);
+	frame_stack_declare_variable(&frame_stack,
+								 ast_identifier_from_cstr(NULL, "print"),
+								 value_native_function(native_print));
 }
 
-static Result native_time(Frame_Stack *stack)
+static Result native_time(Value *args)
 {
-	UNUSED(stack);
-
 	struct timespec clock;
 	clock_gettime(CLOCK_REALTIME, &clock);
 
@@ -45,33 +44,41 @@ static Result native_time(Frame_Stack *stack)
 	return result_return(value_number(t));
 }
 
-static Result native_print(Frame_Stack *stack)
+static Result native_print(Value *args)
 {
-	Value value;
-	frame_stack_get_value(stack, ast_identifier_from_cstr(NULL, "print_a"),
-						  &value);
-
-	switch (value.value_type)
+	for (int i = 0; i < darray_len(args); i++)
 	{
-		case Value_Nil:
-			printf("<NIL>\n");
-			break;
+		Value value = args[i];
 
-		case Value_Bool:
-			printf("%s\n", (value.boolean ? "true" : "false"));
-			break;
+		if (i != 0)
+		{
+			printf(" ");
+		}
 
-		case Value_Number:
-			printf("%f\n", value.number);
-			break;
+		switch (value.value_type)
+		{
+			case Value_Nil:
+				printf("<NIL>");
+				break;
 
-		case Value_String:
-			printf("%.*s\n", value.string.len, value.string.str);
-			break;
+			case Value_Bool:
+				printf("%s", (value.boolean ? "true" : "false"));
+				break;
 
-		default:
-			UNREACHABLE();
+			case Value_Number:
+				printf("%f", value.number);
+				break;
+
+			case Value_String:
+				printf("%.*s", value.string.len, value.string.str);
+				break;
+
+			default:
+				UNREACHABLE();
+		}
 	}
+
+	printf("\n");
 
 	return result_none();
 }
@@ -128,6 +135,7 @@ static Value add(Expr *lhs, Expr *rhs)
 		return value_number(l.number + r.number);
 	}
 
+	printf("%u %u\n", l.value_type, r.value_type);
 	UNREACHABLE();
 }
 
@@ -246,6 +254,10 @@ static Value logic_or(Expr *lhs, Expr *rhs)
 	return right;
 }
 
+static Result call_function(Frame_Stack *stack, Value callee, Value *args);
+static Result call_native_function(Frame_Stack *stack, Value callee,
+								   Value *args);
+
 static Value interpret_expr(Expr *expr)
 {
 	switch (expr->expr_type)
@@ -362,39 +374,14 @@ static Value interpret_expr(Expr *expr)
 		{
 			Value callee = interpret_expr(expr->call.callee);
 
+			Value *args = NULL;
+
+			for (int i = 0; i < darray_len(expr->call.arguments); i++)
+			{
+				darray_push(args, interpret_expr(expr->call.arguments[i]));
+			}
+
 			frame_stack_push_frame(&frame_stack);
-
-			Identifier *args = NULL;
-
-			switch (callee.value_type)
-			{
-				case Value_Function:
-				{
-					args = callee.function.args;
-				}
-				break;
-
-				case Value_NativeFunction:
-				{
-					args = callee.native_function.args;
-				}
-				break;
-
-				default:
-					UNREACHABLE();
-			}
-
-			int arity = darray_len(args);
-
-			assert(arity == darray_len(expr->call.arguments));
-
-			for (int i = 0; i < arity; i++)
-			{
-				Identifier arg_name = args[i];
-				Value arg_value = interpret_expr(expr->call.arguments[i]);
-
-				frame_stack_declare_variable(&frame_stack, arg_name, arg_value);
-			}
 
 			Result result = result_none();
 
@@ -402,13 +389,13 @@ static Value interpret_expr(Expr *expr)
 			{
 				case Value_Function:
 				{
-					result = interpret_stmt(callee.function.body);
+					result = call_function(&frame_stack, callee, args);
 				}
 				break;
 
 				case Value_NativeFunction:
 				{
-					result = callee.native_function.function(&frame_stack);
+					result = call_native_function(&frame_stack, callee, args);
 				}
 				break;
 
@@ -417,6 +404,8 @@ static Value interpret_expr(Expr *expr)
 			}
 
 			frame_stack_pop_frame(&frame_stack);
+
+			darray_free(args);
 
 			switch (result.result_type)
 			{
@@ -431,6 +420,30 @@ static Value interpret_expr(Expr *expr)
 	}
 
 	UNREACHABLE();
+}
+
+static Result call_function(Frame_Stack *stack, Value callee, Value *args)
+{
+	int arity = darray_len(args);
+
+	assert(arity == darray_len(callee.function.args));
+
+	for (int i = 0; i < arity; i++)
+	{
+		Identifier arg_name = callee.function.args[i];
+		Value arg_value = args[i];
+
+		frame_stack_declare_variable(stack, arg_name, arg_value);
+	}
+
+	return interpret_stmt(callee.function.body);
+}
+
+static Result call_native_function(Frame_Stack *stack, Value callee,
+								   Value *args)
+{
+	UNUSED(stack);
+	return callee.native_function.function(args);
 }
 
 static NODISCARD Result interpret_stmt(Stmt *stmt)
