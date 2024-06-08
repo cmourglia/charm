@@ -50,7 +50,7 @@ static Expr *make_expr(Expr_Type type)
 
 Expr *ast_expr_binary(Token_Type op, Expr *left, Expr *right)
 {
-	Expr *node = make_expr(Expr_Binary);
+	Expr *node = make_expr(EXPR_BINARY);
 
 	node->binary.op = op;
 	node->binary.left = left;
@@ -61,7 +61,7 @@ Expr *ast_expr_binary(Token_Type op, Expr *left, Expr *right)
 
 Expr *ast_expr_grouping(Expr *expr)
 {
-	Expr *node = make_expr(Expr_Grouping);
+	Expr *node = make_expr(EXPR_GROUPING);
 
 	node->grouping.expr = expr;
 
@@ -70,7 +70,7 @@ Expr *ast_expr_grouping(Expr *expr)
 
 Expr *ast_expr_unary(Token_Type op, Expr *right)
 {
-	Expr *node = make_expr(Expr_Unary);
+	Expr *node = make_expr(EXPR_UNARY);
 
 	node->unary.op = op;
 	node->unary.right = right;
@@ -80,7 +80,7 @@ Expr *ast_expr_unary(Token_Type op, Expr *right)
 
 Expr *ast_expr_number_literal(double value)
 {
-	Expr *node = make_expr(Expr_NumberLiteral);
+	Expr *node = make_expr(EXPR_NUMBER_LITERAL);
 
 	node->number = value;
 
@@ -89,7 +89,7 @@ Expr *ast_expr_number_literal(double value)
 
 Expr *ast_expr_boolean_literal(bool value)
 {
-	Expr *node = make_expr(Expr_BooleanLiteral);
+	Expr *node = make_expr(EXPR_BOOLEAN_LITERAL);
 
 	node->boolean = value;
 
@@ -98,7 +98,7 @@ Expr *ast_expr_boolean_literal(bool value)
 
 Expr *ast_expr_string_literal(String value)
 {
-	Expr *node = make_expr(Expr_StringLiteral);
+	Expr *node = make_expr(EXPR_STRING_LITERAL);
 
 	node->string = value;
 
@@ -107,7 +107,7 @@ Expr *ast_expr_string_literal(String value)
 
 Expr *ast_expr_identifier(Identifier identifier)
 {
-	Expr *node = make_expr(Expr_Identifier);
+	Expr *node = make_expr(EXPR_IDENTIFIER);
 
 	node->identifier = identifier;
 
@@ -116,7 +116,7 @@ Expr *ast_expr_identifier(Identifier identifier)
 
 Expr *ast_expr_assignment(Identifier name, Expr *expr)
 {
-	Expr *node = make_expr(Expr_Assignment);
+	Expr *node = make_expr(EXPR_ASSIGNMENT);
 
 	node->assignment.name = name;
 	node->assignment.value = expr;
@@ -126,7 +126,7 @@ Expr *ast_expr_assignment(Identifier name, Expr *expr)
 
 Expr *ast_expr_call(Expr *callee, Expr **arguments)
 {
-	Expr *node = make_expr(Expr_Call);
+	Expr *node = make_expr(EXPR_CALL);
 
 	node->call.callee = callee;
 	node->call.arguments = arguments;
@@ -149,7 +149,7 @@ static Stmt *make_stmt(Stmt_Type type)
 
 Stmt *ast_stmt_expression(Expr *expr)
 {
-	Stmt *node = make_stmt(Stmt_Expr);
+	Stmt *node = make_stmt(STMT_EXPR);
 
 	node->expression.expr = expr;
 
@@ -158,7 +158,7 @@ Stmt *ast_stmt_expression(Expr *expr)
 
 Stmt *ast_stmt_var_decl(Identifier name, Expr *expr)
 {
-	Stmt *node = make_stmt(Stmt_VarDecl);
+	Stmt *node = make_stmt(STMT_VAR_DECL);
 
 	node->var_decl.name = name;
 	node->var_decl.expr = expr;
@@ -168,7 +168,7 @@ Stmt *ast_stmt_var_decl(Identifier name, Expr *expr)
 
 Stmt *ast_stmt_function_decl(Identifier name, Identifier *args, Stmt *body)
 {
-	Stmt *node = make_stmt(Stmt_FunctionDecl);
+	Stmt *node = make_stmt(STMT_FUNCTION_DECL);
 
 	node->function_decl.name = name;
 	node->function_decl.args = args;
@@ -179,7 +179,7 @@ Stmt *ast_stmt_function_decl(Identifier name, Identifier *args, Stmt *body)
 
 Stmt *ast_stmt_block(Stmt **statements)
 {
-	Stmt *node = make_stmt(Stmt_Block);
+	Stmt *node = make_stmt(STMT_BLOCK);
 
 	node->block.statements = statements;
 
@@ -188,7 +188,7 @@ Stmt *ast_stmt_block(Stmt **statements)
 
 Stmt *ast_stmt_if(Expr *cond, Stmt *then_branch, Stmt *else_branch)
 {
-	Stmt *node = make_stmt(Stmt_If);
+	Stmt *node = make_stmt(STMT_IF);
 
 	node->if_stmt.cond = cond;
 	node->if_stmt.then_branch = then_branch;
@@ -199,7 +199,7 @@ Stmt *ast_stmt_if(Expr *cond, Stmt *then_branch, Stmt *else_branch)
 
 Stmt *ast_stmt_while(Expr *cond, Stmt *body)
 {
-	Stmt *node = make_stmt(Stmt_While);
+	Stmt *node = make_stmt(STMT_WHILE);
 
 	node->while_stmt.cond = cond;
 	node->while_stmt.body = body;
@@ -209,7 +209,7 @@ Stmt *ast_stmt_while(Expr *cond, Stmt *body)
 
 Stmt *ast_stmt_return(Expr *expr)
 {
-	Stmt *node = make_stmt(Stmt_Return);
+	Stmt *node = make_stmt(STMT_RETURN);
 
 	node->return_stmt.expr = expr;
 

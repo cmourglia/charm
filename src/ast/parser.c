@@ -89,7 +89,7 @@ struct Program parser_parse_program(Parser *parser)
 
 	parser->curr_token = lexer_get_next_token(parser->lexer);
 
-	while (parser->curr_token.type != Token_EOF)
+	while (parser->curr_token.type != TOKEN_EOF)
 	{
 		Stmt *stmt = declaration(parser);
 		if (stmt != NULL)
@@ -117,11 +117,11 @@ static Expr *assignment(Parser *parser)
 {
 	Expr *expr = logic_or(parser);
 
-	if (match(parser, Token_Equal))
+	if (match(parser, TOKEN_EQUAL))
 	{
 		Expr *value = logic_or(parser);
 
-		if (expr->expr_type == Expr_Identifier)
+		if (expr->expr_type == EXPR_IDENTIFIER)
 		{
 			Identifier name = expr->identifier;
 			free(expr);
@@ -139,7 +139,7 @@ static Expr *logic_or(Parser *parser)
 {
 	Expr *expr = logic_and(parser);
 
-	while (match(parser, Token_Or))
+	while (match(parser, TOKEN_OR))
 	{
 		Token_Type op = parser->prev_token.type;
 		Expr *right = logic_and(parser);
@@ -154,7 +154,7 @@ static Expr *logic_and(Parser *parser)
 {
 	Expr *expr = equality(parser);
 
-	while (match(parser, Token_And))
+	while (match(parser, TOKEN_AND))
 	{
 		Token_Type op = parser->prev_token.type;
 		Expr *right = equality(parser);
@@ -169,7 +169,7 @@ static Expr *equality(Parser *parser)
 {
 	Expr *expr = comparison(parser);
 
-	while (match(parser, Token_BangEqual) || match(parser, Token_EqualEqual))
+	while (match(parser, TOKEN_BANG_EQUAL) || match(parser, TOKEN_EQUAL_EQUAL))
 	{
 		Token_Type op = parser->prev_token.type;
 		Expr *right = comparison(parser);
@@ -184,8 +184,8 @@ static Expr *comparison(Parser *parser)
 {
 	Expr *expr = term(parser);
 
-	while (match(parser, Token_Greater) || match(parser, Token_GreaterEqual) ||
-		   match(parser, Token_Less) || match(parser, Token_LessEqual))
+	while (match(parser, TOKEN_GREATER) || match(parser, TOKEN_GREATER_EQUAL) ||
+		   match(parser, TOKEN_LESS) || match(parser, TOKEN_LESS_EQUAL))
 	{
 		Token_Type op = parser->prev_token.type;
 		Expr *right = term(parser);
@@ -200,7 +200,7 @@ static Expr *term(Parser *parser)
 {
 	Expr *expr = factor(parser);
 
-	while (match(parser, Token_Minus) || match(parser, Token_Plus))
+	while (match(parser, TOKEN_MINUS) || match(parser, TOKEN_PLUS))
 	{
 		Token_Type op = parser->prev_token.type;
 		Expr *right = factor(parser);
@@ -215,7 +215,7 @@ static Expr *factor(Parser *parser)
 {
 	Expr *expr = unary(parser);
 
-	while (match(parser, Token_Slash) || match(parser, Token_Star))
+	while (match(parser, TOKEN_SLASH) || match(parser, TOKEN_STAR))
 	{
 		Token_Type op = parser->prev_token.type;
 		Expr *right = unary(parser);
@@ -228,7 +228,7 @@ static Expr *factor(Parser *parser)
 
 static Expr *unary(Parser *parser)
 {
-	if (match(parser, Token_Not) || match(parser, Token_Minus))
+	if (match(parser, TOKEN_NOT) || match(parser, TOKEN_MINUS))
 	{
 		Token_Type op = parser->prev_token.type;
 		Expr *right = unary(parser);
@@ -247,7 +247,7 @@ static Expr *call(Parser *parser)
 
 	while (true)
 	{
-		if (match(parser, Token_LeftParen))
+		if (match(parser, TOKEN_OPEN_PAREN))
 		{
 			expr = finish_call(parser, expr);
 		}
@@ -264,7 +264,7 @@ static Expr *finish_call(Parser *parser, Expr *callee)
 {
 	Expr **arguments = NULL;
 
-	if (!check(parser, Token_RightParen))
+	if (!check(parser, TOKEN_CLOSE_PAREN))
 	{
 		do
 		{
@@ -272,10 +272,10 @@ static Expr *finish_call(Parser *parser, Expr *callee)
 
 			// NOLINTNEXTLINE(bugprone-sizeof-expression)
 			darray_push(arguments, expression(parser));
-		} while (match(parser, Token_Comma));
+		} while (match(parser, TOKEN_COMMA));
 	}
 
-	consume(parser, Token_RightParen);
+	consume(parser, TOKEN_CLOSE_PAREN);
 
 	return ast_expr_call(callee, arguments);
 }
@@ -284,7 +284,7 @@ static Expr *primary(Parser *parser)
 {
 	switch (parser->curr_token.type)
 	{
-		case Token_Number:
+		case TOKEN_NUMBER:
 		{
 			Token tk = advance(parser);
 
@@ -297,7 +297,7 @@ static Expr *primary(Parser *parser)
 		}
 		break;
 
-		case Token_String:
+		case TOKEN_STRING:
 		{
 			Token tk = advance(parser);
 
@@ -307,25 +307,25 @@ static Expr *primary(Parser *parser)
 		}
 		break;
 
-		case Token_True:
+		case TOKEN_TRUE:
 		{
 			advance(parser);
 			return ast_expr_boolean_literal(true);
 		}
 
-		case Token_False:
+		case TOKEN_FALSE:
 		{
 			advance(parser);
 			return ast_expr_boolean_literal(false);
 		}
 
-		case Token_LeftParen:
+		case TOKEN_OPEN_PAREN:
 		{
 			advance(parser);
 
 			Expr *expr = expression(parser);
 
-			if (!match(parser, Token_RightParen))
+			if (!match(parser, TOKEN_CLOSE_PAREN))
 			{
 				// TODO: Handle errors
 				UNREACHABLE();
@@ -335,7 +335,7 @@ static Expr *primary(Parser *parser)
 		}
 		break;
 
-		case Token_Identifier:
+		case TOKEN_IDENTIFIER:
 		{
 			Token tk = advance(parser);
 			Identifier identifier = ast_identifier(&parser->identifiers, tk);
@@ -352,22 +352,22 @@ static Expr *primary(Parser *parser)
 
 static Stmt *declaration(Parser *parser)
 {
-	while (match(parser, Token_Comment))
+	while (match(parser, TOKEN_COMMENT))
 	{
 		// Skip comments
 	}
 
-	if (check(parser, Token_EOF))
+	if (check(parser, TOKEN_EOF))
 	{
 		return NULL;
 	}
 
-	if (match(parser, Token_Var))
+	if (match(parser, TOKEN_VAR))
 	{
 		return var_decl(parser);
 	}
 
-	if (match(parser, Token_Function))
+	if (match(parser, TOKEN_FUNCTION))
 	{
 		return function(parser);
 	}
@@ -377,27 +377,27 @@ static Stmt *declaration(Parser *parser)
 
 static Stmt *statement(Parser *parser)
 {
-	if (match(parser, Token_If))
+	if (match(parser, TOKEN_IF))
 	{
 		return if_stmt(parser);
 	}
 
-	if (match(parser, Token_While))
+	if (match(parser, TOKEN_WHILE))
 	{
 		return while_stmt(parser);
 	}
 
-	if (match(parser, Token_For))
+	if (match(parser, TOKEN_FOR))
 	{
 		return for_stmt(parser);
 	}
 
-	if (match(parser, Token_LeftBrace))
+	if (match(parser, TOKEN_OPEN_SQUIRLY))
 	{
 		return block_stmt(parser);
 	}
 
-	if (match(parser, Token_Return))
+	if (match(parser, TOKEN_RETURN))
 	{
 		return return_stmt(parser);
 	}
@@ -409,51 +409,51 @@ static Stmt *expr_stmt(Parser *parser)
 {
 	Expr *expr = expression(parser);
 
-	consume(parser, Token_Semicolon);
+	consume(parser, TOKEN_SEMICOLON);
 
 	return ast_stmt_expression(expr);
 }
 
 static Stmt *var_decl(Parser *parser)
 {
-	Token identifier_token = consume(parser, Token_Identifier);
+	Token identifier_token = consume(parser, TOKEN_IDENTIFIER);
 	Identifier identifier = ast_identifier(&parser->identifiers,
 										   identifier_token);
 
 	Expr *expr = NULL;
 
-	if (match(parser, Token_Equal))
+	if (match(parser, TOKEN_EQUAL))
 	{
 		expr = expression(parser);
 	}
 
-	consume(parser, Token_Semicolon);
+	consume(parser, TOKEN_SEMICOLON);
 
 	return ast_stmt_var_decl(identifier, expr);
 }
 
 static Stmt *function(Parser *parser)
 {
-	Token name_token = consume(parser, Token_Identifier);
+	Token name_token = consume(parser, TOKEN_IDENTIFIER);
 	Identifier name = ast_identifier(&parser->identifiers, name_token);
 
-	consume(parser, Token_LeftParen);
+	consume(parser, TOKEN_OPEN_PAREN);
 
 	Identifier *args = NULL;
 
-	if (!check(parser, Token_RightParen))
+	if (!check(parser, TOKEN_CLOSE_PAREN))
 	{
 		do
 		{
-			Token arg_token = consume(parser, Token_Identifier);
+			Token arg_token = consume(parser, TOKEN_IDENTIFIER);
 			darray_push(args, ast_identifier(&parser->identifiers, arg_token));
-		} while (match(parser, Token_Comma));
+		} while (match(parser, TOKEN_COMMA));
 	}
 
-	consume(parser, Token_RightParen);
+	consume(parser, TOKEN_CLOSE_PAREN);
 
 	// Read args
-	consume(parser, Token_LeftBrace);
+	consume(parser, TOKEN_OPEN_SQUIRLY);
 	Stmt *body = block_stmt(parser);
 
 	return ast_stmt_function_decl(name, args, body);
@@ -463,19 +463,19 @@ static Stmt *if_stmt(Parser *parser)
 {
 	Expr *cond = expression(parser);
 
-	consume(parser, Token_LeftBrace);
+	consume(parser, TOKEN_OPEN_SQUIRLY);
 	Stmt *then_branch = block_stmt(parser);
 
 	Stmt *else_branch = NULL;
-	if (match(parser, Token_Else))
+	if (match(parser, TOKEN_ELSE))
 	{
-		if (match(parser, Token_If))
+		if (match(parser, TOKEN_IF))
 		{
 			else_branch = if_stmt(parser);
 		}
 		else
 		{
-			consume(parser, Token_LeftBrace);
+			consume(parser, TOKEN_OPEN_SQUIRLY);
 			else_branch = block_stmt(parser);
 		}
 	}
@@ -486,14 +486,14 @@ static Stmt *if_stmt(Parser *parser)
 static Stmt *block_stmt(Parser *parser)
 {
 	Stmt **statements = NULL;
-	while (parser->curr_token.type != Token_EOF &&
-		   parser->curr_token.type != Token_RightBrace)
+	while (parser->curr_token.type != TOKEN_EOF &&
+		   parser->curr_token.type != TOKEN_CLOSE_SQUIRLY)
 	{
 		// NOLINTNEXTLINE(bugprone-sizeof-expression)
 		darray_push(statements, declaration(parser));
 	}
 
-	consume(parser, Token_RightBrace);
+	consume(parser, TOKEN_CLOSE_SQUIRLY);
 
 	return ast_stmt_block(statements);
 }
@@ -502,7 +502,7 @@ static Stmt *while_stmt(Parser *parser)
 {
 	Expr *cond = expression(parser);
 
-	consume(parser, Token_LeftBrace);
+	consume(parser, TOKEN_OPEN_SQUIRLY);
 	Stmt *body = block_stmt(parser);
 
 	return ast_stmt_while(cond, body);
@@ -511,11 +511,11 @@ static Stmt *while_stmt(Parser *parser)
 static Stmt *for_stmt(Parser *parser)
 {
 	Stmt *initializer = NULL;
-	if (match(parser, Token_Semicolon))
+	if (match(parser, TOKEN_SEMICOLON))
 	{
 		initializer = NULL;
 	}
-	else if (match(parser, Token_Var))
+	else if (match(parser, TOKEN_VAR))
 	{
 		initializer = var_decl(parser);
 	}
@@ -525,19 +525,19 @@ static Stmt *for_stmt(Parser *parser)
 	}
 
 	Expr *condition = NULL;
-	if (!check(parser, Token_Semicolon))
+	if (!check(parser, TOKEN_SEMICOLON))
 	{
 		condition = expression(parser);
 	}
 
-	consume(parser, Token_Semicolon);
+	consume(parser, TOKEN_SEMICOLON);
 
 	Expr *increment = NULL;
-	if (!check(parser, Token_LeftBrace))
+	if (!check(parser, TOKEN_OPEN_SQUIRLY))
 	{
 		increment = expression(parser);
 	}
-	consume(parser, Token_LeftBrace);
+	consume(parser, TOKEN_OPEN_SQUIRLY);
 
 	Stmt *body = block_stmt(parser);
 
@@ -572,12 +572,12 @@ static Stmt *return_stmt(Parser *parser)
 {
 	Expr *return_expr = NULL;
 
-	if (!check(parser, Token_Semicolon))
+	if (!check(parser, TOKEN_SEMICOLON))
 	{
 		return_expr = expression(parser);
 	}
 
-	consume(parser, Token_Semicolon);
+	consume(parser, TOKEN_SEMICOLON);
 
 	return ast_stmt_return(return_expr);
 }
@@ -614,7 +614,7 @@ static Token consume(Parser *parser, Token_Type expected)
 
 static Token advance(Parser *parser)
 {
-	if (parser->curr_token.type != Token_EOF)
+	if (parser->curr_token.type != TOKEN_EOF)
 	{
 		parser->prev_token = parser->curr_token;
 		parser->curr_token = lexer_get_next_token(parser->lexer);

@@ -6,8 +6,8 @@ struct Value;
 
 typedef enum Op_Code : u8
 {
-	Op_Return,
-	Op_Constant,
+	OP_CONSTANT,
+	OP_RETURN,
 } Op_Code;
 
 typedef struct Chunk

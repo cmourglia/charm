@@ -46,7 +46,7 @@ int main(int argc, char **argv)
 
 	chunk_write_constant(&chunk, value_number(42));
 
-	chunk_write(&chunk, Op_Return);
+	chunk_write(&chunk, OP_RETURN);
 	debug_disassemble_chunk(&chunk, "test chunk");
 
 	chunk_free(&chunk);

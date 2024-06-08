@@ -12,15 +12,15 @@ typedef struct Identifier
 
 typedef enum Expr_Type
 {
-	Expr_Binary,
-	Expr_Grouping,
-	Expr_Unary,
-	Expr_BooleanLiteral,
-	Expr_NumberLiteral,
-	Expr_StringLiteral,
-	Expr_Identifier,
-	Expr_Assignment, // TODO: Make this an expression at some point
-	Expr_Call,
+	EXPR_BINARY,
+	EXPR_GROUPING,
+	EXPR_UNARY,
+	EXPR_BOOLEAN_LITERAL,
+	EXPR_NUMBER_LITERAL,
+	EXPR_STRING_LITERAL,
+	EXPR_IDENTIFIER,
+	EXPR_ASSIGNMENT,
+	EXPR_CALL,
 } Expr_Type;
 
 struct Expr;
@@ -70,13 +70,13 @@ typedef struct Expr
 
 typedef enum Stmt_Type
 {
-	Stmt_Expr,
-	Stmt_VarDecl,
-	Stmt_FunctionDecl,
-	Stmt_Block,
-	Stmt_If,
-	Stmt_While,
-	Stmt_Return,
+	STMT_EXPR,
+	STMT_VAR_DECL,
+	STMT_FUNCTION_DECL,
+	STMT_BLOCK,
+	STMT_IF,
+	STMT_WHILE,
+	STMT_RETURN,
 } Stmt_Type;
 
 struct Stmt;

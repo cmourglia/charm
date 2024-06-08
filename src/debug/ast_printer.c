@@ -54,7 +54,7 @@ static void print_expr(Expr *expr, int level)
 {
 	switch (expr->expr_type)
 	{
-		case Expr_Binary:
+		case EXPR_BINARY:
 		{
 			PRINT_EXPR_TYPE(Binary expression);
 			PRINT_EXPR_OP(expr->binary.op);
@@ -64,7 +64,7 @@ static void print_expr(Expr *expr, int level)
 		}
 		break;
 
-		case Expr_Grouping:
+		case EXPR_GROUPING:
 		{
 			PRINT_EXPR_TYPE(Grouping expression);
 			INDENT();
@@ -72,7 +72,7 @@ static void print_expr(Expr *expr, int level)
 		}
 		break;
 
-		case Expr_Unary:
+		case EXPR_UNARY:
 		{
 			PRINT_EXPR_TYPE(Unary Expression);
 			PRINT_EXPR_OP(expr->unary.op);
@@ -80,7 +80,7 @@ static void print_expr(Expr *expr, int level)
 		}
 		break;
 
-		case Expr_Assignment:
+		case EXPR_ASSIGNMENT:
 		{
 			PRINT_EXPR_TYPE(Assignment);
 			PRINT_HEADER(Name);
@@ -90,7 +90,7 @@ static void print_expr(Expr *expr, int level)
 		}
 		break;
 
-		case Expr_Call:
+		case EXPR_CALL:
 		{
 			PRINT_EXPR_TYPE(Call);
 			PRINT_EXPR_CHILD(Callee, expr->call.callee);
@@ -110,26 +110,26 @@ static void print_expr(Expr *expr, int level)
 		}
 		break;
 
-		case Expr_NumberLiteral:
+		case EXPR_NUMBER_LITERAL:
 		{
 			PRINT_EXPR_LITERAL(Number, "%f", expr->number);
 		}
 		break;
 
-		case Expr_BooleanLiteral:
+		case EXPR_BOOLEAN_LITERAL:
 		{
 			PRINT_EXPR_LITERAL(Boolean, "%s", expr->boolean ? "true" : "false");
 		}
 		break;
 
-		case Expr_StringLiteral:
+		case EXPR_STRING_LITERAL:
 		{
 			PRINT_EXPR_LITERAL(String, "%.*s", expr->string.len,
 							   expr->string.str);
 		}
 		break;
 
-		case Expr_Identifier:
+		case EXPR_IDENTIFIER:
 		{
 			PRINT_EXPR_LITERAL(Identifier, "%.*s", expr->identifier.len,
 							   expr->identifier.str);
@@ -142,7 +142,7 @@ static void print_stmt(Stmt *stmt, int level)
 {
 	switch (stmt->stmt_type)
 	{
-		case Stmt_Expr:
+		case STMT_EXPR:
 		{
 			PRINT_STMT_TYPE(Expression statement);
 			INDENT();
@@ -151,7 +151,7 @@ static void print_stmt(Stmt *stmt, int level)
 		}
 		break;
 
-		case Stmt_VarDecl:
+		case STMT_VAR_DECL:
 		{
 			PRINT_STMT_TYPE(Variable Declaration);
 			PRINT_HEADER(Name);
@@ -169,7 +169,7 @@ static void print_stmt(Stmt *stmt, int level)
 		}
 		break;
 
-		case Stmt_FunctionDecl:
+		case STMT_FUNCTION_DECL:
 		{
 			PRINT_STMT_TYPE(Function Declaration);
 			PRINT_HEADER(Name);
@@ -201,7 +201,7 @@ static void print_stmt(Stmt *stmt, int level)
 		}
 		break;
 
-		case Stmt_Block:
+		case STMT_BLOCK:
 		{
 			PRINT_STMT_TYPE(Block);
 			int count = darray_len(stmt->block.statements);
@@ -213,7 +213,7 @@ static void print_stmt(Stmt *stmt, int level)
 		}
 		break;
 
-		case Stmt_If:
+		case STMT_IF:
 		{
 			PRINT_STMT_TYPE(If);
 			PRINT_STMT_CHILD(Condition);
@@ -229,7 +229,7 @@ static void print_stmt(Stmt *stmt, int level)
 		}
 		break;
 
-		case Stmt_While:
+		case STMT_WHILE:
 		{
 			PRINT_STMT_TYPE(While);
 			PRINT_STMT_CHILD(Condition);
@@ -240,7 +240,7 @@ static void print_stmt(Stmt *stmt, int level)
 		}
 		break;
 
-		case Stmt_Return:
+		case STMT_RETURN:
 		{
 			PRINT_STMT_TYPE(Return);
 			PRINT_STMT_CHILD(Expression);

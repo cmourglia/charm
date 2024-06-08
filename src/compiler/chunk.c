@@ -27,7 +27,7 @@ void chunk_write_constant(Chunk *chunk, Value value)
 	i32 loc = add_constant(chunk, value);
 	assert(loc < 256 && "TODO: Handle more than 256 constants");
 
-	chunk_write(chunk, Op_Constant);
+	chunk_write(chunk, OP_CONSTANT);
 	chunk_write(chunk, loc);
 }
 

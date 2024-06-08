@@ -1,94 +1,95 @@
 #include "debug.h"
 
 #include "core/common.h"
+#include "core/value.h"
 
 const char *debug_get_token_type_str(Token_Type type)
 {
 	switch (type)
 	{
-		case Token_EOF:
+		case TOKEN_EOF:
 			return "EOF";
-		case Token_Invalid:
+		case TOKEN_INVALID:
 			return "Invalid";
-		case Token_Comment:
+		case TOKEN_COMMENT:
 			return "Comment";
-		case Token_LeftParen:
+		case TOKEN_OPEN_PAREN:
 			return "LeftParen";
-		case Token_RightParen:
+		case TOKEN_CLOSE_PAREN:
 			return "RightParen";
-		case Token_LeftBrace:
+		case TOKEN_OPEN_SQUIRLY:
 			return "LeftBrace";
-		case Token_RightBrace:
+		case TOKEN_CLOSE_SQUIRLY:
 			return "RightBrace";
-		case Token_LeftBracket:
+		case TOKEN_OPEN_BRACKET:
 			return "LeftBracket";
-		case Token_RightBracket:
+		case TOKEN_CLOSE_BRACKET:
 			return "RightBracket";
-		case Token_Comma:
+		case TOKEN_COMMA:
 			return "Comma";
-		case Token_Dot:
+		case TOKEN_DOT:
 			return "Dot";
-		case Token_Semicolon:
+		case TOKEN_SEMICOLON:
 			return "Semicolon";
-		case Token_Minus:
+		case TOKEN_MINUS:
 			return "Minus";
-		case Token_Plus:
+		case TOKEN_PLUS:
 			return "Plus";
-		case Token_Slash:
+		case TOKEN_SLASH:
 			return "Slash";
-		case Token_Star:
+		case TOKEN_STAR:
 			return "Star";
-		case Token_BangEqual:
+		case TOKEN_BANG_EQUAL:
 			return "BangEqual";
-		case Token_Equal:
+		case TOKEN_EQUAL:
 			return "Equal";
-		case Token_EqualEqual:
+		case TOKEN_EQUAL_EQUAL:
 			return "EqualEqual";
-		case Token_Greater:
+		case TOKEN_GREATER:
 			return "Greater";
-		case Token_GreaterEqual:
+		case TOKEN_GREATER_EQUAL:
 			return "GreaterEqual";
-		case Token_Less:
+		case TOKEN_LESS:
 			return "Less";
-		case Token_LessEqual:
+		case TOKEN_LESS_EQUAL:
 			return "LessEqual";
-		case Token_Identifier:
+		case TOKEN_IDENTIFIER:
 			return "Identifier";
-		case Token_String:
+		case TOKEN_STRING:
 			return "String";
-		case Token_Number:
+		case TOKEN_NUMBER:
 			return "Number";
-		case Token_And:
+		case TOKEN_AND:
 			return "And";
-		case Token_Else:
+		case TOKEN_ELSE:
 			return "Else";
-		case Token_False:
+		case TOKEN_FALSE:
 			return "False";
-		case Token_For:
+		case TOKEN_FOR:
 			return "For";
-		case Token_Function:
+		case TOKEN_FUNCTION:
 			return "Function";
-		case Token_If:
+		case TOKEN_IF:
 			return "If";
-		case Token_Nil:
+		case TOKEN_NIL:
 			return "Nil";
-		case Token_Not:
+		case TOKEN_NOT:
 			return "Not";
-		case Token_Or:
+		case TOKEN_OR:
 			return "Or";
-		case Token_Return:
+		case TOKEN_RETURN:
 			return "Return";
-		case Token_Struct:
+		case TOKEN_STRUCT:
 			return "Struct";
-		case Token_This:
+		case TOKEN_THIS:
 			return "This";
-		case Token_True:
+		case TOKEN_TRUE:
 			return "True";
-		case Token_Var:
+		case TOKEN_VAR:
 			return "Var";
-		case Token_While:
+		case TOKEN_WHILE:
 			return "While";
-		case Token_Super:
+		case TOKEN_SUPER:
 			return "Super";
 	}
 
@@ -100,4 +101,29 @@ int token_to_string(char *buffer, int capacity, Token token)
 	return snprintf(buffer, capacity, "Token { %s: `%.*s` }",
 					debug_get_token_type_str(token.type), token.lexeme_len,
 					token.lexeme_start);
+}
+
+void print_value(Value *value)
+{
+	switch (value->value_type)
+	{
+		case VALUE_NIL:
+			printf("<NIL>");
+			break;
+
+		case VALUE_BOOL:
+			printf("%s", (value->boolean ? "true" : "false"));
+			break;
+
+		case VALUE_NUMBER:
+			printf("%f", value->number);
+			break;
+
+		case VALUE_STRING:
+			printf("%.*s", value->string.len, value->string.str);
+			break;
+
+		default:
+			UNREACHABLE();
+	}
 }

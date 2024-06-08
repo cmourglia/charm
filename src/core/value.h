@@ -5,13 +5,13 @@
 
 typedef enum Value_Type
 {
-	Value_Nil = 0,
-	Value_Number,
-	Value_Bool,
-	Value_String,
-	Value_UserType,
-	Value_Function,
-	Value_NativeFunction,
+	VALUE_NIL = 0,
+	VALUE_NUMBER,
+	VALUE_BOOL,
+	VALUE_STRING,
+	VALUE_USER_TYPE,
+	VALUE_FUNCTION,
+	VALUE_NATIVE_FUNCTION,
 } Value_Type;
 
 struct Value;
@@ -46,13 +46,13 @@ Value value_string(String string);
 Value value_function(struct Identifier *args, struct Stmt *body);
 Value value_native_function(NativeFunction function);
 
-#define VALUE_IS_NIL(v) ((v).value_type == Value_Nil)
+#define VALUE_IS_NIL(v) ((v).value_type == VALUE_NIL)
 
 // TODO: Statement result
 typedef enum Result_Type
 {
-	Result_None,
-	Result_Return,
+	RESULT_NONE,
+	RESULT_RETURN,
 	// TODO: Continue,
 	// TODO: Break,
 	// TODO: Error ?

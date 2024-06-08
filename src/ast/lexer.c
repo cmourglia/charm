@@ -50,49 +50,49 @@ Token lexer_get_next_token(Lexer *lexer)
 	switch (c)
 	{
 		case '\0':
-			return token(lexer, Token_EOF);
+			return token(lexer, TOKEN_EOF);
 
 		case '(':
-			return token(lexer, Token_LeftParen);
+			return token(lexer, TOKEN_OPEN_PAREN);
 		case ')':
-			return token(lexer, Token_RightParen);
+			return token(lexer, TOKEN_CLOSE_PAREN);
 		case '{':
-			return token(lexer, Token_LeftBrace);
+			return token(lexer, TOKEN_OPEN_SQUIRLY);
 		case '}':
-			return token(lexer, Token_RightBrace);
+			return token(lexer, TOKEN_CLOSE_SQUIRLY);
 		case '[':
-			return token(lexer, Token_LeftBracket);
+			return token(lexer, TOKEN_OPEN_BRACKET);
 		case ']':
-			return token(lexer, Token_RightBracket);
+			return token(lexer, TOKEN_CLOSE_BRACKET);
 
 		case ',':
-			return token(lexer, Token_Comma);
+			return token(lexer, TOKEN_COMMA);
 		case '.':
-			return token(lexer, Token_Dot);
+			return token(lexer, TOKEN_DOT);
 		case ';':
-			return token(lexer, Token_Semicolon);
+			return token(lexer, TOKEN_SEMICOLON);
 
 		case '-':
-			return token(lexer, Token_Minus);
+			return token(lexer, TOKEN_MINUS);
 		case '+':
-			return token(lexer, Token_Plus);
+			return token(lexer, TOKEN_PLUS);
 		case '/':
 			if (peek(lexer) == '/')
 			{
 				return comment_token(lexer);
 			}
-			return token(lexer, Token_Slash);
+			return token(lexer, TOKEN_SLASH);
 		case '*':
-			return token(lexer, Token_Star);
+			return token(lexer, TOKEN_STAR);
 
 		case '!':
-			return equal_token(lexer, Token_Invalid, Token_BangEqual);
+			return equal_token(lexer, TOKEN_INVALID, TOKEN_BANG_EQUAL);
 		case '=':
-			return equal_token(lexer, Token_Equal, Token_EqualEqual);
+			return equal_token(lexer, TOKEN_EQUAL, TOKEN_EQUAL_EQUAL);
 		case '>':
-			return equal_token(lexer, Token_Greater, Token_GreaterEqual);
+			return equal_token(lexer, TOKEN_GREATER, TOKEN_GREATER_EQUAL);
 		case '<':
-			return equal_token(lexer, Token_Less, Token_LessEqual);
+			return equal_token(lexer, TOKEN_LESS, TOKEN_LESS_EQUAL);
 
 		case '"':
 			return string_token(lexer);
@@ -108,7 +108,7 @@ Token lexer_get_next_token(Lexer *lexer)
 				return identifier_token(lexer);
 			}
 
-			return token(lexer, Token_Invalid);
+			return token(lexer, TOKEN_INVALID);
 	}
 }
 
@@ -157,7 +157,7 @@ static Token string_token(Lexer *lexer)
 	{
 		if (peek(lexer) == '\0')
 		{
-			return token(lexer, Token_Invalid);
+			return token(lexer, TOKEN_INVALID);
 		}
 		advance(lexer);
 	}
@@ -171,7 +171,7 @@ static Token string_token(Lexer *lexer)
 
 	lexer->start += 1;
 	lexer->current -= 1;
-	Token tk = token(lexer, Token_String);
+	Token tk = token(lexer, TOKEN_STRING);
 	lexer->current += 1;
 	return tk;
 }
@@ -193,7 +193,7 @@ static Token number_token(Lexer *lexer)
 		}
 	}
 
-	return token(lexer, Token_Number);
+	return token(lexer, TOKEN_NUMBER);
 }
 
 static Token check_keyword(Lexer *lexer, int start, int length,
@@ -204,7 +204,7 @@ static Token check_keyword(Lexer *lexer, int start, int length,
 	{
 		return token(lexer, type);
 	}
-	return token(lexer, Token_Identifier);
+	return token(lexer, TOKEN_IDENTIFIER);
 }
 
 static Token identifier_token(Lexer *lexer)
@@ -217,21 +217,21 @@ static Token identifier_token(Lexer *lexer)
 	switch (lexer->start[0])
 	{
 		case 'a':
-			return check_keyword(lexer, 1, 2, "nd", Token_And);
+			return check_keyword(lexer, 1, 2, "nd", TOKEN_AND);
 		case 'e':
-			return check_keyword(lexer, 1, 3, "lse", Token_Else);
+			return check_keyword(lexer, 1, 3, "lse", TOKEN_ELSE);
 		case 'i':
-			return check_keyword(lexer, 1, 1, "f", Token_If);
+			return check_keyword(lexer, 1, 1, "f", TOKEN_IF);
 		case 'n':
-			return check_keyword(lexer, 1, 2, "ot", Token_Not);
+			return check_keyword(lexer, 1, 2, "ot", TOKEN_NOT);
 		case 'o':
-			return check_keyword(lexer, 1, 1, "r", Token_Or);
+			return check_keyword(lexer, 1, 1, "r", TOKEN_OR);
 		case 'r':
-			return check_keyword(lexer, 1, 5, "eturn", Token_Return);
+			return check_keyword(lexer, 1, 5, "eturn", TOKEN_RETURN);
 		case 'v':
-			return check_keyword(lexer, 1, 2, "ar", Token_Var);
+			return check_keyword(lexer, 1, 2, "ar", TOKEN_VAR);
 		case 'w':
-			return check_keyword(lexer, 1, 4, "hile", Token_While);
+			return check_keyword(lexer, 1, 4, "hile", TOKEN_WHILE);
 
 		case 'f':
 			if (lexer->current - lexer->start > 1)
@@ -239,12 +239,12 @@ static Token identifier_token(Lexer *lexer)
 				switch (lexer->start[1])
 				{
 					case 'a':
-						return check_keyword(lexer, 2, 3, "lse", Token_False);
+						return check_keyword(lexer, 2, 3, "lse", TOKEN_FALSE);
 					case 'o':
-						return check_keyword(lexer, 2, 1, "r", Token_For);
+						return check_keyword(lexer, 2, 1, "r", TOKEN_FOR);
 					case 'u':
 						return check_keyword(lexer, 2, 6, "nction",
-											 Token_Function);
+											 TOKEN_FUNCTION);
 				}
 			}
 
@@ -254,9 +254,9 @@ static Token identifier_token(Lexer *lexer)
 				switch (lexer->start[1])
 				{
 					case 't':
-						return check_keyword(lexer, 2, 4, "ruct", Token_Struct);
+						return check_keyword(lexer, 2, 4, "ruct", TOKEN_STRUCT);
 					case 'u':
-						return check_keyword(lexer, 2, 3, "per", Token_Super);
+						return check_keyword(lexer, 2, 3, "per", TOKEN_SUPER);
 				}
 			}
 
@@ -266,14 +266,14 @@ static Token identifier_token(Lexer *lexer)
 				switch (lexer->start[1])
 				{
 					case 'h':
-						return check_keyword(lexer, 2, 2, "is", Token_This);
+						return check_keyword(lexer, 2, 2, "is", TOKEN_THIS);
 					case 'r':
-						return check_keyword(lexer, 2, 2, "ue", Token_True);
+						return check_keyword(lexer, 2, 2, "ue", TOKEN_TRUE);
 				}
 			}
 	}
 
-	return token(lexer, Token_Identifier);
+	return token(lexer, TOKEN_IDENTIFIER);
 }
 
 static Token comment_token(Lexer *lexer)
@@ -283,7 +283,7 @@ static Token comment_token(Lexer *lexer)
 		advance(lexer);
 	}
 
-	return token(lexer, Token_Comment);
+	return token(lexer, TOKEN_COMMENT);
 }
 
 static bool is_whitespace(char c)
