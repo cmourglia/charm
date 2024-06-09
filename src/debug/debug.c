@@ -129,3 +129,53 @@ void print_value(Value *value)
 			UNREACHABLE();
 	}
 }
+
+const char *debug_expr_type_str(ExprType type)
+{
+	switch (type)
+	{
+		case EXPR_BINARY:
+			return "EXPR_BINARY";
+		case EXPR_GROUPING:
+			return "EXPR_GROUPING";
+		case EXPR_UNARY:
+			return "EXPR_UNARY";
+		case EXPR_BOOLEAN_LITERAL:
+			return "EXPR_BOOLEAN_LITERAL";
+		case EXPR_NUMBER_LITERAL:
+			return "EXPR_NUMBER_LITERAL";
+		case EXPR_STRING_LITERAL:
+			return "EXPR_STRING_LITERAL";
+		case EXPR_IDENTIFIER:
+			return "EXPR_IDENTIFIER";
+		case EXPR_ASSIGNMENT:
+			return "EXPR_ASSIGNMENT";
+		case EXPR_CALL:
+			return "EXPR_CALL";
+	}
+
+	UNREACHABLE();
+}
+
+const char *debug_stmt_type_str(StmtType type)
+{
+	switch (type)
+	{
+		case STMT_EXPR:
+			return "STMT_EXPR";
+		case STMT_VAR_DECL:
+			return "STMT_VAR_DECL";
+		case STMT_FUNCTION_DECL:
+			return "STMT_FUNCTION_DECL";
+		case STMT_BLOCK:
+			return "STMT_BLOCK";
+		case STMT_IF:
+			return "STMT_IF";
+		case STMT_WHILE:
+			return "STMT_WHILE";
+		case STMT_RETURN:
+			return "STMT_RETURN";
+	}
+
+	UNREACHABLE();
+}
