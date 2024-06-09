@@ -9,12 +9,4 @@ typedef enum CompileResult
 	// TODO:
 } CompileResult;
 
-typedef struct Compiler
-{
-	struct Chunk *chunk;
-} Compiler;
-
-void compiler_init(Compiler *compiler, struct Chunk *chunk);
-void compiler_free(Compiler *compiler);
-
-CompileResult compile_program(Compiler *compiler, struct Program program);
+CompileResult compile_program(struct Chunk *chunk, struct Program program);

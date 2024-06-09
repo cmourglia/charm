@@ -48,12 +48,7 @@ int main(int argc, char **argv)
 	Chunk chunk;
 	chunk_init(&chunk);
 
-	Compiler compiler;
-	compiler_init(&compiler, &chunk);
-
-	compile_program(&compiler, program);
-	printf("\n-*-*-*- Compiled Bytecode -*-*-*-\n");
-	debug_disassemble_chunk(&chunk, "test chunk");
+	compile_program(&chunk, program);
 
 	printf("\n-*-*-*- Running program -*-*-*-\n");
 	vm_init();

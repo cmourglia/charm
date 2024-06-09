@@ -41,12 +41,12 @@ static InterpretResult run()
 #define READ_BYTE() (*vm.ip++)
 #define READ_CONSTANT() (vm.chunk->constants[READ_BYTE()])
 
-#define BINARY_OP(op)                             \
-	do                                            \
-	{                                             \
-		Value b = pop();                          \
-		Value a = pop();                          \
-		push(value_number(a.number op b.number)); \
+#define BINARY_OP(op)                                   \
+	do                                                  \
+	{                                                   \
+		Value b = pop();                                \
+		Value a = pop();                                \
+		push(value_number(a.as.number op b.as.number)); \
 	} while (false)
 
 	for (;;)
@@ -78,7 +78,7 @@ static InterpretResult run()
 
 			case OP_NEGATE:
 			{
-				push(value_number(-pop().number));
+				push(value_number(-pop().as.number));
 			}
 			break;
 

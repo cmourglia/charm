@@ -17,6 +17,12 @@ typedef enum ValueType
 struct Value;
 typedef struct Result (*NativeFunction)(struct Value *);
 
+typedef struct Function
+{
+	struct Identifier *args;
+	struct Stmt *body;
+} Function;
+
 typedef struct Value
 {
 	union
@@ -24,17 +30,10 @@ typedef struct Value
 		f64 number;
 		bool boolean;
 		String string;
+		NativeFunction native_function;
+		Function function;
 		// TODO: others
-		struct
-		{
-			struct Identifier *args;
-			struct Stmt *body;
-		} function;
-		struct
-		{
-			NativeFunction function;
-		} native_function;
-	};
+	} as;
 
 	ValueType type;
 } Value;
@@ -62,11 +61,8 @@ typedef struct Result
 {
 	union
 	{
-		struct
-		{
-			Value value;
-		} return_result;
-	};
+		Value return_result;
+	} as;
 
 	ResultType type;
 } Result;

@@ -57,10 +57,10 @@ static void print_expr(Expr *expr, int level)
 		case EXPR_BINARY:
 		{
 			PRINT_EXPR_TYPE(Binary expression);
-			PRINT_EXPR_OP(expr->binary.op);
-			PRINT_EXPR_CHILD(Left, expr->binary.left);
+			PRINT_EXPR_OP(expr->as.binary.op);
+			PRINT_EXPR_CHILD(Left, expr->as.binary.left);
 			printf("\n");
-			PRINT_EXPR_CHILD(Right, expr->binary.right);
+			PRINT_EXPR_CHILD(Right, expr->as.binary.right);
 		}
 		break;
 
@@ -68,15 +68,15 @@ static void print_expr(Expr *expr, int level)
 		{
 			PRINT_EXPR_TYPE(Grouping expression);
 			INDENT();
-			print_expr(expr->grouping.expr, level + 1);
+			print_expr(expr->as.grouping.expr, level + 1);
 		}
 		break;
 
 		case EXPR_UNARY:
 		{
 			PRINT_EXPR_TYPE(Unary Expression);
-			PRINT_EXPR_OP(expr->unary.op);
-			PRINT_EXPR_CHILD(Right, expr->unary.right);
+			PRINT_EXPR_OP(expr->as.unary.op);
+			PRINT_EXPR_CHILD(Right, expr->as.unary.right);
 		}
 		break;
 
@@ -84,26 +84,26 @@ static void print_expr(Expr *expr, int level)
 		{
 			PRINT_EXPR_TYPE(Assignment);
 			PRINT_HEADER(Name);
-			PRINT_IDENTIFIER(BLU, expr->assignment.name);
+			PRINT_IDENTIFIER(BLU, expr->as.assignment.name);
 			printf("\n");
-			PRINT_EXPR_CHILD(Value, expr->assignment.value);
+			PRINT_EXPR_CHILD(Value, expr->as.assignment.value);
 		}
 		break;
 
 		case EXPR_CALL:
 		{
 			PRINT_EXPR_TYPE(Call);
-			PRINT_EXPR_CHILD(Callee, expr->call.callee);
-			if (darray_len(expr->call.arguments) > 0)
+			PRINT_EXPR_CHILD(Callee, expr->as.call.callee);
+			if (darray_len(expr->as.call.arguments) > 0)
 			{
 				printf("\n");
 				PRINT_HEADER(Arguments);
 				level += 1;
-				for (int i = 0; i < darray_len(expr->call.arguments); i++)
+				for (int i = 0; i < darray_len(expr->as.call.arguments); i++)
 				{
 					printf("\n");
 					INDENT();
-					print_expr(expr->call.arguments[i], level + 1);
+					print_expr(expr->as.call.arguments[i], level + 1);
 				}
 				level -= 1;
 			}
@@ -112,27 +112,28 @@ static void print_expr(Expr *expr, int level)
 
 		case EXPR_NUMBER_LITERAL:
 		{
-			PRINT_EXPR_LITERAL(Number, "%f", expr->number);
+			PRINT_EXPR_LITERAL(Number, "%f", expr->as.number);
 		}
 		break;
 
 		case EXPR_BOOLEAN_LITERAL:
 		{
-			PRINT_EXPR_LITERAL(Boolean, "%s", expr->boolean ? "true" : "false");
+			PRINT_EXPR_LITERAL(Boolean, "%s",
+							   expr->as.boolean ? "true" : "false");
 		}
 		break;
 
 		case EXPR_STRING_LITERAL:
 		{
-			PRINT_EXPR_LITERAL(String, "%.*s", expr->string.len,
-							   expr->string.str);
+			PRINT_EXPR_LITERAL(String, "%.*s", expr->as.string.len,
+							   expr->as.string.str);
 		}
 		break;
 
 		case EXPR_IDENTIFIER:
 		{
-			PRINT_EXPR_LITERAL(Identifier, "%.*s", expr->identifier.len,
-							   expr->identifier.str);
+			PRINT_EXPR_LITERAL(Identifier, "%.*s", expr->as.identifier.len,
+							   expr->as.identifier.str);
 		}
 		break;
 	}
@@ -146,7 +147,7 @@ static void print_stmt(Stmt *stmt, int level)
 		{
 			PRINT_STMT_TYPE(Expression statement);
 			INDENT();
-			print_expr(stmt->expression.expr, level + 1);
+			print_expr(stmt->as.expression.expr, level + 1);
 			printf("\n");
 		}
 		break;
@@ -155,13 +156,13 @@ static void print_stmt(Stmt *stmt, int level)
 		{
 			PRINT_STMT_TYPE(Variable Declaration);
 			PRINT_HEADER(Name);
-			PRINT_IDENTIFIER(BLU, stmt->var_decl.name);
+			PRINT_IDENTIFIER(BLU, stmt->as.var_decl.name);
 
-			if (stmt->var_decl.expr != NULL)
+			if (stmt->as.var_decl.expr != NULL)
 			{
 				printf("\n");
 				printf("%*.s" GRN "Expression: ", (level + 1) * 2, "");
-				print_expr(stmt->var_decl.expr, level + 1);
+				print_expr(stmt->as.var_decl.expr, level + 1);
 			}
 
 			printf("\n");
@@ -173,10 +174,10 @@ static void print_stmt(Stmt *stmt, int level)
 		{
 			PRINT_STMT_TYPE(Function Declaration);
 			PRINT_HEADER(Name);
-			PRINT_IDENTIFIER(BLU, stmt->function_decl.name);
+			PRINT_IDENTIFIER(BLU, stmt->as.function_decl.name);
 			printf("\n");
 
-			int arity = darray_len(stmt->function_decl.args);
+			int arity = darray_len(stmt->as.function_decl.args);
 			PRINT_HEADER(Arity);
 			printf("%d\n", arity);
 
@@ -190,25 +191,25 @@ static void print_stmt(Stmt *stmt, int level)
 						printf(", ");
 					}
 
-					PRINT_IDENTIFIER(BLU, stmt->function_decl.args[i]);
+					PRINT_IDENTIFIER(BLU, stmt->as.function_decl.args[i]);
 				}
 
 				printf("\n");
 			}
 
 			PRINT_HEADER(Body);
-			print_stmt(stmt->function_decl.body, level + 1);
+			print_stmt(stmt->as.function_decl.body, level + 1);
 		}
 		break;
 
 		case STMT_BLOCK:
 		{
 			PRINT_STMT_TYPE(Block);
-			int count = darray_len(stmt->block.statements);
+			int count = darray_len(stmt->as.block.statements);
 			for (int i = 0; i < count; i++)
 			{
 				INDENT();
-				print_stmt(stmt->block.statements[i], level + 1);
+				print_stmt(stmt->as.block.statements[i], level + 1);
 			}
 		}
 		break;
@@ -217,14 +218,14 @@ static void print_stmt(Stmt *stmt, int level)
 		{
 			PRINT_STMT_TYPE(If);
 			PRINT_STMT_CHILD(Condition);
-			print_expr(stmt->if_stmt.cond, level + 1);
+			print_expr(stmt->as.if_stmt.cond, level + 1);
 			printf("\n");
 			PRINT_STMT_CHILD(Then);
-			print_stmt(stmt->if_stmt.then_branch, level + 1);
-			if (stmt->if_stmt.else_branch != NULL)
+			print_stmt(stmt->as.if_stmt.then_branch, level + 1);
+			if (stmt->as.if_stmt.else_branch != NULL)
 			{
 				PRINT_STMT_CHILD(Else);
-				print_stmt(stmt->if_stmt.else_branch, level + 1);
+				print_stmt(stmt->as.if_stmt.else_branch, level + 1);
 			}
 		}
 		break;
@@ -233,10 +234,10 @@ static void print_stmt(Stmt *stmt, int level)
 		{
 			PRINT_STMT_TYPE(While);
 			PRINT_STMT_CHILD(Condition);
-			print_expr(stmt->while_stmt.cond, level + 1);
+			print_expr(stmt->as.while_stmt.cond, level + 1);
 			printf("\n");
 			PRINT_STMT_CHILD(Body);
-			print_stmt(stmt->while_stmt.body, level + 1);
+			print_stmt(stmt->as.while_stmt.body, level + 1);
 		}
 		break;
 
@@ -244,13 +245,13 @@ static void print_stmt(Stmt *stmt, int level)
 		{
 			PRINT_STMT_TYPE(Return);
 			PRINT_STMT_CHILD(Expression);
-			if (stmt->return_stmt.expr == NULL)
+			if (stmt->as.return_stmt.expr == NULL)
 			{
 				printf("<NONE>");
 			}
 			else
 			{
-				print_expr(stmt->return_stmt.expr, level + 1);
+				print_expr(stmt->as.return_stmt.expr, level + 1);
 			}
 
 			printf("\n");

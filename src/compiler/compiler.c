@@ -11,36 +11,42 @@
 
 #include "debug/debug.h"
 
-static CompileResult compile_stmt(Compiler *compiler, Stmt *stmt);
-static CompileResult compile_expr(Compiler *compiler, Expr *expr);
+#define DEBUG_PRINT_CODE
 
-void compiler_init(Compiler *compiler, Chunk *chunk)
+static Chunk *compiling_chunk;
+
+static Chunk *current_chunk()
 {
-	compiler->chunk = chunk;
+	return compiling_chunk;
 }
 
-void compiler_free(Compiler *compiler)
-{
-	compiler->chunk = NULL;
-}
+static CompileResult compile_stmt(Stmt *stmt);
+static CompileResult compile_expr(Expr *expr);
 
-CompileResult compile_program(Compiler *compiler, Program program)
+CompileResult compile_program(struct Chunk *chunk, Program program)
 {
+	compiling_chunk = chunk;
+
 	int count = darray_len(program.statements);
 
 	CompileResult result = COMPILE_OK;
 
 	for (int i = 0; i < count; i++)
 	{
-		result |= compile_stmt(compiler, program.statements[i]);
+		result |= compile_stmt(program.statements[i]);
 	}
 
-	chunk_write(compiler->chunk, OP_RETURN);
+	chunk_write(current_chunk(), OP_RETURN);
+
+#ifdef DEBUG_PRINT_CODE
+	printf("\n-*-*-*- Compiled Bytecode -*-*-*-\n");
+	debug_disassemble_chunk(current_chunk(), "code");
+#endif
 
 	return result;
 }
 
-static CompileResult compile_stmt(Compiler *compiler, Stmt *stmt)
+static CompileResult compile_stmt(Stmt *stmt)
 {
 	CompileResult result = COMPILE_OK;
 
@@ -48,7 +54,7 @@ static CompileResult compile_stmt(Compiler *compiler, Stmt *stmt)
 	{
 		case STMT_EXPR:
 		{
-			result = compile_expr(compiler, stmt->expression.expr);
+			result = compile_expr(stmt->as.expression.expr);
 		}
 		break;
 
@@ -63,31 +69,32 @@ static CompileResult compile_stmt(Compiler *compiler, Stmt *stmt)
 	return result;
 }
 
-static CompileResult compile_binary_expr(Chunk *chunk, BinaryExpr expr);
-static CompileResult compile_unary_expr(Chunk *chunk, UnaryExpr expr);
+static CompileResult compile_binary_expr(BinaryExpr expr);
+static CompileResult compile_unary_expr(UnaryExpr expr);
 
-static CompileResult compile_expr(Compiler *compiler, Expr *expr)
+static CompileResult compile_expr(Expr *expr)
 {
 	switch (expr->type)
 	{
 		case EXPR_NUMBER_LITERAL:
 		{
-			chunk_write_constant(compiler->chunk, value_number(expr->number));
+			chunk_write_constant(current_chunk(),
+								 value_number(expr->as.number));
 		}
 		break;
 
 		case EXPR_BINARY:
 		{
-			compile_expr(compiler, expr->binary.left);
-			compile_expr(compiler, expr->binary.right);
-			compile_binary_expr(compiler->chunk, expr->binary);
+			compile_expr(expr->as.binary.left);
+			compile_expr(expr->as.binary.right);
+			compile_binary_expr(expr->as.binary);
 		}
 		break;
 
 		case EXPR_UNARY:
 		{
-			compile_expr(compiler, expr->unary.right);
-			compile_unary_expr(compiler->chunk, expr->unary);
+			compile_expr(expr->as.unary.right);
+			compile_unary_expr(expr->as.unary);
 		}
 		break;
 
@@ -101,24 +108,24 @@ static CompileResult compile_expr(Compiler *compiler, Expr *expr)
 	return COMPILE_OK;
 }
 
-static CompileResult compile_binary_expr(Chunk *chunk, BinaryExpr expr)
+static CompileResult compile_binary_expr(BinaryExpr expr)
 {
 	switch (expr.op)
 	{
 		case TOKEN_PLUS:
-			chunk_write(chunk, OP_ADD);
+			chunk_write(current_chunk(), OP_ADD);
 			break;
 
 		case TOKEN_MINUS:
-			chunk_write(chunk, OP_SUBTRACT);
+			chunk_write(current_chunk(), OP_SUBTRACT);
 			break;
 
 		case TOKEN_STAR:
-			chunk_write(chunk, OP_MULTIPLY);
+			chunk_write(current_chunk(), OP_MULTIPLY);
 			break;
 
 		case TOKEN_SLASH:
-			chunk_write(chunk, OP_DIVIDE);
+			chunk_write(current_chunk(), OP_DIVIDE);
 			break;
 
 		default:
@@ -128,12 +135,12 @@ static CompileResult compile_binary_expr(Chunk *chunk, BinaryExpr expr)
 	return COMPILE_OK;
 }
 
-static CompileResult compile_unary_expr(Chunk *chunk, UnaryExpr expr)
+static CompileResult compile_unary_expr(UnaryExpr expr)
 {
 	switch (expr.op)
 	{
 		case TOKEN_MINUS:
-			chunk_write(chunk, OP_NEGATE);
+			chunk_write(current_chunk(), OP_NEGATE);
 			break;
 
 		default:

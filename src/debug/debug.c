@@ -114,15 +114,15 @@ void print_value(Value *value)
 			break;
 
 		case VALUE_BOOL:
-			printf("%s", (value->boolean ? "true" : "false"));
+			printf("%s", (value->as.boolean ? "true" : "false"));
 			break;
 
 		case VALUE_NUMBER:
-			printf("%f", value->number);
+			printf("%f", value->as.number);
 			break;
 
 		case VALUE_STRING:
-			printf("%.*s", value->string.len, value->string.str);
+			printf("%.*s", value->as.string.len, value->as.string.str);
 			break;
 
 		default:

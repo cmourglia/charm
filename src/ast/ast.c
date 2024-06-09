@@ -52,9 +52,11 @@ Expr *ast_expr_binary(TokenType op, Expr *left, Expr *right)
 {
 	Expr *node = make_expr(EXPR_BINARY);
 
-	node->binary.op = op;
-	node->binary.left = left;
-	node->binary.right = right;
+	node->as.binary = (BinaryExpr){
+		.op = op,
+		.left = left,
+		.right = right,
+	};
 
 	return node;
 }
@@ -63,7 +65,7 @@ Expr *ast_expr_grouping(Expr *expr)
 {
 	Expr *node = make_expr(EXPR_GROUPING);
 
-	node->grouping.expr = expr;
+	node->as.grouping.expr = expr;
 
 	return node;
 }
@@ -72,8 +74,10 @@ Expr *ast_expr_unary(TokenType op, Expr *right)
 {
 	Expr *node = make_expr(EXPR_UNARY);
 
-	node->unary.op = op;
-	node->unary.right = right;
+	node->as.unary = (UnaryExpr){
+		.op = op,
+		.right = right,
+	};
 
 	return node;
 }
@@ -82,7 +86,7 @@ Expr *ast_expr_number_literal(double value)
 {
 	Expr *node = make_expr(EXPR_NUMBER_LITERAL);
 
-	node->number = value;
+	node->as.number = value;
 
 	return node;
 }
@@ -91,7 +95,7 @@ Expr *ast_expr_boolean_literal(bool value)
 {
 	Expr *node = make_expr(EXPR_BOOLEAN_LITERAL);
 
-	node->boolean = value;
+	node->as.boolean = value;
 
 	return node;
 }
@@ -100,7 +104,7 @@ Expr *ast_expr_string_literal(String value)
 {
 	Expr *node = make_expr(EXPR_STRING_LITERAL);
 
-	node->string = value;
+	node->as.string = value;
 
 	return node;
 }
@@ -109,7 +113,7 @@ Expr *ast_expr_identifier(Identifier identifier)
 {
 	Expr *node = make_expr(EXPR_IDENTIFIER);
 
-	node->identifier = identifier;
+	node->as.identifier = identifier;
 
 	return node;
 }
@@ -118,8 +122,10 @@ Expr *ast_expr_assignment(Identifier name, Expr *expr)
 {
 	Expr *node = make_expr(EXPR_ASSIGNMENT);
 
-	node->assignment.name = name;
-	node->assignment.value = expr;
+	node->as.assignment = (AssignmentExpr){
+		.name = name,
+		.value = expr,
+	};
 
 	return node;
 }
@@ -128,8 +134,10 @@ Expr *ast_expr_call(Expr *callee, Expr **arguments)
 {
 	Expr *node = make_expr(EXPR_CALL);
 
-	node->call.callee = callee;
-	node->call.arguments = arguments;
+	node->as.call = (CallExpr){
+		.callee = callee,
+		.arguments = arguments,
+	};
 
 	return node;
 }
@@ -151,7 +159,7 @@ Stmt *ast_stmt_expression(Expr *expr)
 {
 	Stmt *node = make_stmt(STMT_EXPR);
 
-	node->expression.expr = expr;
+	node->as.expression.expr = expr;
 
 	return node;
 }
@@ -160,8 +168,10 @@ Stmt *ast_stmt_var_decl(Identifier name, Expr *expr)
 {
 	Stmt *node = make_stmt(STMT_VAR_DECL);
 
-	node->var_decl.name = name;
-	node->var_decl.expr = expr;
+	node->as.var_decl = (VarDecl){
+		.name = name,
+		.expr = expr,
+	};
 
 	return node;
 }
@@ -170,9 +180,11 @@ Stmt *ast_stmt_function_decl(Identifier name, Identifier *args, Stmt *body)
 {
 	Stmt *node = make_stmt(STMT_FUNCTION_DECL);
 
-	node->function_decl.name = name;
-	node->function_decl.args = args;
-	node->function_decl.body = body;
+	node->as.function_decl = (FunctionDecl){
+		.name = name,
+		.args = args,
+		.body = body,
+	};
 
 	return node;
 }
@@ -181,7 +193,7 @@ Stmt *ast_stmt_block(Stmt **statements)
 {
 	Stmt *node = make_stmt(STMT_BLOCK);
 
-	node->block.statements = statements;
+	node->as.block.statements = statements;
 
 	return node;
 }
@@ -190,9 +202,11 @@ Stmt *ast_stmt_if(Expr *cond, Stmt *then_branch, Stmt *else_branch)
 {
 	Stmt *node = make_stmt(STMT_IF);
 
-	node->if_stmt.cond = cond;
-	node->if_stmt.then_branch = then_branch;
-	node->if_stmt.else_branch = else_branch;
+	node->as.if_stmt = (IfStmt){
+		.cond = cond,
+		.then_branch = then_branch,
+		.else_branch = else_branch,
+	};
 
 	return node;
 }
@@ -201,8 +215,10 @@ Stmt *ast_stmt_while(Expr *cond, Stmt *body)
 {
 	Stmt *node = make_stmt(STMT_WHILE);
 
-	node->while_stmt.cond = cond;
-	node->while_stmt.body = body;
+	node->as.while_stmt = (WhileStmt){
+		.cond = cond,
+		.body = body,
+	};
 
 	return node;
 }
@@ -211,7 +227,7 @@ Stmt *ast_stmt_return(Expr *expr)
 {
 	Stmt *node = make_stmt(STMT_RETURN);
 
-	node->return_stmt.expr = expr;
+	node->as.return_stmt.expr = expr;
 
 	return node;
 }

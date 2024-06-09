@@ -123,7 +123,7 @@ static Expr *assignment(Parser *parser)
 
 		if (expr->type == EXPR_IDENTIFIER)
 		{
-			Identifier name = expr->identifier;
+			Identifier name = expr->as.identifier;
 			free(expr);
 
 			return ast_expr_assignment(name, value);
@@ -544,7 +544,7 @@ static Stmt *for_stmt(Parser *parser)
 	if (increment != NULL)
 	{
 		// NOLINTNEXTLINE(bugprone-sizeof-expression)
-		darray_push(body->block.statements, ast_stmt_expression(increment));
+		darray_push(body->as.block.statements, ast_stmt_expression(increment));
 	}
 
 	Stmt **while_stmts = NULL;

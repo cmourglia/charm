@@ -69,7 +69,7 @@ typedef struct Expr
 		bool boolean;
 		String string;
 		Identifier identifier;
-	};
+	} as;
 
 	ExprType type;
 } Expr;
@@ -139,7 +139,7 @@ typedef struct Stmt
 		BlockStmt block;
 		WhileStmt while_stmt;
 		ReturnStmt return_stmt;
-	};
+	} as;
 
 	StmtType type;
 } Stmt;

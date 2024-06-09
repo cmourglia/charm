@@ -88,7 +88,7 @@ static Value mult(Expr *lhs, Expr *rhs)
 
 	if (l.type == VALUE_NUMBER && r.type == VALUE_NUMBER)
 	{
-		return value_number(l.number * r.number);
+		return value_number(l.as.number * r.as.number);
 	}
 
 	UNREACHABLE();
@@ -101,7 +101,7 @@ static Value divide(Expr *lhs, Expr *rhs)
 
 	if (l.type == VALUE_NUMBER && r.type == VALUE_NUMBER)
 	{
-		return value_number(l.number / r.number);
+		return value_number(l.as.number / r.as.number);
 	}
 
 	UNREACHABLE();
@@ -114,7 +114,7 @@ static Value add(Expr *lhs, Expr *rhs)
 
 	if (l.type == VALUE_NUMBER && r.type == VALUE_NUMBER)
 	{
-		return value_number(l.number + r.number);
+		return value_number(l.as.number + r.as.number);
 	}
 
 	printf("%u %u\n", l.type, r.type);
@@ -128,32 +128,32 @@ static Value subtract(Expr *lhs, Expr *rhs)
 
 	if (l.type == VALUE_NUMBER && r.type == VALUE_NUMBER)
 	{
-		return value_number(l.number - r.number);
+		return value_number(l.as.number - r.as.number);
 	}
 
 	UNREACHABLE();
 }
 
-#define BIN_COMP(op)                                           \
-	do                                                         \
-	{                                                          \
-		Value l = interpret_expr(lhs);                         \
-		Value r = interpret_expr(rhs);                         \
-                                                               \
-		if (l.type == r.type)                                  \
-		{                                                      \
-			switch (l.type)                                    \
-			{                                                  \
-				case VALUE_NUMBER:                             \
-					return value_bool(l.number op r.number);   \
-				case VALUE_BOOL:                               \
-					return value_bool(l.boolean op r.boolean); \
-				default:                                       \
-					UNREACHABLE();                             \
-			}                                                  \
-		}                                                      \
-                                                               \
-		UNREACHABLE();                                         \
+#define BIN_COMP(op)                                                 \
+	do                                                               \
+	{                                                                \
+		Value l = interpret_expr(lhs);                               \
+		Value r = interpret_expr(rhs);                               \
+                                                                     \
+		if (l.type == r.type)                                        \
+		{                                                            \
+			switch (l.type)                                          \
+			{                                                        \
+				case VALUE_NUMBER:                                   \
+					return value_bool(l.as.number op r.as.number);   \
+				case VALUE_BOOL:                                     \
+					return value_bool(l.as.boolean op r.as.boolean); \
+				default:                                             \
+					UNREACHABLE();                                   \
+			}                                                        \
+		}                                                            \
+                                                                     \
+		UNREACHABLE();                                               \
 	} while (false)
 
 static Value eq(Expr *lhs, Expr *rhs)
@@ -196,7 +196,7 @@ static Value logic_and(Expr *lhs, Expr *rhs)
 		return value_bool(false);
 	}
 
-	if (!left.boolean)
+	if (!left.as.boolean)
 	{
 		return left;
 	}
@@ -221,7 +221,7 @@ static Value logic_or(Expr *lhs, Expr *rhs)
 		return value_bool(false);
 	}
 
-	if (left.boolean)
+	if (left.as.boolean)
 	{
 		return left;
 	}
@@ -240,67 +240,37 @@ static Result call_function(FrameStack *stack, Value callee, Value *args);
 static Result call_native_function(FrameStack *stack, Value callee,
 								   Value *args);
 
+static Value interpret_binary_expr(BinaryExpr *expr);
+
 static Value interpret_expr(Expr *expr)
 {
 	switch (expr->type)
 	{
 		case EXPR_BOOLEAN_LITERAL:
-			return value_bool(expr->boolean);
+			return value_bool(expr->as.boolean);
 
 		case EXPR_NUMBER_LITERAL:
-			return value_number(expr->number);
+			return value_number(expr->as.number);
 
 		case EXPR_STRING_LITERAL:
-			return value_string(expr->string);
+			return value_string(expr->as.string);
 
 		case EXPR_GROUPING:
-			return interpret_expr(expr->grouping.expr);
+			return interpret_expr(expr->as.grouping.expr);
 
 		case EXPR_BINARY:
-		{
-			switch (expr->binary.op)
-			{
-				case TOKEN_MINUS:
-					return subtract(expr->binary.left, expr->binary.right);
-				case TOKEN_PLUS:
-					return add(expr->binary.left, expr->binary.right);
-				case TOKEN_SLASH:
-					return divide(expr->binary.left, expr->binary.right);
-				case TOKEN_STAR:
-					return mult(expr->binary.left, expr->binary.right);
-				case TOKEN_BANG_EQUAL:
-					return neq(expr->binary.left, expr->binary.right);
-				case TOKEN_EQUAL_EQUAL:
-					return eq(expr->binary.left, expr->binary.right);
-				case TOKEN_GREATER:
-					return gt(expr->binary.left, expr->binary.right);
-				case TOKEN_GREATER_EQUAL:
-					return geq(expr->binary.left, expr->binary.right);
-				case TOKEN_LESS:
-					return lt(expr->binary.left, expr->binary.right);
-				case TOKEN_LESS_EQUAL:
-					return leq(expr->binary.left, expr->binary.right);
-				case TOKEN_AND:
-					return logic_and(expr->binary.left, expr->binary.right);
-				case TOKEN_OR:
-					return logic_or(expr->binary.left, expr->binary.right);
-
-				default:
-					UNREACHABLE();
-			}
-		}
-		break;
+			return interpret_binary_expr(&expr->as.binary);
 
 		case EXPR_UNARY:
 		{
-			switch (expr->unary.op)
+			switch (expr->as.unary.op)
 			{
 				case TOKEN_MINUS:
 				{
-					Value v = interpret_expr(expr->unary.right);
+					Value v = interpret_expr(expr->as.unary.right);
 					if (v.type == VALUE_NUMBER)
 					{
-						return value_number(-v.number);
+						return value_number(-v.as.number);
 					}
 
 					UNREACHABLE();
@@ -309,10 +279,10 @@ static Value interpret_expr(Expr *expr)
 
 				case TOKEN_NOT:
 				{
-					Value v = interpret_expr(expr->unary.right);
+					Value v = interpret_expr(expr->as.unary.right);
 					if (v.type == VALUE_BOOL)
 					{
-						return value_bool(!v.boolean);
+						return value_bool(!v.as.boolean);
 					}
 
 					UNREACHABLE();
@@ -327,13 +297,14 @@ static Value interpret_expr(Expr *expr)
 
 		case EXPR_ASSIGNMENT:
 		{
-			Value value = interpret_expr(expr->assignment.value);
-			if (!frame_stack_set_variable(&frame_stack, expr->assignment.name,
-										  value))
+			Value value = interpret_expr(expr->as.assignment.value);
+			if (!frame_stack_set_variable(&frame_stack,
+										  expr->as.assignment.name, value))
 			{
 				// TODO: Error
 				printf("Variable '%.*s' does not exist or types do not match\n",
-					   expr->assignment.name.len, expr->assignment.name.str);
+					   expr->as.assignment.name.len,
+					   expr->as.assignment.name.str);
 			}
 			return value;
 		}
@@ -342,11 +313,13 @@ static Value interpret_expr(Expr *expr)
 		case EXPR_IDENTIFIER:
 		{
 			Value value = value_nil();
-			if (!frame_stack_get_value(&frame_stack, expr->identifier, &value))
+			if (!frame_stack_get_value(&frame_stack, expr->as.identifier,
+									   &value))
 			{
 				// TODO: Error
 				printf("Variable '%.*s' does not exist\n",
-					   expr->assignment.name.len, expr->assignment.name.str);
+					   expr->as.assignment.name.len,
+					   expr->as.assignment.name.str);
 			}
 			return value;
 		}
@@ -354,13 +327,13 @@ static Value interpret_expr(Expr *expr)
 
 		case EXPR_CALL:
 		{
-			Value callee = interpret_expr(expr->call.callee);
+			Value callee = interpret_expr(expr->as.call.callee);
 
 			Value *args = NULL;
 
-			for (int i = 0; i < darray_len(expr->call.arguments); i++)
+			for (int i = 0; i < darray_len(expr->as.call.arguments); i++)
 			{
-				darray_push(args, interpret_expr(expr->call.arguments[i]));
+				darray_push(args, interpret_expr(expr->as.call.arguments[i]));
 			}
 
 			frame_stack_push_frame(&frame_stack);
@@ -395,7 +368,7 @@ static Value interpret_expr(Expr *expr)
 					return value_nil();
 
 				case RESULT_RETURN:
-					return result.return_result.value;
+					return result.as.return_result;
 			}
 		}
 		break;
@@ -404,27 +377,61 @@ static Value interpret_expr(Expr *expr)
 	UNREACHABLE();
 }
 
+static Value interpret_binary_expr(BinaryExpr *binary)
+{
+	switch (binary->op)
+	{
+		case TOKEN_MINUS:
+			return subtract(binary->left, binary->right);
+		case TOKEN_PLUS:
+			return add(binary->left, binary->right);
+		case TOKEN_SLASH:
+			return divide(binary->left, binary->right);
+		case TOKEN_STAR:
+			return mult(binary->left, binary->right);
+		case TOKEN_BANG_EQUAL:
+			return neq(binary->left, binary->right);
+		case TOKEN_EQUAL_EQUAL:
+			return eq(binary->left, binary->right);
+		case TOKEN_GREATER:
+			return gt(binary->left, binary->right);
+		case TOKEN_GREATER_EQUAL:
+			return geq(binary->left, binary->right);
+		case TOKEN_LESS:
+			return lt(binary->left, binary->right);
+		case TOKEN_LESS_EQUAL:
+			return leq(binary->left, binary->right);
+		case TOKEN_AND:
+			return logic_and(binary->left, binary->right);
+		case TOKEN_OR:
+			return logic_or(binary->left, binary->right);
+
+		default:
+			UNREACHABLE();
+	}
+}
+
 static Result call_function(FrameStack *stack, Value callee, Value *args)
 {
 	int arity = darray_len(args);
 
-	assert(arity == darray_len(callee.function.args));
+	assert(arity == darray_len(callee.as.function.args));
 
 	for (int i = 0; i < arity; i++)
 	{
-		Identifier arg_name = callee.function.args[i];
+		Identifier arg_name = callee.as.function.args[i];
 		Value arg_value = args[i];
 
 		frame_stack_declare_variable(stack, arg_name, arg_value);
 	}
 
-	return interpret_stmt(callee.function.body);
+	return interpret_stmt(callee.as.function.body);
 }
 
 static Result call_native_function(FrameStack *stack, Value callee, Value *args)
 {
 	UNUSED(stack);
-	return callee.native_function.function(args);
+	return callee.as.native_function(args);
 }
 
 static NODISCARD Result interpret_stmt(Stmt *stmt)
@@ -433,7 +440,7 @@ static NODISCARD Result interpret_stmt(Stmt *stmt)
 	{
 		case STMT_EXPR:
 		{
-			Value value = interpret_expr(stmt->expression.expr);
+			Value value = interpret_expr(stmt->as.expression.expr);
 			UNUSED(value);
 			return result_none();
 		}
@@ -442,12 +449,12 @@ static NODISCARD Result interpret_stmt(Stmt *stmt)
 		case STMT_VAR_DECL:
 		{
 			Value value = value_nil();
-			if (stmt->var_decl.expr != NULL)
+			if (stmt->as.var_decl.expr != NULL)
 			{
-				value = interpret_expr(stmt->var_decl.expr);
+				value = interpret_expr(stmt->as.var_decl.expr);
 			}
 
-			frame_stack_declare_variable(&frame_stack, stmt->var_decl.name,
+			frame_stack_declare_variable(&frame_stack, stmt->as.var_decl.name,
 										 value);
 
 			return result_none();
@@ -456,11 +463,11 @@ static NODISCARD Result interpret_stmt(Stmt *stmt)
 
 		case STMT_FUNCTION_DECL:
 		{
-			Value value = value_function(stmt->function_decl.args,
-										 stmt->function_decl.body);
+			Value value = value_function(stmt->as.function_decl.args,
+										 stmt->as.function_decl.body);
 
-			frame_stack_declare_variable(&frame_stack, stmt->function_decl.name,
-										 value);
+			frame_stack_declare_variable(&frame_stack,
+										 stmt->as.function_decl.name, value);
 
 			return result_none();
 		}
@@ -472,10 +479,10 @@ static NODISCARD Result interpret_stmt(Stmt *stmt)
 
 			Result block_result = result_none();
 
-			int count = darray_len(stmt->block.statements);
+			int count = darray_len(stmt->as.block.statements);
 			for (int i = 0; i < count; i++)
 			{
-				Result result = interpret_stmt(stmt->block.statements[i]);
+				Result result = interpret_stmt(stmt->as.block.statements[i]);
 				if (result.type == RESULT_RETURN)
 				{
 					block_result = result;
@@ -491,7 +498,7 @@ static NODISCARD Result interpret_stmt(Stmt *stmt)
 
 		case STMT_IF:
 		{
-			Value value = interpret_expr(stmt->if_stmt.cond);
+			Value value = interpret_expr(stmt->as.if_stmt.cond);
 			if (value.type != VALUE_BOOL)
 			{
 				printf("Error: if condition is not a boolean expression\n");
@@ -499,15 +506,15 @@ static NODISCARD Result interpret_stmt(Stmt *stmt)
 				return result_none();
 			}
 
-			if (value.boolean)
+			if (value.as.boolean)
 			{
-				return interpret_stmt(stmt->if_stmt.then_branch);
+				return interpret_stmt(stmt->as.if_stmt.then_branch);
 			}
 			else
 			{
-				if (stmt->if_stmt.else_branch != NULL)
+				if (stmt->as.if_stmt.else_branch != NULL)
 				{
-					return interpret_stmt(stmt->if_stmt.else_branch);
+					return interpret_stmt(stmt->as.if_stmt.else_branch);
 				}
 
 				return result_none();
@@ -521,7 +528,7 @@ static NODISCARD Result interpret_stmt(Stmt *stmt)
 
 			while (true)
 			{
-				Value value = interpret_expr(stmt->while_stmt.cond);
+				Value value = interpret_expr(stmt->as.while_stmt.cond);
 
 				if (value.type != VALUE_BOOL)
 				{
@@ -530,12 +537,12 @@ static NODISCARD Result interpret_stmt(Stmt *stmt)
 					break;
 				}
 
-				if (!value.boolean)
+				if (!value.as.boolean)
 				{
 					break;
 				}
 
-				Result result = interpret_stmt(stmt->while_stmt.body);
+				Result result = interpret_stmt(stmt->as.while_stmt.body);
 				if (result.type == RESULT_RETURN)
 				{
 					block_result = result;
@@ -550,9 +557,9 @@ static NODISCARD Result interpret_stmt(Stmt *stmt)
 		case STMT_RETURN:
 		{
 			Value result = value_nil();
-			if (stmt->return_stmt.expr != NULL)
+			if (stmt->as.return_stmt.expr != NULL)
 			{
-				result = interpret_expr(stmt->return_stmt.expr);
+				result = interpret_expr(stmt->as.return_stmt.expr);
 			}
 
 			return result_return(result);

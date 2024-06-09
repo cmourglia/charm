@@ -7,47 +7,40 @@ Value value_nil()
 
 Value value_number(f64 n)
 {
-	return (Value){
-		.number = n,
-		.type = VALUE_NUMBER,
-	};
+	Value result = { .type = VALUE_NUMBER };
+	result.as.number = n;
+	return result;
 }
 
 Value value_bool(bool b)
 {
-	return (Value){
-		.boolean = b,
-		.type = VALUE_BOOL,
-	};
+	Value result = { .type = VALUE_BOOL };
+	result.as.boolean = b;
+	return result;
 }
 
 Value value_string(String s)
 {
-	return (Value){
-		.string = s,
-		.type = VALUE_STRING,
-	};
+	Value result = { .type = VALUE_STRING };
+	result.as.string = s;
+	return result;
 }
 
 Value value_function(struct Identifier *args, struct Stmt *body)
 {
-	return (Value){
-		.function = {
-            .args = args,
-            .body = body,
-        },
-		.type = VALUE_FUNCTION,
+	Value result = { .type = VALUE_FUNCTION };
+	result.as.function = (Function){
+		.args = args,
+		.body = body,
 	};
+	return result;
 }
 
 Value value_native_function(NativeFunction function)
 {
-	return (Value) {
-        .native_function = {
-            .function = function,
-        },
-        .type = VALUE_NATIVE_FUNCTION,
-    };
+	Value result = { .type = VALUE_NATIVE_FUNCTION };
+	result.as.native_function = function;
+	return result;
 }
 
 Result result_none()
@@ -57,8 +50,7 @@ Result result_none()
 
 Result result_return(Value value)
 {
-	return (Result){
-		.return_result = { .value = value },
-		.type = RESULT_RETURN,
-	};
+	Result result = { .type = RESULT_RETURN };
+	result.as.return_result = value;
+	return result;
 }
