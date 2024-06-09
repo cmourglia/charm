@@ -18,6 +18,7 @@ add_executable(${PROJECT_NAME}
     src/ast/token.h
 
     src/compiler/chunk.h            src/compiler/chunk.c
+    src/compiler/compiler.h         src/compiler/compiler.c
 
     src/interpreter/frame.h         src/interpreter/frame.c
     src/interpreter/treewalk.h      src/interpreter/treewalk.c
