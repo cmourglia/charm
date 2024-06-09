@@ -64,20 +64,32 @@ static CompileResult compile_stmt(Compiler *compiler, Stmt *stmt)
 }
 
 static CompileResult compile_binary_expr(Chunk *chunk, BinaryExpr expr);
+static CompileResult compile_unary_expr(Chunk *chunk, UnaryExpr expr);
 
 static CompileResult compile_expr(Compiler *compiler, Expr *expr)
 {
 	switch (expr->type)
 	{
 		case EXPR_NUMBER_LITERAL:
+		{
 			chunk_write_constant(compiler->chunk, value_number(expr->number));
-			break;
+		}
+		break;
 
 		case EXPR_BINARY:
+		{
 			compile_expr(compiler, expr->binary.left);
 			compile_expr(compiler, expr->binary.right);
 			compile_binary_expr(compiler->chunk, expr->binary);
-			break;
+		}
+		break;
+
+		case EXPR_UNARY:
+		{
+			compile_expr(compiler, expr->unary.right);
+			compile_unary_expr(compiler->chunk, expr->unary);
+		}
+		break;
 
 		default:
 			printf("Expression type %s not implemented\n",
@@ -107,6 +119,21 @@ static CompileResult compile_binary_expr(Chunk *chunk, BinaryExpr expr)
 
 		case TOKEN_SLASH:
 			chunk_write(chunk, OP_DIVIDE);
+			break;
+
+		default:
+			UNREACHABLE();
+	}
+
+	return COMPILE_OK;
+}
+
+static CompileResult compile_unary_expr(Chunk *chunk, UnaryExpr expr)
+{
+	switch (expr.op)
+	{
+		case TOKEN_MINUS:
+			chunk_write(chunk, OP_NEGATE);
 			break;
 
 		default:
