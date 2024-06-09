@@ -16,6 +16,7 @@ static InterpretResult run();
 
 static void push(Value value);
 static Value pop();
+static Value peek(usize offset);
 
 void vm_init()
 {
@@ -41,12 +42,17 @@ static InterpretResult run()
 #define READ_BYTE() (*vm.ip++)
 #define READ_CONSTANT() (vm.chunk->constants[READ_BYTE()])
 
-#define BINARY_OP(op)                                   \
+#define BINARY_OP(op, type)                             \
 	do                                                  \
 	{                                                   \
-		Value b = pop();                                \
-		Value a = pop();                                \
-		push(value_number(a.as.number op b.as.number)); \
+		if (!is_number(peek(0)) || !is_number(peek(1))) \
+		{                                               \
+			/* TODO: Typechecking */                    \
+			UNREACHABLE();                              \
+		}                                               \
+		f64 b = as_number(pop());                       \
+		f64 a = as_number(pop());                       \
+		push(type(a op b));                             \
 	} while (false)
 
 	for (;;)
@@ -71,38 +77,98 @@ static InterpretResult run()
 		{
 			case OP_CONSTANT:
 			{
-				Value constant = READ_CONSTANT();
-				push(constant);
+				push(READ_CONSTANT());
+			}
+			break;
+
+			case OP_TRUE:
+			{
+				push(value_bool(true));
+			}
+			break;
+
+			case OP_FALSE:
+			{
+				push(value_bool(false));
 			}
 			break;
 
 			case OP_NEGATE:
 			{
-				push(value_number(-pop().as.number));
+				if (!is_number(peek(0)))
+				{
+					// TODO: Typecheck
+					UNREACHABLE();
+				}
+				push(value_number(-as_number(pop())));
 			}
 			break;
 
 			case OP_ADD:
 			{
-				BINARY_OP(+);
+				BINARY_OP(+, value_number);
 			}
 			break;
 
 			case OP_SUBTRACT:
 			{
-				BINARY_OP(-);
+				BINARY_OP(-, value_number);
 			}
 			break;
 
 			case OP_MULTIPLY:
 			{
-				BINARY_OP(*);
+				BINARY_OP(*, value_number);
 			}
 			break;
 
 			case OP_DIVIDE:
 			{
-				BINARY_OP(/);
+				BINARY_OP(/, value_number);
+			}
+			break;
+
+			case OP_NOT:
+			{
+				if (!is_bool(peek(0)))
+				{
+					// TODO: Typecheck
+					UNREACHABLE();
+				}
+
+				push(value_bool(!as_bool(pop())));
+			}
+			break;
+
+			case OP_AND:
+			{
+				UNREACHABLE();
+			}
+			break;
+
+			case OP_OR:
+			{
+				UNREACHABLE();
+			}
+			break;
+
+			case OP_EQUAL:
+			{
+				Value b = pop();
+				Value a = pop();
+				push(value_bool(values_equal(a, b)));
+			}
+			break;
+
+			case OP_GREATER:
+			{
+				BINARY_OP(>, value_bool);
+			}
+			break;
+
+			case OP_LESS:
+			{
+				BINARY_OP(<, value_bool);
 			}
 			break;
 
@@ -132,4 +198,9 @@ static Value pop()
 {
 	vm.stack_top--;
 	return *vm.stack_top;
+}
+
+static Value peek(usize offset)
+{
+	return vm.stack_top[-1 - offset];
 }

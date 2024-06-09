@@ -20,6 +20,22 @@ static Chunk *current_chunk()
 	return compiling_chunk;
 }
 
+static void emit_byte(u8 byte)
+{
+	chunk_write(current_chunk(), byte);
+}
+
+static void emit_bytes(u8 b1, u8 b2)
+{
+	chunk_write(current_chunk(), b1);
+	chunk_write(current_chunk(), b2);
+}
+
+static void emit_constant(Value constant)
+{
+	chunk_write_constant(current_chunk(), constant);
+}
+
 static CompileResult compile_stmt(Stmt *stmt);
 static CompileResult compile_expr(Expr *expr);
 
@@ -36,7 +52,7 @@ CompileResult compile_program(struct Chunk *chunk, Program program)
 		result |= compile_stmt(program.statements[i]);
 	}
 
-	chunk_write(current_chunk(), OP_RETURN);
+	emit_byte(OP_RETURN);
 
 #ifdef DEBUG_PRINT_CODE
 	printf("\n-*-*-*- Compiled Bytecode -*-*-*-\n");
@@ -76,10 +92,16 @@ static CompileResult compile_expr(Expr *expr)
 {
 	switch (expr->type)
 	{
+		case EXPR_BOOLEAN_LITERAL:
+		{
+			bool b = expr->as.boolean;
+			emit_byte(b ? OP_TRUE : OP_FALSE);
+		}
+		break;
+
 		case EXPR_NUMBER_LITERAL:
 		{
-			chunk_write_constant(current_chunk(),
-								 value_number(expr->as.number));
+			emit_constant(value_number(expr->as.number));
 		}
 		break;
 
@@ -113,19 +135,34 @@ static CompileResult compile_binary_expr(BinaryExpr expr)
 	switch (expr.op)
 	{
 		case TOKEN_PLUS:
-			chunk_write(current_chunk(), OP_ADD);
+			emit_byte(OP_ADD);
 			break;
-
 		case TOKEN_MINUS:
-			chunk_write(current_chunk(), OP_SUBTRACT);
+			emit_byte(OP_SUBTRACT);
 			break;
-
 		case TOKEN_STAR:
-			chunk_write(current_chunk(), OP_MULTIPLY);
+			emit_byte(OP_MULTIPLY);
 			break;
-
 		case TOKEN_SLASH:
-			chunk_write(current_chunk(), OP_DIVIDE);
+			emit_byte(OP_DIVIDE);
+			break;
+		case TOKEN_EQUAL_EQUAL:
+			emit_byte(OP_EQUAL);
+			break;
+		case TOKEN_BANG_EQUAL:
+			emit_bytes(OP_EQUAL, OP_NOT);
+			break;
+		case TOKEN_GREATER:
+			emit_byte(OP_GREATER);
+			break;
+		case TOKEN_GREATER_EQUAL:
+			emit_bytes(OP_LESS, OP_NOT);
+			break;
+		case TOKEN_LESS:
+			emit_byte(OP_LESS);
+			break;
+		case TOKEN_LESS_EQUAL:
+			emit_bytes(OP_GREATER, OP_NOT);
 			break;
 
 		default:
@@ -140,7 +177,11 @@ static CompileResult compile_unary_expr(UnaryExpr expr)
 	switch (expr.op)
 	{
 		case TOKEN_MINUS:
-			chunk_write(current_chunk(), OP_NEGATE);
+			emit_byte(OP_NEGATE);
+			break;
+
+		case TOKEN_NOT:
+			emit_byte(OP_NOT);
 			break;
 
 		default:
