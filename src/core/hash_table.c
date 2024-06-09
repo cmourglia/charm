@@ -50,7 +50,7 @@ bool hash_table_set(HashTable *table, Key key, Value value)
 
 	bool is_new_key = entry->key.str == NULL;
 
-	if (is_new_key && VALUE_IS_NIL(entry->value))
+	if (is_new_key && is_nil(entry->value))
 	{
 		table->count += 1;
 	}
@@ -142,7 +142,7 @@ static Entry *find_entry(Entry *entries, int capacity, Key key)
 			// If we find a trully empty entry, we either return
 			// the first tombstone we found, or this one if none
 			// have been encountered
-			if (VALUE_IS_NIL(entry->value))
+			if (is_nil(entry->value))
 			{
 				return tombstone != NULL ? tombstone : entry;
 			}

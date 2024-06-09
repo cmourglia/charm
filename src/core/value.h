@@ -45,7 +45,18 @@ Value value_string(String string);
 Value value_function(struct Identifier *args, struct Stmt *body);
 Value value_native_function(NativeFunction function);
 
-#define VALUE_IS_NIL(v) ((v).type == VALUE_NIL)
+#define is_nil(v) ((v).type == VALUE_NIL)
+#define is_bool(v) ((v).type == VALUE_BOOL)
+#define is_number(v) ((v).type == VALUE_NUMBER)
+#define is_string(v) ((v).type == VALUE_STRING)
+#define is_function(v) ((v).type == VALUE_FUNCTION)
+#define is_native_function(v) ((v).type == VALUE_NATIVE_FUNCTION)
+
+#define as_bool(v) ((v).as.boolean)
+#define as_number(v) ((v).as.number)
+#define as_string(v) ((v).as.string)
+#define as_function(v) ((v).as.function)
+#define as_native_function(v) ((v).as.native_function)
 
 // TODO: Statement result
 typedef enum ResultType

@@ -86,7 +86,7 @@ static Value mult(Expr *lhs, Expr *rhs)
 	Value l = interpret_expr(lhs);
 	Value r = interpret_expr(rhs);
 
-	if (l.type == VALUE_NUMBER && r.type == VALUE_NUMBER)
+	if (is_number(l) && is_number(r))
 	{
 		return value_number(l.as.number * r.as.number);
 	}
@@ -99,7 +99,7 @@ static Value divide(Expr *lhs, Expr *rhs)
 	Value l = interpret_expr(lhs);
 	Value r = interpret_expr(rhs);
 
-	if (l.type == VALUE_NUMBER && r.type == VALUE_NUMBER)
+	if (is_number(l) && is_number(r))
 	{
 		return value_number(l.as.number / r.as.number);
 	}
@@ -112,7 +112,7 @@ static Value add(Expr *lhs, Expr *rhs)
 	Value l = interpret_expr(lhs);
 	Value r = interpret_expr(rhs);
 
-	if (l.type == VALUE_NUMBER && r.type == VALUE_NUMBER)
+	if (is_number(l) && is_number(r))
 	{
 		return value_number(l.as.number + r.as.number);
 	}
@@ -126,7 +126,7 @@ static Value subtract(Expr *lhs, Expr *rhs)
 	Value l = interpret_expr(lhs);
 	Value r = interpret_expr(rhs);
 
-	if (l.type == VALUE_NUMBER && r.type == VALUE_NUMBER)
+	if (is_number(l) && is_number(r))
 	{
 		return value_number(l.as.number - r.as.number);
 	}
@@ -268,7 +268,7 @@ static Value interpret_expr(Expr *expr)
 				case TOKEN_MINUS:
 				{
 					Value v = interpret_expr(expr->as.unary.right);
-					if (v.type == VALUE_NUMBER)
+					if (is_number(v))
 					{
 						return value_number(-v.as.number);
 					}
@@ -280,7 +280,7 @@ static Value interpret_expr(Expr *expr)
 				case TOKEN_NOT:
 				{
 					Value v = interpret_expr(expr->as.unary.right);
-					if (v.type == VALUE_BOOL)
+					if (is_bool(v))
 					{
 						return value_bool(!v.as.boolean);
 					}
