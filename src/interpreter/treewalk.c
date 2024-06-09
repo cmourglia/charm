@@ -18,7 +18,7 @@ static Value interpret_expr(Expr *expr);
 
 static NODISCARD Result interpret_stmt(Stmt *stmt);
 
-static Frame_Stack frame_stack;
+static FrameStack frame_stack;
 static Identifier native_call_args_name;
 
 static Result native_print(Value *args);
@@ -236,8 +236,8 @@ static Value logic_or(Expr *lhs, Expr *rhs)
 	return right;
 }
 
-static Result call_function(Frame_Stack *stack, Value callee, Value *args);
-static Result call_native_function(Frame_Stack *stack, Value callee,
+static Result call_function(FrameStack *stack, Value callee, Value *args);
+static Result call_native_function(FrameStack *stack, Value callee,
 								   Value *args);
 
 static Value interpret_expr(Expr *expr)
@@ -404,7 +404,7 @@ static Value interpret_expr(Expr *expr)
 	UNREACHABLE();
 }
 
-static Result call_function(Frame_Stack *stack, Value callee, Value *args)
+static Result call_function(FrameStack *stack, Value callee, Value *args)
 {
 	int arity = darray_len(args);
 
@@ -421,8 +421,7 @@ static Result call_function(Frame_Stack *stack, Value callee, Value *args)
 	return interpret_stmt(callee.function.body);
 }
 
-static Result call_native_function(Frame_Stack *stack, Value callee,
-								   Value *args)
+static Result call_native_function(FrameStack *stack, Value callee, Value *args)
 {
 	UNUSED(stack);
 	return callee.native_function.function(args);

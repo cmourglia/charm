@@ -4,11 +4,11 @@
 
 struct Value;
 
-typedef enum Op_Code : u8
+typedef enum OpCode : u8
 {
 	OP_CONSTANT,
 	OP_RETURN,
-} Op_Code;
+} OpCode;
 
 typedef struct Chunk
 {

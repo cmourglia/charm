@@ -8,21 +8,20 @@ typedef struct
 {
 	usize capacity;
 	usize length;
-} Dyn_Array_Header;
+} DynArrayHeader;
 
 static const usize INITIAL_CAPACITY = 8;
 static const usize GROWTH_FACTOR = 2;
 
-#define da_header(arr) \
-	(((arr) != NULL) ? ((Dyn_Array_Header *)(arr) - 1) : NULL)
+#define da_header(arr) (((arr) != NULL) ? ((DynArrayHeader *)(arr) - 1) : NULL)
 
-static Dyn_Array_Header *da_resize(Dyn_Array_Header *old, usize capacity,
-								   usize stride)
+static DynArrayHeader *da_resize(DynArrayHeader *old, usize capacity,
+								 usize stride)
 {
 	usize array_size = capacity * stride;
-	usize total_size = array_size + sizeof(Dyn_Array_Header);
+	usize total_size = array_size + sizeof(DynArrayHeader);
 	usize length = old ? old->length : 0;
-	Dyn_Array_Header *header = mem_realloc(old, total_size);
+	DynArrayHeader *header = mem_realloc(old, total_size);
 	header->capacity = capacity;
 	header->length = length;
 
@@ -31,7 +30,7 @@ static Dyn_Array_Header *da_resize(Dyn_Array_Header *old, usize capacity,
 
 void *_darray_push(void *arr, void *elem, usize stride)
 {
-	Dyn_Array_Header *header = da_header(arr);
+	DynArrayHeader *header = da_header(arr);
 
 	if (header == NULL)
 	{
@@ -43,7 +42,7 @@ void *_darray_push(void *arr, void *elem, usize stride)
 		header = da_resize(header, new_capacity, stride);
 	}
 
-	byte *array = (byte *)header + sizeof(Dyn_Array_Header);
+	byte *array = (byte *)header + sizeof(DynArrayHeader);
 
 	mem_copy(array + stride * header->length, elem, stride);
 	header->length += 1;
@@ -53,7 +52,7 @@ void *_darray_push(void *arr, void *elem, usize stride)
 
 void _darray_pop(void *arr)
 {
-	Dyn_Array_Header *header = da_header(arr);
+	DynArrayHeader *header = da_header(arr);
 	if (header == NULL || header->length == 0)
 	{
 		return;
@@ -73,6 +72,6 @@ usize _darray_len(void *arr)
 
 void _darray_free(void *arr)
 {
-	Dyn_Array_Header *header = da_header(arr);
+	DynArrayHeader *header = da_header(arr);
 	mem_free(header);
 }

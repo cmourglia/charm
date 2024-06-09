@@ -11,7 +11,7 @@ typedef struct Parser
 	Token curr_token;
 	Token prev_token;
 
-	Hash_Table identifiers;
+	HashTable identifiers;
 } Parser;
 
 typedef struct Program

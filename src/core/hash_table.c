@@ -21,24 +21,24 @@ static u32 hash_string(Key key)
 	return hash;
 }
 
-void hash_table_init(Hash_Table *table)
+void hash_table_init(HashTable *table)
 {
-	mem_zero(table, Hash_Table, 1);
+	mem_zero(table, HashTable, 1);
 }
 
-void hash_table_free(Hash_Table *table)
+void hash_table_free(HashTable *table)
 {
 	mem_free_array(Entry, table->entries);
 	hash_table_init(table);
 }
 
-static void adjust_capacity(Hash_Table *table, int new_capacity);
+static void adjust_capacity(HashTable *table, int new_capacity);
 static Entry *find_entry(Entry *entries, int capacity, Key key);
 
 static bool is_null_entry(Entry *entry);
 static bool keys_equal(Key a, Key b);
 
-bool hash_table_set(Hash_Table *table, Key key, Value value)
+bool hash_table_set(HashTable *table, Key key, Value value)
 {
 	if (table->count + 1 > table->capacity * TABLE_MAX_LOAD)
 	{
@@ -61,7 +61,7 @@ bool hash_table_set(Hash_Table *table, Key key, Value value)
 	return is_new_key;
 }
 
-bool hash_table_get(Hash_Table *table, Key key, Value *value)
+bool hash_table_get(HashTable *table, Key key, Value *value)
 {
 	if (table->count == 0)
 	{
@@ -79,7 +79,7 @@ bool hash_table_get(Hash_Table *table, Key key, Value *value)
 	return true;
 }
 
-bool hash_table_delete(Hash_Table *table, Key key)
+bool hash_table_delete(HashTable *table, Key key)
 {
 	if (table->count == 0)
 	{
@@ -99,7 +99,7 @@ bool hash_table_delete(Hash_Table *table, Key key)
 	return true;
 }
 
-static void adjust_capacity(Hash_Table *table, int new_capacity)
+static void adjust_capacity(HashTable *table, int new_capacity)
 {
 	Entry *entries = mem_allocate(Entry, new_capacity);
 

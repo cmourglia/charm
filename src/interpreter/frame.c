@@ -5,21 +5,21 @@
 
 typedef struct Frame
 {
-	Hash_Table variables;
+	HashTable variables;
 } Frame;
 
-void frame_stack_init(Frame_Stack *stack)
+void frame_stack_init(FrameStack *stack)
 {
-	*stack = (Frame_Stack){};
+	*stack = (FrameStack){};
 }
 
-void frame_stack_free(Frame_Stack *stack)
+void frame_stack_free(FrameStack *stack)
 {
 	darray_free(stack->frames);
 	stack->frames = NULL;
 }
 
-void frame_stack_push_frame(Frame_Stack *stack)
+void frame_stack_push_frame(FrameStack *stack)
 {
 	Frame frame;
 	hash_table_init(&frame.variables);
@@ -27,7 +27,7 @@ void frame_stack_push_frame(Frame_Stack *stack)
 	darray_push(stack->frames, frame);
 }
 
-void frame_stack_pop_frame(Frame_Stack *stack)
+void frame_stack_pop_frame(FrameStack *stack)
 {
 	if (darray_empty(stack->frames))
 	{
@@ -38,7 +38,7 @@ void frame_stack_pop_frame(Frame_Stack *stack)
 	hash_table_free(&top.variables);
 }
 
-bool frame_stack_get_value(Frame_Stack *stack, Identifier identifier,
+bool frame_stack_get_value(FrameStack *stack, Identifier identifier,
 						   Value *value)
 {
 	int stack_len = darray_len(stack->frames);
@@ -57,14 +57,14 @@ bool frame_stack_get_value(Frame_Stack *stack, Identifier identifier,
 	return false;
 }
 
-void frame_stack_declare_variable(Frame_Stack *stack, Identifier identifier,
+void frame_stack_declare_variable(FrameStack *stack, Identifier identifier,
 								  Value value)
 {
 	Frame *frame = &darray_last(stack->frames);
 	hash_table_set(&frame->variables, identifier, value);
 }
 
-bool frame_stack_set_variable(Frame_Stack *stack, Identifier identifier,
+bool frame_stack_set_variable(FrameStack *stack, Identifier identifier,
 							  Value value)
 {
 	int stack_len = darray_len(stack->frames);

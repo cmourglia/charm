@@ -5,7 +5,7 @@
 #include "core/common.h"
 #include "core/hash_table.h"
 
-Identifier ast_identifier(Hash_Table *table, Token tk)
+Identifier ast_identifier(HashTable *table, Token tk)
 {
 	UNUSED(table);
 
@@ -19,7 +19,7 @@ Identifier ast_identifier(Hash_Table *table, Token tk)
 	return ident;
 }
 
-Identifier ast_identifier_from_cstr(Hash_Table *table, const char *str)
+Identifier ast_identifier_from_cstr(HashTable *table, const char *str)
 {
 	UNUSED(table);
 
@@ -35,7 +35,7 @@ Identifier ast_identifier_from_cstr(Hash_Table *table, const char *str)
 	return ident;
 }
 
-static Expr *make_expr(Expr_Type type)
+static Expr *make_expr(ExprType type)
 {
 	Expr *ptr = malloc(sizeof(Expr));
 
@@ -48,7 +48,7 @@ static Expr *make_expr(Expr_Type type)
 	return ptr;
 }
 
-Expr *ast_expr_binary(Token_Type op, Expr *left, Expr *right)
+Expr *ast_expr_binary(TokenType op, Expr *left, Expr *right)
 {
 	Expr *node = make_expr(EXPR_BINARY);
 
@@ -68,7 +68,7 @@ Expr *ast_expr_grouping(Expr *expr)
 	return node;
 }
 
-Expr *ast_expr_unary(Token_Type op, Expr *right)
+Expr *ast_expr_unary(TokenType op, Expr *right)
 {
 	Expr *node = make_expr(EXPR_UNARY);
 
@@ -134,7 +134,7 @@ Expr *ast_expr_call(Expr *callee, Expr **arguments)
 	return node;
 }
 
-static Stmt *make_stmt(Stmt_Type type)
+static Stmt *make_stmt(StmtType type)
 {
 	Stmt *ptr = malloc(sizeof(Stmt));
 

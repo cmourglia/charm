@@ -1,8 +1,6 @@
 #pragma once
 
-#include "core/common.h"
-
-typedef enum Token_Type
+typedef enum TokenType
 {
 	TOKEN_EOF,
 	TOKEN_INVALID,
@@ -55,11 +53,11 @@ typedef enum Token_Type
 	// Remove at some point
 	TOKEN_SUPER,
 	TOKEN_THIS,
-} Token_Type;
+} TokenType;
 
 typedef struct Token
 {
 	const char *lexeme_start;
-	Token_Type type;
+	TokenType type;
 	int lexeme_len;
 } Token;

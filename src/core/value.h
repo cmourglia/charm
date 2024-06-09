@@ -3,7 +3,7 @@
 #include "common.h"
 #include "string.h"
 
-typedef enum Value_Type
+typedef enum ValueType
 {
 	VALUE_NIL = 0,
 	VALUE_NUMBER,
@@ -12,7 +12,7 @@ typedef enum Value_Type
 	VALUE_USER_TYPE,
 	VALUE_FUNCTION,
 	VALUE_NATIVE_FUNCTION,
-} Value_Type;
+} ValueType;
 
 struct Value;
 typedef struct Result (*NativeFunction)(struct Value *);
@@ -36,7 +36,7 @@ typedef struct Value
 		} native_function;
 	};
 
-	Value_Type value_type;
+	ValueType value_type;
 } Value;
 
 Value value_nil();
@@ -49,14 +49,14 @@ Value value_native_function(NativeFunction function);
 #define VALUE_IS_NIL(v) ((v).value_type == VALUE_NIL)
 
 // TODO: Statement result
-typedef enum Result_Type
+typedef enum ResultType
 {
 	RESULT_NONE,
 	RESULT_RETURN,
 	// TODO: Continue,
 	// TODO: Break,
 	// TODO: Error ?
-} Result_Type;
+} ResultType;
 
 typedef struct Result
 {
@@ -68,7 +68,7 @@ typedef struct Result
 		} return_result;
 	};
 
-	Result_Type result_type;
+	ResultType result_type;
 } Result;
 
 Result result_none();

@@ -4,21 +4,21 @@
 
 #include "ast/ast.h"
 
-typedef struct Frame_Stack
+typedef struct FrameStack
 {
 	struct Frame *frames;
-} Frame_Stack;
+} FrameStack;
 
-void frame_stack_init(Frame_Stack *stack);
-void frame_stack_free(Frame_Stack *stack);
+void frame_stack_init(FrameStack *stack);
+void frame_stack_free(FrameStack *stack);
 
-void frame_stack_push_frame(Frame_Stack *stack);
-void frame_stack_pop_frame(Frame_Stack *stack);
+void frame_stack_push_frame(FrameStack *stack);
+void frame_stack_pop_frame(FrameStack *stack);
 
-bool frame_stack_get_value(Frame_Stack *stack, Identifier identifier,
+bool frame_stack_get_value(FrameStack *stack, Identifier identifier,
 						   Value *value);
 
-void frame_stack_declare_variable(Frame_Stack *stack, Identifier identifier,
+void frame_stack_declare_variable(FrameStack *stack, Identifier identifier,
 								  Value value);
-bool frame_stack_set_variable(Frame_Stack *stack, Identifier identifier,
+bool frame_stack_set_variable(FrameStack *stack, Identifier identifier,
 							  Value value);

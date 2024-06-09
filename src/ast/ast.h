@@ -2,6 +2,7 @@
 
 #include "token.h"
 
+#include "core/common.h"
 #include "core/string.h"
 
 typedef struct Identifier
@@ -10,7 +11,7 @@ typedef struct Identifier
 	int len;
 } Identifier;
 
-typedef enum Expr_Type
+typedef enum ExprType
 {
 	EXPR_BINARY,
 	EXPR_GROUPING,
@@ -21,7 +22,7 @@ typedef enum Expr_Type
 	EXPR_IDENTIFIER,
 	EXPR_ASSIGNMENT,
 	EXPR_CALL,
-} Expr_Type;
+} ExprType;
 
 struct Expr;
 
@@ -65,10 +66,10 @@ typedef struct Expr
 		Identifier identifier;
 	};
 
-	Expr_Type expr_type;
+	ExprType expr_type;
 } Expr;
 
-typedef enum Stmt_Type
+typedef enum StmtType
 {
 	STMT_EXPR,
 	STMT_VAR_DECL,
@@ -77,7 +78,7 @@ typedef enum Stmt_Type
 	STMT_IF,
 	STMT_WHILE,
 	STMT_RETURN,
-} Stmt_Type;
+} StmtType;
 
 struct Stmt;
 
@@ -127,19 +128,19 @@ typedef struct Stmt
 		} return_stmt;
 	};
 
-	Stmt_Type stmt_type;
+	StmtType stmt_type;
 } Stmt;
 
-struct Hash_Table;
-Identifier ast_identifier(struct Hash_Table *table, Token tk);
-Identifier ast_identifier_from_cstr(struct Hash_Table *table, const char *str);
+struct HashTable;
+Identifier ast_identifier(struct HashTable *table, Token tk);
+Identifier ast_identifier_from_cstr(struct HashTable *table, const char *str);
 
 Expr *ast_expr_number_literal(double value);
 Expr *ast_expr_boolean_literal(bool value);
 Expr *ast_expr_string_literal(String value);
-Expr *ast_expr_binary(Token_Type op, Expr *left, Expr *right);
+Expr *ast_expr_binary(TokenType op, Expr *left, Expr *right);
 Expr *ast_expr_grouping(Expr *expr);
-Expr *ast_expr_unary(Token_Type op, Expr *right);
+Expr *ast_expr_unary(TokenType op, Expr *right);
 Expr *ast_expr_identifier(Identifier identifier);
 Expr *ast_expr_assignment(Identifier name, Expr *value);
 Expr *ast_expr_call(Expr *callee, Expr **arguments);

@@ -3,7 +3,9 @@
 #include "core/common.h"
 #include "core/value.h"
 
-const char *debug_get_token_type_str(Token_Type type)
+#include "ast/ast.h"
+
+const char *debug_get_token_type_str(TokenType type)
 {
 	switch (type)
 	{
