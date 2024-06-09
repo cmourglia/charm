@@ -105,6 +105,12 @@ static CompileResult compile_expr(Expr *expr)
 		}
 		break;
 
+		case EXPR_OBJECT_LITERAL:
+		{
+			emit_constant(value_object(expr->as.object));
+		}
+		break;
+
 		case EXPR_BINARY:
 		{
 			compile_expr(expr->as.binary.left);

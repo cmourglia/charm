@@ -140,7 +140,7 @@ static Value subtract(Expr *lhs, Expr *rhs)
 		Value l = interpret_expr(lhs);                               \
 		Value r = interpret_expr(rhs);                               \
                                                                      \
-		if (l.type == r.type)                                        \
+		if (values_share_type(l, r))                                 \
 		{                                                            \
 			switch (l.type)                                          \
 			{                                                        \
@@ -252,8 +252,8 @@ static Value interpret_expr(Expr *expr)
 		case EXPR_NUMBER_LITERAL:
 			return value_number(expr->as.number);
 
-		case EXPR_STRING_LITERAL:
-			return value_string(expr->as.string);
+		case EXPR_OBJECT_LITERAL:
+			return value_object(expr->as.object);
 
 		case EXPR_GROUPING:
 			return interpret_expr(expr->as.grouping.expr);

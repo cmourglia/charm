@@ -5,6 +5,7 @@
 
 #include "core/common.h"
 #include "core/dyn_array.h"
+#include "core/object.h"
 
 #include "lexer.h"
 #include "ast.h"
@@ -301,9 +302,8 @@ static Expr *primary(Parser *parser)
 		{
 			Token tk = advance(parser);
 
-			String string = string_init(tk.lexeme_start, tk.lexeme_len);
-			string_sanitize(&string);
-			return ast_expr_string_literal(string);
+			String *string = string_from(tk.lexeme_start, tk.lexeme_len);
+			return ast_expr_obj_literal((Object *)string);
 		}
 		break;
 

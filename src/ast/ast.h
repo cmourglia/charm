@@ -3,7 +3,8 @@
 #include "token.h"
 
 #include "core/common.h"
-#include "core/string.h"
+
+struct Object;
 
 typedef struct Identifier
 {
@@ -18,7 +19,7 @@ typedef enum ExprType
 	EXPR_UNARY,
 	EXPR_BOOLEAN_LITERAL,
 	EXPR_NUMBER_LITERAL,
-	EXPR_STRING_LITERAL,
+	EXPR_OBJECT_LITERAL,
 	EXPR_IDENTIFIER,
 	EXPR_ASSIGNMENT,
 	EXPR_CALL,
@@ -67,8 +68,8 @@ typedef struct Expr
 		CallExpr call;
 		double number;
 		bool boolean;
-		String string;
-		Identifier identifier;
+		struct Object *object;
+		Identifier identifier; // TODO: ObjString ?
 	} as;
 
 	ExprType type;
@@ -155,7 +156,7 @@ Identifier ast_identifier_from_cstr(struct HashTable *table, const char *str);
 
 Expr *ast_expr_number_literal(double value);
 Expr *ast_expr_boolean_literal(bool value);
-Expr *ast_expr_string_literal(String value);
+Expr *ast_expr_obj_literal(struct Object *value);
 Expr *ast_expr_binary(TokenType op, Expr *left, Expr *right);
 Expr *ast_expr_grouping(Expr *expr);
 Expr *ast_expr_unary(TokenType op, Expr *right);

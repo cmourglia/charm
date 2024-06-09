@@ -2,6 +2,7 @@
 
 #include "core/common.h"
 #include "core/value.h"
+#include "core/object.h"
 
 #include "ast/ast.h"
 
@@ -121,12 +122,22 @@ void print_value(Value *value)
 			printf("%f", value->as.number);
 			break;
 
-		case VALUE_STRING:
-			printf("%.*s", value->as.string.len, value->as.string.str);
+		case VALUE_OBJECT:
+			print_object(value->as.object);
 			break;
 
 		default:
 			UNREACHABLE();
+	}
+}
+
+void print_object(Object *obj)
+{
+	switch (obj->type)
+	{
+		case OBJ_STRING:
+			printf("%s", ((String *)obj)->str);
+			break;
 	}
 }
 
@@ -144,8 +155,8 @@ const char *debug_expr_type_str(ExprType type)
 			return "EXPR_BOOLEAN_LITERAL";
 		case EXPR_NUMBER_LITERAL:
 			return "EXPR_NUMBER_LITERAL";
-		case EXPR_STRING_LITERAL:
-			return "EXPR_STRING_LITERAL";
+		case EXPR_OBJECT_LITERAL:
+			return "EXPR_OBJECT_LITERAL";
 		case EXPR_IDENTIFIER:
 			return "EXPR_IDENTIFIER";
 		case EXPR_ASSIGNMENT:

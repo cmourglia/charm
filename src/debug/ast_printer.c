@@ -123,10 +123,10 @@ static void print_expr(Expr *expr, int level)
 		}
 		break;
 
-		case EXPR_STRING_LITERAL:
+		case EXPR_OBJECT_LITERAL:
 		{
-			PRINT_EXPR_LITERAL(String, "%.*s", expr->as.string.len,
-							   expr->as.string.str);
+			PRINT_EXPR_LITERAL(Object, "%p", expr->as.object);
+			// TODO: Print more info about the object at some point
 		}
 		break;
 

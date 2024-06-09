@@ -100,11 +100,11 @@ Expr *ast_expr_boolean_literal(bool value)
 	return node;
 }
 
-Expr *ast_expr_string_literal(String value)
+Expr *ast_expr_obj_literal(struct Object *value)
 {
-	Expr *node = make_expr(EXPR_STRING_LITERAL);
+	Expr *node = make_expr(EXPR_OBJECT_LITERAL);
 
-	node->as.string = value;
+	node->as.object = value;
 
 	return node;
 }
