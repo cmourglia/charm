@@ -131,6 +131,11 @@ typedef struct Stmt
 	StmtType type;
 } Stmt;
 
+typedef struct Program
+{
+	Stmt **statements;
+} Program;
+
 struct HashTable;
 Identifier ast_identifier(struct HashTable *table, Token tk);
 Identifier ast_identifier_from_cstr(struct HashTable *table, const char *str);

@@ -14,11 +14,6 @@ typedef struct Parser
 	HashTable identifiers;
 } Parser;
 
-typedef struct Program
-{
-	Stmt **statements;
-} Program;
-
 Parser parser_init(struct Lexer *lexer);
 
-Program parser_parse_program(Parser *parser);
+struct Program parser_parse_program(Parser *parser);
