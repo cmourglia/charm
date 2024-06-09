@@ -7,10 +7,12 @@
 #include "ast/lexer.h"
 
 #include "compiler/chunk.h"
+#include "compiler/compiler.h"
 
 #include "debug/debug.h"
 
 #include "interpreter/treewalk.h"
+#include "interpreter/vm.h"
 
 static void usage(int argc, char **argv);
 static char *read_whole_file(const char *filename);
@@ -35,8 +37,10 @@ int main(int argc, char **argv)
 
 	Program program = parser_parse_program(&parser);
 
+	printf("-*-*-*- AST -*-*-*-\n");
 	debug_print_program(program);
 
+	printf("\n-*-*-*- Treewalk Interpret -*-*-*-\n");
 	treewalk_interpreter_run(program);
 
 	printf("\n\n");
@@ -44,28 +48,20 @@ int main(int argc, char **argv)
 	Chunk chunk;
 	chunk_init(&chunk);
 
-	chunk_write_constant(&chunk, value_number(42));
+	Compiler compiler;
+	compiler_init(&compiler, &chunk);
 
-	chunk_write(&chunk, OP_RETURN);
+	compile_program(&compiler, program);
+	printf("\n-*-*-*- Compiled Bytecode -*-*-*-\n");
 	debug_disassemble_chunk(&chunk, "test chunk");
 
+	printf("\n-*-*-*- Running program -*-*-*-\n");
+	vm_init();
+	vm_interpret(&chunk);
+
+	vm_free();
+
 	chunk_free(&chunk);
-
-	//for (;;)
-	//{
-	//	Token token = lexer_get_next_token(&lexer);
-
-	//	char buf[512];
-	//	int sz = token_to_string(buf, 512, token);
-	//	UNUSED(sz);
-
-	//	printf("%s\n", buf);
-
-	//	if (token.type == Token_EOF)
-	//	{
-	//		break;
-	//	}
-	//}
 }
 
 static void usage(int argc, char **argv)
