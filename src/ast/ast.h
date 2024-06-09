@@ -66,7 +66,7 @@ typedef struct Expr
 		Identifier identifier;
 	};
 
-	ExprType expr_type;
+	ExprType type;
 } Expr;
 
 typedef enum StmtType
@@ -128,7 +128,7 @@ typedef struct Stmt
 		} return_stmt;
 	};
 
-	StmtType stmt_type;
+	StmtType type;
 } Stmt;
 
 struct HashTable;

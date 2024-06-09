@@ -121,7 +121,7 @@ static Expr *assignment(Parser *parser)
 	{
 		Expr *value = logic_or(parser);
 
-		if (expr->expr_type == EXPR_IDENTIFIER)
+		if (expr->type == EXPR_IDENTIFIER)
 		{
 			Identifier name = expr->identifier;
 			free(expr);

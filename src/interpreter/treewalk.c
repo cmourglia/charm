@@ -86,7 +86,7 @@ static Value mult(Expr *lhs, Expr *rhs)
 	Value l = interpret_expr(lhs);
 	Value r = interpret_expr(rhs);
 
-	if (l.value_type == VALUE_NUMBER && r.value_type == VALUE_NUMBER)
+	if (l.type == VALUE_NUMBER && r.type == VALUE_NUMBER)
 	{
 		return value_number(l.number * r.number);
 	}
@@ -99,7 +99,7 @@ static Value divide(Expr *lhs, Expr *rhs)
 	Value l = interpret_expr(lhs);
 	Value r = interpret_expr(rhs);
 
-	if (l.value_type == VALUE_NUMBER && r.value_type == VALUE_NUMBER)
+	if (l.type == VALUE_NUMBER && r.type == VALUE_NUMBER)
 	{
 		return value_number(l.number / r.number);
 	}
@@ -112,12 +112,12 @@ static Value add(Expr *lhs, Expr *rhs)
 	Value l = interpret_expr(lhs);
 	Value r = interpret_expr(rhs);
 
-	if (l.value_type == VALUE_NUMBER && r.value_type == VALUE_NUMBER)
+	if (l.type == VALUE_NUMBER && r.type == VALUE_NUMBER)
 	{
 		return value_number(l.number + r.number);
 	}
 
-	printf("%u %u\n", l.value_type, r.value_type);
+	printf("%u %u\n", l.type, r.type);
 	UNREACHABLE();
 }
 
@@ -126,7 +126,7 @@ static Value subtract(Expr *lhs, Expr *rhs)
 	Value l = interpret_expr(lhs);
 	Value r = interpret_expr(rhs);
 
-	if (l.value_type == VALUE_NUMBER && r.value_type == VALUE_NUMBER)
+	if (l.type == VALUE_NUMBER && r.type == VALUE_NUMBER)
 	{
 		return value_number(l.number - r.number);
 	}
@@ -140,9 +140,9 @@ static Value subtract(Expr *lhs, Expr *rhs)
 		Value l = interpret_expr(lhs);                         \
 		Value r = interpret_expr(rhs);                         \
                                                                \
-		if (l.value_type == r.value_type)                      \
+		if (l.type == r.type)                                  \
 		{                                                      \
-			switch (l.value_type)                              \
+			switch (l.type)                                    \
 			{                                                  \
 				case VALUE_NUMBER:                             \
 					return value_bool(l.number op r.number);   \
@@ -189,7 +189,7 @@ static Value geq(Expr *lhs, Expr *rhs)
 static Value logic_and(Expr *lhs, Expr *rhs)
 {
 	Value left = interpret_expr(lhs);
-	if (left.value_type != VALUE_BOOL)
+	if (left.type != VALUE_BOOL)
 	{
 		printf("Operands to `and` must be of type boolean\n");
 		// TODO: Proper error handling
@@ -202,7 +202,7 @@ static Value logic_and(Expr *lhs, Expr *rhs)
 	}
 
 	Value right = interpret_expr(rhs);
-	if (right.value_type != VALUE_BOOL)
+	if (right.type != VALUE_BOOL)
 	{
 		printf("Operands to `and` must be of type boolean\n");
 		return value_bool(false);
@@ -214,7 +214,7 @@ static Value logic_and(Expr *lhs, Expr *rhs)
 static Value logic_or(Expr *lhs, Expr *rhs)
 {
 	Value left = interpret_expr(lhs);
-	if (left.value_type != VALUE_BOOL)
+	if (left.type != VALUE_BOOL)
 	{
 		printf("Operands to `or` must be of type boolean\n");
 		// TODO: Proper error handling
@@ -227,7 +227,7 @@ static Value logic_or(Expr *lhs, Expr *rhs)
 	}
 
 	Value right = interpret_expr(rhs);
-	if (right.value_type != VALUE_BOOL)
+	if (right.type != VALUE_BOOL)
 	{
 		printf("Operands to `or` must be of type boolean\n");
 		return value_bool(false);
@@ -242,7 +242,7 @@ static Result call_native_function(FrameStack *stack, Value callee,
 
 static Value interpret_expr(Expr *expr)
 {
-	switch (expr->expr_type)
+	switch (expr->type)
 	{
 		case EXPR_BOOLEAN_LITERAL:
 			return value_bool(expr->boolean);
@@ -298,7 +298,7 @@ static Value interpret_expr(Expr *expr)
 				case TOKEN_MINUS:
 				{
 					Value v = interpret_expr(expr->unary.right);
-					if (v.value_type == VALUE_NUMBER)
+					if (v.type == VALUE_NUMBER)
 					{
 						return value_number(-v.number);
 					}
@@ -310,7 +310,7 @@ static Value interpret_expr(Expr *expr)
 				case TOKEN_NOT:
 				{
 					Value v = interpret_expr(expr->unary.right);
-					if (v.value_type == VALUE_BOOL)
+					if (v.type == VALUE_BOOL)
 					{
 						return value_bool(!v.boolean);
 					}
@@ -367,7 +367,7 @@ static Value interpret_expr(Expr *expr)
 
 			Result result = result_none();
 
-			switch (callee.value_type)
+			switch (callee.type)
 			{
 				case VALUE_FUNCTION:
 				{
@@ -389,7 +389,7 @@ static Value interpret_expr(Expr *expr)
 
 			darray_free(args);
 
-			switch (result.result_type)
+			switch (result.type)
 			{
 				case RESULT_NONE:
 					return value_nil();
@@ -429,7 +429,7 @@ static Result call_native_function(FrameStack *stack, Value callee, Value *args)
 
 static NODISCARD Result interpret_stmt(Stmt *stmt)
 {
-	switch (stmt->stmt_type)
+	switch (stmt->type)
 	{
 		case STMT_EXPR:
 		{
@@ -476,7 +476,7 @@ static NODISCARD Result interpret_stmt(Stmt *stmt)
 			for (int i = 0; i < count; i++)
 			{
 				Result result = interpret_stmt(stmt->block.statements[i]);
-				if (result.result_type == RESULT_RETURN)
+				if (result.type == RESULT_RETURN)
 				{
 					block_result = result;
 					break;
@@ -492,7 +492,7 @@ static NODISCARD Result interpret_stmt(Stmt *stmt)
 		case STMT_IF:
 		{
 			Value value = interpret_expr(stmt->if_stmt.cond);
-			if (value.value_type != VALUE_BOOL)
+			if (value.type != VALUE_BOOL)
 			{
 				printf("Error: if condition is not a boolean expression\n");
 				// FIXME: Return error ?
@@ -523,7 +523,7 @@ static NODISCARD Result interpret_stmt(Stmt *stmt)
 			{
 				Value value = interpret_expr(stmt->while_stmt.cond);
 
-				if (value.value_type != VALUE_BOOL)
+				if (value.type != VALUE_BOOL)
 				{
 					printf(
 						"Error: while condition is not a boolean expression\n");
@@ -536,7 +536,7 @@ static NODISCARD Result interpret_stmt(Stmt *stmt)
 				}
 
 				Result result = interpret_stmt(stmt->while_stmt.body);
-				if (result.result_type == RESULT_RETURN)
+				if (result.type == RESULT_RETURN)
 				{
 					block_result = result;
 					break;

@@ -52,7 +52,7 @@
 
 static void print_expr(Expr *expr, int level)
 {
-	switch (expr->expr_type)
+	switch (expr->type)
 	{
 		case EXPR_BINARY:
 		{
@@ -140,7 +140,7 @@ static void print_expr(Expr *expr, int level)
 
 static void print_stmt(Stmt *stmt, int level)
 {
-	switch (stmt->stmt_type)
+	switch (stmt->type)
 	{
 		case STMT_EXPR:
 		{

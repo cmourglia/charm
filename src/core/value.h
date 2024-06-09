@@ -36,7 +36,7 @@ typedef struct Value
 		} native_function;
 	};
 
-	ValueType value_type;
+	ValueType type;
 } Value;
 
 Value value_nil();
@@ -46,7 +46,7 @@ Value value_string(String string);
 Value value_function(struct Identifier *args, struct Stmt *body);
 Value value_native_function(NativeFunction function);
 
-#define VALUE_IS_NIL(v) ((v).value_type == VALUE_NIL)
+#define VALUE_IS_NIL(v) ((v).type == VALUE_NIL)
 
 // TODO: Statement result
 typedef enum ResultType
@@ -68,7 +68,7 @@ typedef struct Result
 		} return_result;
 	};
 
-	ResultType result_type;
+	ResultType type;
 } Result;
 
 Result result_none();

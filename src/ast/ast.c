@@ -44,7 +44,7 @@ static Expr *make_expr(ExprType type)
 		UNREACHABLE();
 	}
 
-	ptr->expr_type = type;
+	ptr->type = type;
 	return ptr;
 }
 
@@ -143,7 +143,7 @@ static Stmt *make_stmt(StmtType type)
 		UNREACHABLE();
 	}
 
-	ptr->stmt_type = type;
+	ptr->type = type;
 	return ptr;
 }
 

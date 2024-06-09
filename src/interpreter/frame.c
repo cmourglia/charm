@@ -76,8 +76,7 @@ bool frame_stack_set_variable(FrameStack *stack, Identifier identifier,
 
 		if (hash_table_get(&frame->variables, identifier, &old_value))
 		{
-			if (old_value.value_type == VALUE_NIL ||
-				old_value.value_type == value.value_type)
+			if (old_value.type == VALUE_NIL || old_value.type == value.type)
 			{
 				hash_table_set(&frame->variables, identifier, value);
 				return true;

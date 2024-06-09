@@ -107,7 +107,7 @@ int token_to_string(char *buffer, int capacity, Token token)
 
 void print_value(Value *value)
 {
-	switch (value->value_type)
+	switch (value->type)
 	{
 		case VALUE_NIL:
 			printf("<NIL>");
