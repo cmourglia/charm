@@ -26,40 +26,45 @@ typedef enum ExprType
 
 struct Expr;
 
+typedef struct BinaryExpr
+{
+	struct Expr *left;
+	struct Expr *right;
+	TokenType op;
+} BinaryExpr;
+
+typedef struct GroupingExpr
+{
+	struct Expr *expr;
+} GroupingExpr;
+
+typedef struct UnaryExpr
+{
+	struct Expr *right;
+	TokenType op;
+} UnaryExpr;
+
+typedef struct AssignmentExpr
+{
+	Identifier name;
+	struct Expr *value;
+} AssignmentExpr;
+
+typedef struct CallExpr
+{
+	struct Expr *callee;
+	struct Expr **arguments;
+} CallExpr;
+
 typedef struct Expr
 {
 	union
 	{
-		struct
-		{
-			struct Expr *left;
-			struct Expr *right;
-			Token_Type op;
-		} binary;
-
-		struct
-		{
-			struct Expr *expr;
-		} grouping;
-
-		struct
-		{
-			struct Expr *right;
-			Token_Type op;
-		} unary;
-
-		struct
-		{
-			Identifier name;
-			struct Expr *value;
-		} assignment;
-
-		struct
-		{
-			struct Expr *callee;
-			struct Expr **arguments;
-		} call;
-
+		BinaryExpr binary;
+		GroupingExpr grouping;
+		UnaryExpr unary;
+		AssignmentExpr assignment;
+		CallExpr call;
 		double number;
 		bool boolean;
 		String string;
@@ -82,50 +87,58 @@ typedef enum StmtType
 
 struct Stmt;
 
+typedef struct ExprStmt
+{
+	Expr *expr;
+} ExprStmt;
+
+typedef struct VarDecl
+{
+	Identifier name;
+	Expr *expr;
+} VarDecl;
+
+typedef struct FunctionDecl
+{
+	Identifier name;
+	Identifier *args;
+	struct Stmt *body;
+} FunctionDecl;
+
+typedef struct IfStmt
+{
+	Expr *cond;
+	struct Stmt *then_branch;
+	struct Stmt *else_branch;
+} IfStmt;
+
+typedef struct BlockStmt
+{
+	struct Stmt **statements;
+} BlockStmt;
+
+typedef struct WhileStmt
+{
+	Expr *cond;
+	struct Stmt *body;
+} WhileStmt;
+
+typedef struct ReturnStmt
+{
+	Expr *expr;
+} ReturnStmt;
+
 typedef struct Stmt
 {
 	union
 	{
-		struct
-		{
-			Expr *expr;
-		} expression;
-
-		struct
-		{
-			Identifier name;
-			Expr *expr;
-		} var_decl;
-
-		struct
-		{
-			Identifier name;
-			Identifier *args;
-			struct Stmt *body;
-		} function_decl;
-
-		struct
-		{
-			Expr *cond;
-			struct Stmt *then_branch;
-			struct Stmt *else_branch;
-		} if_stmt;
-
-		struct
-		{
-			struct Stmt **statements;
-		} block;
-
-		struct
-		{
-			Expr *cond;
-			struct Stmt *body;
-		} while_stmt;
-
-		struct
-		{
-			Expr *expr;
-		} return_stmt;
+		ExprStmt expression;
+		VarDecl var_decl;
+		FunctionDecl function_decl;
+		IfStmt if_stmt;
+		BlockStmt block;
+		WhileStmt while_stmt;
+		ReturnStmt return_stmt;
 	};
 
 	StmtType type;
