@@ -1,16 +1,10 @@
 #pragma once
 
-#include "token.h"
-
 #include "core/common.h"
+#include "core/hash_table.h"
+#include "core/cell.h"
 
-struct Cell;
-
-typedef struct Identifier
-{
-	char *str;
-	int len;
-} Identifier;
+#include "ast/token.h"
 
 typedef enum ExprType
 {
@@ -47,7 +41,7 @@ typedef struct UnaryExpr
 
 typedef struct AssignmentExpr
 {
-	Identifier name;
+	String *name;
 	struct Expr *value;
 } AssignmentExpr;
 
@@ -68,8 +62,8 @@ typedef struct Expr
 		CallExpr call;
 		double number;
 		bool boolean;
-		struct Cell *cell;
-		Identifier identifier; // TODO: ObjString ?
+		Cell *cell;
+		String *identifier;
 	} as;
 
 	ExprType type;
@@ -95,14 +89,14 @@ typedef struct ExprStmt
 
 typedef struct VarDecl
 {
-	Identifier name;
+	String *name;
 	Expr *expr;
 } VarDecl;
 
 typedef struct FunctionDecl
 {
-	Identifier name;
-	Identifier *args;
+	String *name;
+	String **args;
 	struct Stmt *body;
 } FunctionDecl;
 
@@ -148,25 +142,22 @@ typedef struct Stmt
 typedef struct Program
 {
 	Stmt **statements;
+	HashTable strings;
 } Program;
-
-struct HashTable;
-Identifier ast_identifier(struct HashTable *table, Token tk);
-Identifier ast_identifier_from_cstr(struct HashTable *table, const char *str);
 
 Expr *ast_expr_number_literal(double value);
 Expr *ast_expr_boolean_literal(bool value);
-Expr *ast_expr_cell_literal(struct Cell *value);
+Expr *ast_expr_cell_literal(Cell *value);
 Expr *ast_expr_binary(TokenType op, Expr *left, Expr *right);
 Expr *ast_expr_grouping(Expr *expr);
 Expr *ast_expr_unary(TokenType op, Expr *right);
-Expr *ast_expr_identifier(Identifier identifier);
-Expr *ast_expr_assignment(Identifier name, Expr *value);
+Expr *ast_expr_identifier(String *identifier);
+Expr *ast_expr_assignment(String *name, Expr *value);
 Expr *ast_expr_call(Expr *callee, Expr **arguments);
 
 Stmt *ast_stmt_expression(Expr *expr);
-Stmt *ast_stmt_var_decl(Identifier identifier, Expr *expr);
-Stmt *ast_stmt_function_decl(Identifier name, Identifier *args, Stmt *body);
+Stmt *ast_stmt_var_decl(String *name, Expr *expr);
+Stmt *ast_stmt_function_decl(String *name, String **args, Stmt *body);
 Stmt *ast_stmt_block(Stmt **statements);
 Stmt *ast_stmt_if(Expr *cond, Stmt *then_branch, Stmt *else_branch);
 Stmt *ast_stmt_while(Expr *cond, Stmt *body);

@@ -1,39 +1,8 @@
-#include "ast.h"
+#include "ast/ast.h"
 
 #include <string.h>
 
 #include "core/common.h"
-#include "core/hash_table.h"
-
-Identifier ast_identifier(HashTable *table, Token tk)
-{
-	UNUSED(table);
-
-	Identifier ident = {
-		.str = malloc(tk.lexeme_len),
-		.len = tk.lexeme_len,
-	};
-
-	memcpy(ident.str, tk.lexeme_start, tk.lexeme_len);
-
-	return ident;
-}
-
-Identifier ast_identifier_from_cstr(HashTable *table, const char *str)
-{
-	UNUSED(table);
-
-	int len = strlen(str);
-
-	Identifier ident = {
-		.str = malloc(len),
-		.len = len,
-	};
-
-	memcpy(ident.str, str, len);
-
-	return ident;
-}
 
 static Expr *make_expr(ExprType type)
 {
@@ -109,7 +78,7 @@ Expr *ast_expr_cell_literal(struct Cell *value)
 	return node;
 }
 
-Expr *ast_expr_identifier(Identifier identifier)
+Expr *ast_expr_identifier(String *identifier)
 {
 	Expr *node = make_expr(EXPR_IDENTIFIER);
 
@@ -118,7 +87,7 @@ Expr *ast_expr_identifier(Identifier identifier)
 	return node;
 }
 
-Expr *ast_expr_assignment(Identifier name, Expr *expr)
+Expr *ast_expr_assignment(String *name, Expr *expr)
 {
 	Expr *node = make_expr(EXPR_ASSIGNMENT);
 
@@ -164,7 +133,7 @@ Stmt *ast_stmt_expression(Expr *expr)
 	return node;
 }
 
-Stmt *ast_stmt_var_decl(Identifier name, Expr *expr)
+Stmt *ast_stmt_var_decl(String *name, Expr *expr)
 {
 	Stmt *node = make_stmt(STMT_VAR_DECL);
 
@@ -176,7 +145,7 @@ Stmt *ast_stmt_var_decl(Identifier name, Expr *expr)
 	return node;
 }
 
-Stmt *ast_stmt_function_decl(Identifier name, Identifier *args, Stmt *body)
+Stmt *ast_stmt_function_decl(String *name, String **args, Stmt *body)
 {
 	Stmt *node = make_stmt(STMT_FUNCTION_DECL);
 

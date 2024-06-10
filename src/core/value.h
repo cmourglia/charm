@@ -21,7 +21,7 @@ struct Cell;
 
 typedef struct Function
 {
-	struct Identifier *args;
+	struct String **args;
 	struct Stmt *body;
 } Function;
 
@@ -44,7 +44,7 @@ Value value_nil();
 Value value_number(f64 number);
 Value value_bool(bool boolean);
 Value value_cell(struct Cell *cell);
-Value value_function(struct Identifier *args, struct Stmt *body);
+Value value_function(struct String **args, struct Stmt *body);
 Value value_native_function(NativeFunction function);
 
 #define is_nil(v) ((v).type == VALUE_NIL)

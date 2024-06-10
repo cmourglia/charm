@@ -3,9 +3,9 @@
 #include <stdio.h>
 
 #include "core/dyn_array.h"
+#include "core/cell.h"
 
 #include "ast/ast.h"
-#include "ast/parser.h"
 
 #include "debug/debug.h"
 
@@ -27,7 +27,12 @@
 	printf(GRN "%*.s" #name ": " RESET, (level + 1) * 2, "")
 
 #define PRINT_IDENTIFIER(color, identifier) \
-	printf(color "%*.s" RESET, identifier.len, identifier.str);
+	do                                      \
+	{                                       \
+		printf(color);                      \
+		print_cell((Cell *)identifier);     \
+		printf(RESET);                      \
+	} while (false)
 
 #define PRINT_EXPR_OP(tk)                                          \
 	do                                                             \
@@ -132,8 +137,7 @@ static void print_expr(Expr *expr, int level)
 
 		case EXPR_IDENTIFIER:
 		{
-			PRINT_EXPR_LITERAL(Identifier, "%.*s", expr->as.identifier.len,
-							   expr->as.identifier.str);
+			PRINT_EXPR_LITERAL(Identifier, "%s", expr->as.identifier->str);
 		}
 		break;
 	}

@@ -6,15 +6,15 @@
 #include "memory.h"
 
 #define TABLE_MAX_LOAD 0.75
-static u32 hash_string(Key key)
+static u32 hash_string(const char *str, i32 len)
 {
 	// 32-bits FNV-1a hash
 	// https://en.wikipedia.org/wiki/Fowler%E2%80%93Noll%E2%80%93Vo_hash_function
 	u32 hash = 2166136261u;
 
-	for (int i = 0; i < key.len; i++)
+	for (int i = 0; i < len; i++)
 	{
-		hash ^= (u8)key.str[i];
+		hash ^= (u8)str[i];
 		hash *= 16777619;
 	}
 
@@ -48,7 +48,7 @@ bool hash_table_set(HashTable *table, Key key, Value value)
 
 	Entry *entry = find_entry(table->entries, table->capacity, key);
 
-	bool is_new_key = entry->key.str == NULL;
+	bool is_new_key = entry->key == NULL;
 
 	if (is_new_key && is_nil(entry->value))
 	{
@@ -99,6 +99,38 @@ bool hash_table_delete(HashTable *table, Key key)
 	return true;
 }
 
+String *hash_table_find_key(HashTable *table, const char *str, i32 len)
+{
+	if (table->count == 0)
+	{
+		return NULL;
+	}
+
+	u32 index = hash_string(str, len) % table->capacity;
+
+	for (;;)
+	{
+		Entry *entry = &table->entries[index];
+
+		if (entry->key == NULL)
+		{
+			if (is_nil(entry->value))
+			{
+				return NULL;
+			}
+		}
+		else if (entry->key->len == len &&
+				 memcmp(entry->key->str, str, len) == 0)
+		{
+			return entry->key;
+		}
+
+		index = (index + 1) % table->capacity;
+	}
+
+	return NULL;
+}
+
 static void adjust_capacity(HashTable *table, int new_capacity)
 {
 	Entry *entries = mem_allocate(Entry, new_capacity);
@@ -129,7 +161,7 @@ static void adjust_capacity(HashTable *table, int new_capacity)
 
 static Entry *find_entry(Entry *entries, int capacity, Key key)
 {
-	u32 index = hash_string(key) % capacity;
+	u32 index = hash_string(key->str, key->len) % capacity;
 
 	Entry *tombstone = NULL;
 
@@ -165,10 +197,10 @@ static Entry *find_entry(Entry *entries, int capacity, Key key)
 
 static bool is_null_entry(Entry *entry)
 {
-	return entry->key.len == 0;
+	return entry->key == NULL;
 }
 
 static bool keys_equal(Key a, Key b)
 {
-	return (a.len == b.len) && (memcmp(a.str, b.str, a.len) == 0);
+	return a == b;
 }

@@ -11,7 +11,7 @@ typedef struct Parser
 	Token curr_token;
 	Token prev_token;
 
-	HashTable identifiers;
+	HashTable strings;
 } Parser;
 
 Parser parser_init(struct Lexer *lexer);

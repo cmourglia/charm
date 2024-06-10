@@ -38,8 +38,7 @@ void frame_stack_pop_frame(FrameStack *stack)
 	hash_table_free(&top.variables);
 }
 
-bool frame_stack_get_value(FrameStack *stack, Identifier identifier,
-						   Value *value)
+bool frame_stack_get_value(FrameStack *stack, String *identifier, Value *value)
 {
 	int stack_len = darray_len(stack->frames);
 
@@ -57,14 +56,14 @@ bool frame_stack_get_value(FrameStack *stack, Identifier identifier,
 	return false;
 }
 
-void frame_stack_declare_variable(FrameStack *stack, Identifier identifier,
+void frame_stack_declare_variable(FrameStack *stack, String *identifier,
 								  Value value)
 {
 	Frame *frame = &darray_last(stack->frames);
 	hash_table_set(&frame->variables, identifier, value);
 }
 
-bool frame_stack_set_variable(FrameStack *stack, Identifier identifier,
+bool frame_stack_set_variable(FrameStack *stack, String *identifier,
 							  Value value)
 {
 	int stack_len = darray_len(stack->frames);

@@ -13,13 +13,19 @@
 
 #include "debug/debug.h"
 
+String *make_string(Parser *parser, Token token)
+{
+	return string_from_str(&parser->strings, token.lexeme_start,
+						   token.lexeme_len);
+}
+
 Parser parser_init(struct Lexer *lexer)
 {
 	Parser parser = {
 		.lexer = lexer,
 	};
 
-	hash_table_init(&parser.identifiers);
+	hash_table_init(&parser.strings);
 
 	return parser;
 }
@@ -99,6 +105,8 @@ struct Program parser_parse_program(Parser *parser)
 		}
 	}
 
+	program.strings = parser->strings;
+
 	return program;
 }
 
@@ -124,7 +132,7 @@ static Expr *assignment(Parser *parser)
 
 		if (expr->type == EXPR_IDENTIFIER)
 		{
-			Identifier name = expr->as.identifier;
+			String *name = expr->as.identifier;
 			free(expr);
 
 			return ast_expr_assignment(name, value);
@@ -302,7 +310,7 @@ static Expr *primary(Parser *parser)
 		{
 			Token tk = advance(parser);
 
-			String *string = string_from(tk.lexeme_start, tk.lexeme_len);
+			String *string = make_string(parser, tk);
 			return ast_expr_cell_literal((Cell *)string);
 		}
 		break;
@@ -338,7 +346,7 @@ static Expr *primary(Parser *parser)
 		case TOKEN_IDENTIFIER:
 		{
 			Token tk = advance(parser);
-			Identifier identifier = ast_identifier(&parser->identifiers, tk);
+			String *identifier = make_string(parser, tk);
 			return ast_expr_identifier(identifier);
 		}
 		break;
@@ -417,8 +425,7 @@ static Stmt *expr_stmt(Parser *parser)
 static Stmt *var_decl(Parser *parser)
 {
 	Token identifier_token = consume(parser, TOKEN_IDENTIFIER);
-	Identifier identifier = ast_identifier(&parser->identifiers,
-										   identifier_token);
+	String *identifier = make_string(parser, identifier_token);
 
 	Expr *expr = NULL;
 
@@ -435,18 +442,18 @@ static Stmt *var_decl(Parser *parser)
 static Stmt *function(Parser *parser)
 {
 	Token name_token = consume(parser, TOKEN_IDENTIFIER);
-	Identifier name = ast_identifier(&parser->identifiers, name_token);
+	String *name = make_string(parser, name_token);
 
 	consume(parser, TOKEN_OPEN_PAREN);
 
-	Identifier *args = NULL;
+	String **args = NULL;
 
 	if (!check(parser, TOKEN_CLOSE_PAREN))
 	{
 		do
 		{
 			Token arg_token = consume(parser, TOKEN_IDENTIFIER);
-			darray_push(args, ast_identifier(&parser->identifiers, arg_token));
+			darray_push(args, make_string(parser, arg_token));
 		} while (match(parser, TOKEN_COMMA));
 	}
 

@@ -1,8 +1,8 @@
 #include <stdio.h>
 
 #include "core/memory.h"
-#include "core/value.h"
 
+#include "ast/ast.h"
 #include "ast/parser.h"
 #include "ast/lexer.h"
 

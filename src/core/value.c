@@ -23,7 +23,7 @@ Value value_cell(Cell *cell)
 	return (Value){ .type = VALUE_CELL, { .cell = cell } };
 }
 
-Value value_function(struct Identifier *args, struct Stmt *body)
+Value value_function(struct String **args, struct Stmt *body)
 {
 	Function function = { .args = args, .body = body };
 	return (Value){ .type = VALUE_FUNCTION, { .function = function } };

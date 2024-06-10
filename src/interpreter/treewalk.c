@@ -2,11 +2,12 @@
 
 #include <time.h>
 
+#include "core/cell.h"
+#include "core/hash_table.h"
 #include "core/common.h"
 #include "core/value.h"
 #include "core/dyn_array.h"
 
-#include "ast/parser.h"
 #include "ast/ast.h"
 #include "ast/token.h"
 
@@ -19,20 +20,21 @@ static Value interpret_expr(Expr *expr);
 static NODISCARD Result interpret_stmt(Stmt *stmt);
 
 static FrameStack frame_stack;
-static Identifier native_call_args_name;
+static String *native_call_args_name;
 
 static Result native_print(Value *args);
 static Result native_time(Value *args);
 
+HashTable *strings = NULL;
+
 static void register_native_functions()
 {
-	native_call_args_name = ast_identifier_from_cstr(NULL, "native_call_args");
-	frame_stack_declare_variable(&frame_stack,
-								 ast_identifier_from_cstr(NULL, "time"),
+#define STR(name) string_from_cstr(strings, name)
+	native_call_args_name = STR("native_call_args");
+	frame_stack_declare_variable(&frame_stack, STR("time"),
 								 value_native_function(native_time));
 
-	frame_stack_declare_variable(&frame_stack,
-								 ast_identifier_from_cstr(NULL, "print"),
+	frame_stack_declare_variable(&frame_stack, STR("print"),
 								 value_native_function(native_print));
 }
 
@@ -69,6 +71,8 @@ void treewalk_interpreter_run(struct Program program)
 {
 	frame_stack_init(&frame_stack);
 	frame_stack_push_frame(&frame_stack);
+
+	strings = &program.strings;
 
 	register_native_functions();
 
@@ -303,8 +307,8 @@ static Value interpret_expr(Expr *expr)
 			{
 				// TODO: Error
 				printf("Variable '%.*s' does not exist or types do not match\n",
-					   expr->as.assignment.name.len,
-					   expr->as.assignment.name.str);
+					   expr->as.assignment.name->len,
+					   expr->as.assignment.name->str);
 			}
 			return value;
 		}
@@ -318,8 +322,8 @@ static Value interpret_expr(Expr *expr)
 			{
 				// TODO: Error
 				printf("Variable '%.*s' does not exist\n",
-					   expr->as.assignment.name.len,
-					   expr->as.assignment.name.str);
+					   expr->as.assignment.name->len,
+					   expr->as.assignment.name->str);
 			}
 			return value;
 		}
@@ -419,7 +423,7 @@ static Result call_function(FrameStack *stack, Value callee, Value *args)
 
 	for (int i = 0; i < arity; i++)
 	{
-		Identifier arg_name = callee.as.function.args[i];
+		String *arg_name = callee.as.function.args[i];
 		Value arg_value = args[i];
 
 		frame_stack_declare_variable(stack, arg_name, arg_value);

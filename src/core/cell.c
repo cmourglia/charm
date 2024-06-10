@@ -1,14 +1,14 @@
 #include "core/cell.h"
 
+#include "core/common.h"
 #include "core/memory.h"
 #include "core/value.h"
+#include "core/hash_table.h"
 
 bool cell_is_of_type(Value value, CellType type)
 {
 	return is_cell(value) && value.as.cell->type == type;
 }
-
-static void string_sanitize(String *string);
 
 #define ALLOC_CELL(type, cell_type, additional_size) \
 	(type *)allocate_cell(sizeof(type), cell_type, additional_size);
@@ -31,25 +31,76 @@ static String *allocate_string(const char *str, i32 len)
 	return string;
 }
 
-String *string_from(const char *str, i32 len)
-{
-	String *string = allocate_string(str, len);
+static const char *string_sanitize(const char *str, i32 *str_len);
+static bool needs_sanitization(const char *str, i32 len);
 
-	string_sanitize(string);
+String *string_from_str(HashTable *strings, const char *str, i32 len)
+{
+	const char *str_cleaned = str;
+	i32 len_cleaned = len;
+	bool sanitized = false;
+
+	if (needs_sanitization(str, len))
+	{
+		str_cleaned = string_sanitize(str, &len_cleaned);
+		sanitized = true;
+	}
+
+	String *string = hash_table_find_key(strings, str_cleaned, len_cleaned);
+
+	if (string == NULL)
+	{
+		string = allocate_string(str_cleaned, len_cleaned);
+		hash_table_set(strings, string, value_nil());
+	}
+
+	if (sanitized)
+	{
+		free((char *)str_cleaned);
+	}
+
 	return string;
 }
 
-static void string_sanitize(String *string)
+String *string_from_cstr(HashTable *strings, const char *str)
+{
+	return string_from_str(strings, str, strlen(str));
+}
+
+static bool needs_sanitization(const char *str, i32 len)
+{
+	for (i32 i = 0; i < len - 1; i++)
+	{
+		if (str[i] == '\\')
+		{
+			switch (str[i + 1])
+			{
+				case 'n':
+				case 'r':
+				case 't':
+				case '\\':
+					return true;
+			}
+		}
+	}
+
+	return false;
+}
+
+const char *string_sanitize(const char *str, i32 *str_len)
 {
 	int read = 0;
 	int write = 0;
 
-	for (; read < string->len;)
+	char *string = malloc(*str_len);
+	memcpy(string, str, *str_len);
+
+	for (; read < *str_len;)
 	{
-		char c = string->str[read++];
+		char c = string[read++];
 		if (c == '\\')
 		{
-			switch (string->str[read++])
+			switch (string[read++])
 			{
 				case 'n':
 					c = '\n';
@@ -63,12 +114,14 @@ static void string_sanitize(String *string)
 				case '\\':
 					c = '\\';
 					break;
+				default:
+					UNREACHABLE();
 			}
 		}
 
-		string->str[write++] = c;
+		string[write++] = c;
 	}
 
-	string->len = write;
-	string->str[write] = '\0';
+	*str_len = write;
+	return string;
 }

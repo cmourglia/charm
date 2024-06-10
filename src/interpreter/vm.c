@@ -63,6 +63,10 @@ static InterpretResult run()
 		{
 			printf("[ ");
 			print_value(slot);
+			if (is_cell(*slot))
+			{
+				printf(" (%p)", as_cell(*slot));
+			}
 			printf(" ]");
 		}
 

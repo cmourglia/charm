@@ -1,12 +1,10 @@
 #pragma once
 
-#include "common.h"
+#include "core/common.h"
+#include "core/value.h"
+#include "core/cell.h"
 
-#include "ast/ast.h"
-
-#include "value.h"
-
-typedef Identifier Key;
+typedef String *Key;
 
 typedef struct Entry
 {
@@ -27,3 +25,5 @@ void hash_table_free(HashTable *table);
 bool hash_table_set(HashTable *table, Key key, Value value);
 bool hash_table_get(HashTable *table, Key key, Value *value);
 bool hash_table_delete(HashTable *table, Key key);
+
+String *hash_table_find_key(HashTable *table, const char *str, i32 len);

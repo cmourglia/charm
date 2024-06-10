@@ -3,6 +3,7 @@
 #include "common.h"
 
 struct Value;
+struct HashTable;
 
 typedef enum CellType
 {
@@ -28,4 +29,5 @@ typedef struct String
 
 bool cell_is_of_type(struct Value value, CellType type);
 
-String *string_from(const char *str, i32 len);
+String *string_from_str(struct HashTable *strings, const char *str, i32 len);
+String *string_from_cstr(struct HashTable *strings, const char *str);
