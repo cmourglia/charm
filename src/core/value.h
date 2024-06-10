@@ -7,7 +7,7 @@ typedef enum ValueType
 	VALUE_NIL = 0,
 	VALUE_NUMBER,
 	VALUE_BOOL,
-	VALUE_OBJECT,
+	VALUE_CELL,
 	VALUE_USER_TYPE,
 	VALUE_FUNCTION,
 	VALUE_NATIVE_FUNCTION,
@@ -17,7 +17,7 @@ struct Value;
 typedef struct Result (*NativeFunction)(struct Value *);
 
 // GC-ed objects
-struct Object;
+struct Cell;
 
 typedef struct Function
 {
@@ -33,7 +33,7 @@ typedef struct Value
 	{
 		f64 number;
 		bool boolean;
-		struct Object *object;
+		struct Cell *cell;
 		NativeFunction native_function;
 		Function function;
 		// TODO: others
@@ -43,20 +43,20 @@ typedef struct Value
 Value value_nil();
 Value value_number(f64 number);
 Value value_bool(bool boolean);
-Value value_object(struct Object *object);
+Value value_cell(struct Cell *cell);
 Value value_function(struct Identifier *args, struct Stmt *body);
 Value value_native_function(NativeFunction function);
 
 #define is_nil(v) ((v).type == VALUE_NIL)
 #define is_bool(v) ((v).type == VALUE_BOOL)
 #define is_number(v) ((v).type == VALUE_NUMBER)
-#define is_object(v) ((v).type == VALUE_OBJECT)
+#define is_cell(v) ((v).type == VALUE_CELL)
 #define is_function(v) ((v).type == VALUE_FUNCTION)
 #define is_native_function(v) ((v).type == VALUE_NATIVE_FUNCTION)
 
 #define as_bool(v) ((v).as.boolean)
 #define as_number(v) ((v).as.number)
-#define as_object(v) ((v).as.object)
+#define as_cell(v) ((v).as.cell)
 #define as_function(v) ((v).as.function)
 #define as_native_function(v) ((v).as.native_function)
 

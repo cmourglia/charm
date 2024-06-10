@@ -1,28 +1,28 @@
-#include "core/object.h"
+#include "core/cell.h"
 
 #include "core/memory.h"
 #include "core/value.h"
 
-bool object_is_of_type(Value value, ObjType type)
+bool cell_is_of_type(Value value, CellType type)
 {
-	return is_object(value) && value.as.object->type == type;
+	return is_cell(value) && value.as.cell->type == type;
 }
 
 static void string_sanitize(String *string);
 
-#define ALLOC_OBJ(type, object_type) \
-	(type *)allocate_object(sizeof(type), object_type);
+#define ALLOC_CELL(type, cell_type) \
+	(type *)allocate_cell(sizeof(type), cell_type);
 
-static Object *allocate_object(usize size, ObjType type)
+static Cell *allocate_cell(usize size, CellType type)
 {
-	Object *object = mem_malloc(size);
-	object->type = type;
-	return object;
+	Cell *cell = mem_malloc(size);
+	cell->type = type;
+	return cell;
 }
 
 static String *allocate_string(char *str, i32 len)
 {
-	String *string = ALLOC_OBJ(String, OBJ_STRING);
+	String *string = ALLOC_CELL(String, CELL_STRING);
 	string->str = str;
 	string->len = len;
 	return string;

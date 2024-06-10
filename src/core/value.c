@@ -1,7 +1,7 @@
 #include "value.h"
 
 #include "core/common.h"
-#include "core/object.h"
+#include "core/cell.h"
 
 Value value_nil()
 {
@@ -18,9 +18,9 @@ Value value_bool(bool b)
 	return (Value){ .type = VALUE_BOOL, { .boolean = b } };
 }
 
-Value value_object(Object *object)
+Value value_cell(Cell *cell)
 {
-	return (Value){ .type = VALUE_OBJECT, { .object = object } };
+	return (Value){ .type = VALUE_CELL, { .cell = cell } };
 }
 
 Value value_function(struct Identifier *args, struct Stmt *body)
@@ -55,8 +55,8 @@ bool values_equal(Value a, Value b)
 		case VALUE_NUMBER:
 			return as_number(a) == as_number(b);
 
-		case VALUE_OBJECT:
-			return as_object(a) == as_object(b);
+		case VALUE_CELL:
+			return as_cell(a) == as_cell(b);
 
 		default:
 			UNREACHABLE();

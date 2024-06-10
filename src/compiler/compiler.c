@@ -105,9 +105,9 @@ static CompileResult compile_expr(Expr *expr)
 		}
 		break;
 
-		case EXPR_OBJECT_LITERAL:
+		case EXPR_CELL_LITERAL:
 		{
-			emit_constant(value_object(expr->as.object));
+			emit_constant(value_cell(expr->as.cell));
 		}
 		break;
 

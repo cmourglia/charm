@@ -2,7 +2,7 @@
 
 #include "core/common.h"
 #include "core/value.h"
-#include "core/object.h"
+#include "core/cell.h"
 
 #include "ast/ast.h"
 
@@ -122,8 +122,8 @@ void print_value(Value *value)
 			printf("%f", value->as.number);
 			break;
 
-		case VALUE_OBJECT:
-			print_object(value->as.object);
+		case VALUE_CELL:
+			print_cell(value->as.cell);
 			break;
 
 		default:
@@ -131,12 +131,12 @@ void print_value(Value *value)
 	}
 }
 
-void print_object(Object *obj)
+void print_cell(Cell *cell)
 {
-	switch (obj->type)
+	switch (cell->type)
 	{
-		case OBJ_STRING:
-			printf("%s", ((String *)obj)->str);
+		case CELL_STRING:
+			printf("%s", ((String *)cell)->str);
 			break;
 	}
 }
@@ -155,8 +155,8 @@ const char *debug_expr_type_str(ExprType type)
 			return "EXPR_BOOLEAN_LITERAL";
 		case EXPR_NUMBER_LITERAL:
 			return "EXPR_NUMBER_LITERAL";
-		case EXPR_OBJECT_LITERAL:
-			return "EXPR_OBJECT_LITERAL";
+		case EXPR_CELL_LITERAL:
+			return "EXPR_CELL_LITERAL";
 		case EXPR_IDENTIFIER:
 			return "EXPR_IDENTIFIER";
 		case EXPR_ASSIGNMENT:

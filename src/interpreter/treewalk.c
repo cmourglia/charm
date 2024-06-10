@@ -252,8 +252,8 @@ static Value interpret_expr(Expr *expr)
 		case EXPR_NUMBER_LITERAL:
 			return value_number(expr->as.number);
 
-		case EXPR_OBJECT_LITERAL:
-			return value_object(expr->as.object);
+		case EXPR_CELL_LITERAL:
+			return value_cell(expr->as.cell);
 
 		case EXPR_GROUPING:
 			return interpret_expr(expr->as.grouping.expr);

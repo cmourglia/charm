@@ -123,10 +123,10 @@ static void print_expr(Expr *expr, int level)
 		}
 		break;
 
-		case EXPR_OBJECT_LITERAL:
+		case EXPR_CELL_LITERAL:
 		{
-			PRINT_EXPR_LITERAL(Object, "%p", expr->as.object);
-			// TODO: Print more info about the object at some point
+			PRINT_EXPR_LITERAL(Cell, "%p", expr->as.cell);
+			// TODO: Print more info about the cell at some point
 		}
 		break;
 
