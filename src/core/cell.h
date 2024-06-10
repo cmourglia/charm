@@ -18,7 +18,7 @@ typedef struct String
 {
 	Cell cell;
 	i32 len;
-	char *str;
+	char str[];
 } String;
 
 #define is_string(value) cell_is_of_type((value), CELL_STRING)
