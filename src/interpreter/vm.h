@@ -1,6 +1,7 @@
 #pragma once
 
 #include "core/common.h"
+#include "core/hash_table.h"
 #include "core/value.h"
 
 struct Chunk;
@@ -21,6 +22,8 @@ typedef struct Vm
 
 	Value stack[STACK_MAX];
 	Value *stack_top;
+
+	HashTable globals;
 } Vm;
 
 void vm_init();

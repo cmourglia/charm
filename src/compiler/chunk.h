@@ -7,6 +7,7 @@ struct Value;
 typedef enum OpCode : u8
 {
 	OP_CONSTANT,
+	OP_NIL,
 	OP_TRUE,
 	OP_FALSE,
 	OP_NEGATE,
@@ -20,6 +21,16 @@ typedef enum OpCode : u8
 	OP_EQUAL,
 	OP_GREATER,
 	OP_LESS,
+	OP_POP,
+	// TODO: Add a OP_POPN for batch popping
+	OP_DEFINE_GLOBAL,
+	OP_GET_GLOBAL,
+	OP_SET_GLOBAL,
+	OP_SET_LOCAL,
+	OP_GET_LOCAL,
+	OP_JUMP,
+	OP_JUMP_IF_FALSE,
+	OP_LOOP,
 	OP_RETURN,
 } OpCode;
 
@@ -34,4 +45,4 @@ void chunk_free(Chunk *chunk);
 
 void chunk_write(Chunk *chunk, u8 byte);
 
-void chunk_write_constant(Chunk *chunk, struct Value value);
+u16 chunk_add_constant(Chunk *chunk, struct Value value);

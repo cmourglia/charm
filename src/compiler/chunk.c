@@ -3,8 +3,6 @@
 #include "core/value.h"
 #include "core/dyn_array.h"
 
-static i32 add_constant(Chunk *chunk, struct Value value);
-
 void chunk_init(Chunk *chunk)
 {
 	chunk->code = NULL;
@@ -24,14 +22,14 @@ void chunk_write(Chunk *chunk, u8 byte)
 
 void chunk_write_constant(Chunk *chunk, Value value)
 {
-	i32 loc = add_constant(chunk, value);
+	u16 loc = chunk_add_constant(chunk, value);
 	assert(loc < 256 && "TODO: Handle more than 256 constants");
 
 	chunk_write(chunk, OP_CONSTANT);
 	chunk_write(chunk, loc);
 }
 
-static i32 add_constant(Chunk *chunk, struct Value value)
+u16 chunk_add_constant(Chunk *chunk, struct Value value)
 {
 	darray_push(chunk->constants, value);
 	return darray_len(chunk->constants) - 1;
