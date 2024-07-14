@@ -93,7 +93,7 @@ bool hash_table_delete(HashTable *table, Key key)
 	}
 
 	// Tombstone
-	entry->key = (Key){};
+	entry->key = (Key){ 0 };
 	entry->value = value_bool(true);
 
 	return true;
@@ -127,8 +127,6 @@ String *hash_table_find_key(HashTable *table, const char *str, i32 len)
 
 		index = (index + 1) % table->capacity;
 	}
-
-	return NULL;
 }
 
 static void adjust_capacity(HashTable *table, int new_capacity)

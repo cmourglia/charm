@@ -292,8 +292,6 @@ static InterpretResult run()
 		}
 	}
 
-	UNREACHABLE();
-
 #undef BINARY_OP
 #undef READ_CONSTANT
 #undef READ_SHORT

@@ -114,7 +114,7 @@ static void append_stmt(Program *program, Stmt *stmt)
 {
 	// NOTE: clang-tidy complains about sizeof(Stmt*), which is fine here
 	// NOLINTNEXTLINE(bugprone-sizeof-expression)
-	darray_push(program->statements, stmt);
+	arrpush(program->statements, stmt);
 }
 
 static Expr *expression(Parser *parser)
@@ -280,7 +280,7 @@ static Expr *finish_call(Parser *parser, Expr *callee)
 			// FIXME: Limit the number of arguments ?
 
 			// NOLINTNEXTLINE(bugprone-sizeof-expression)
-			darray_push(arguments, expression(parser));
+			arrpush(arguments, expression(parser));
 		} while (match(parser, TOKEN_COMMA));
 	}
 
@@ -453,7 +453,7 @@ static Stmt *function(Parser *parser)
 		do
 		{
 			Token arg_token = consume(parser, TOKEN_IDENTIFIER);
-			darray_push(args, make_string(parser, arg_token));
+			arrpush(args, make_string(parser, arg_token));
 		} while (match(parser, TOKEN_COMMA));
 	}
 
@@ -497,7 +497,7 @@ static Stmt *block_stmt(Parser *parser)
 		   parser->curr_token.type != TOKEN_CLOSE_SQUIRLY)
 	{
 		// NOLINTNEXTLINE(bugprone-sizeof-expression)
-		darray_push(statements, declaration(parser));
+		arrpush(statements, declaration(parser));
 	}
 
 	consume(parser, TOKEN_CLOSE_SQUIRLY);
@@ -551,7 +551,7 @@ static Stmt *for_stmt(Parser *parser)
 	if (increment != NULL)
 	{
 		// NOLINTNEXTLINE(bugprone-sizeof-expression)
-		darray_push(body->as.block.statements, ast_stmt_expression(increment));
+		arrpush(body->as.block.statements, ast_stmt_expression(increment));
 	}
 
 	Stmt **while_stmts = NULL;
@@ -559,7 +559,7 @@ static Stmt *for_stmt(Parser *parser)
 	if (initializer != NULL)
 	{
 		// NOLINTNEXTLINE(bugprone-sizeof-expression)
-		darray_push(while_stmts, initializer);
+		arrpush(while_stmts, initializer);
 	}
 
 	if (condition == NULL)
@@ -570,7 +570,7 @@ static Stmt *for_stmt(Parser *parser)
 	Stmt *while_stmt = ast_stmt_while(condition, body);
 
 	// NOLINTNEXTLINE(bugprone-sizeof-expression)
-	darray_push(while_stmts, while_stmt);
+	arrpush(while_stmts, while_stmt);
 
 	return ast_stmt_block(while_stmts);
 }

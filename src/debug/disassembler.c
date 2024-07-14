@@ -18,7 +18,7 @@ void debug_disassemble_chunk(Chunk *chunk, const char *name)
 {
 	printf("== %s ==\n", name);
 
-	for (i32 offset = 0; offset < darray_len(chunk->code);)
+	for (i32 offset = 0; offset < arrlen(chunk->code);)
 	{
 		offset = debug_disassemble_instruction(chunk, offset);
 	}

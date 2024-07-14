@@ -4,7 +4,7 @@
 
 struct Value;
 
-typedef enum OpCode : u8
+typedef enum OpCode
 {
 	OP_CONSTANT,
 	OP_NIL,

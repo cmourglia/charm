@@ -3,7 +3,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-void *mem_reallocate(void *buffer, int new_capacity)
+void *mem_reallocate(void *buffer, usize new_capacity)
 {
 	if (new_capacity == 0)
 	{

@@ -64,7 +64,7 @@ String *string_from_str(HashTable *strings, const char *str, i32 len)
 
 String *string_from_cstr(HashTable *strings, const char *str)
 {
-	return string_from_str(strings, str, strlen(str));
+	return string_from_str(strings, str, (i32)strlen(str));
 }
 
 static bool needs_sanitization(const char *str, i32 len)
@@ -89,8 +89,8 @@ static bool needs_sanitization(const char *str, i32 len)
 
 const char *string_sanitize(const char *str, i32 *str_len)
 {
-	int read = 0;
-	int write = 0;
+	i32 read = 0;
+	i32 write = 0;
 
 	char *string = malloc(*str_len);
 	memcpy(string, str, *str_len);

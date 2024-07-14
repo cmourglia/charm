@@ -40,17 +40,23 @@ static void register_native_functions()
 
 static Result native_time(Value *args)
 {
+#ifdef _WIN32
+	// TODO
+	UNUSED(args);
+	return result_return(value_number(0));
+#else
 	struct timespec clock;
 	clock_gettime(CLOCK_REALTIME, &clock);
 
 	f64 t = (f64)clock.tv_nsec * 1e-9 + clock.tv_sec;
 
 	return result_return(value_number(t));
+#endif
 }
 
 static Result native_print(Value *args)
 {
-	for (int i = 0; i < darray_len(args); i++)
+	for (i32 i = 0; i < arrlen(args); i++)
 	{
 		Value value = args[i];
 
@@ -76,8 +82,8 @@ void treewalk_interpreter_run(struct Program program)
 
 	register_native_functions();
 
-	int count = darray_len(program.statements);
-	for (int i = 0; i < count; i++)
+	i32 count = (i32)arrlen(program.statements);
+	for (i32 i = 0; i < count; i++)
 	{
 		Result result = interpret_stmt(program.statements[i]);
 		// TODO: Handle errors here ?
@@ -335,9 +341,9 @@ static Value interpret_expr(Expr *expr)
 
 			Value *args = NULL;
 
-			for (int i = 0; i < darray_len(expr->as.call.arguments); i++)
+			for (i32 i = 0; i < arrlen(expr->as.call.arguments); i++)
 			{
-				darray_push(args, interpret_expr(expr->as.call.arguments[i]));
+				arrpush(args, interpret_expr(expr->as.call.arguments[i]));
 			}
 
 			frame_stack_push_frame(&frame_stack);
@@ -364,7 +370,7 @@ static Value interpret_expr(Expr *expr)
 
 			frame_stack_pop_frame(&frame_stack);
 
-			darray_free(args);
+			arrfree(args);
 
 			switch (result.type)
 			{
@@ -417,11 +423,11 @@ static Value interpret_binary_expr(BinaryExpr *binary)
 
 static Result call_function(FrameStack *stack, Value callee, Value *args)
 {
-	int arity = darray_len(args);
+	i32 arity = (i32)arrlen(args);
 
-	assert(arity == darray_len(callee.as.function.args));
+	assert(arity == arrlen(callee.as.function.args));
 
-	for (int i = 0; i < arity; i++)
+	for (i32 i = 0; i < arity; i++)
 	{
 		String *arg_name = callee.as.function.args[i];
 		Value arg_value = args[i];
@@ -483,8 +489,8 @@ static NODISCARD Result interpret_stmt(Stmt *stmt)
 
 			Result block_result = result_none();
 
-			int count = darray_len(stmt->as.block.statements);
-			for (int i = 0; i < count; i++)
+			i32 count = (i32)arrlen(stmt->as.block.statements);
+			for (i32 i = 0; i < count; i++)
 			{
 				Result result = interpret_stmt(stmt->as.block.statements[i]);
 				if (result.type == RESULT_RETURN)

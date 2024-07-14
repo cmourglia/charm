@@ -15,7 +15,7 @@ void frame_stack_init(FrameStack *stack)
 
 void frame_stack_free(FrameStack *stack)
 {
-	darray_free(stack->frames);
+	arrfree(stack->frames);
 	stack->frames = NULL;
 }
 
@@ -24,27 +24,27 @@ void frame_stack_push_frame(FrameStack *stack)
 	Frame frame;
 	hash_table_init(&frame.variables);
 
-	darray_push(stack->frames, frame);
+	arrpush(stack->frames, frame);
 }
 
 void frame_stack_pop_frame(FrameStack *stack)
 {
-	if (darray_empty(stack->frames))
+	if (arrempty(stack->frames))
 	{
 		return;
 	}
 
-	Frame top = darray_pop(stack->frames);
+	Frame top = arrpop(stack->frames);
 	hash_table_free(&top.variables);
 }
 
 bool frame_stack_get_value(FrameStack *stack, String *identifier, Value *value)
 {
-	int stack_len = darray_len(stack->frames);
+	i32 stack_len = (i32)arrlen(stack->frames);
 
 	*value = value_nil();
 
-	for (int i = stack_len - 1; i >= 0; i--)
+	for (i32 i = stack_len - 1; i >= 0; i--)
 	{
 		Frame *frame = &stack->frames[i];
 		if (hash_table_get(&frame->variables, identifier, value))
@@ -59,14 +59,14 @@ bool frame_stack_get_value(FrameStack *stack, String *identifier, Value *value)
 void frame_stack_declare_variable(FrameStack *stack, String *identifier,
 								  Value value)
 {
-	Frame *frame = &darray_last(stack->frames);
+	Frame *frame = &arrlast(stack->frames);
 	hash_table_set(&frame->variables, identifier, value);
 }
 
 bool frame_stack_set_variable(FrameStack *stack, String *identifier,
 							  Value value)
 {
-	int stack_len = darray_len(stack->frames);
+	i32 stack_len = (i32)arrlen(stack->frames);
 
 	for (int i = stack_len - 1; i >= 0; i--)
 	{

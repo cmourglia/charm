@@ -1,21 +1,10 @@
 #pragma once
 
-#include "common.h"
+#include "memory.h"
 
-extern void *_darray_push(void *arr, void *elem, usize stride);
-extern void _darray_pop(void *arr);
-extern void _darray_free(void *arr);
-extern usize _darray_len(void *arr);
+//#define STBDS_REALLOC mem_realloc
+//#define STBDS_FREE mem_free
+#include "core/stb_ds.h"
 
-#define darray_free(arr) _darray_free(arr)
-#define darray_len(arr) _darray_len(arr)
-#define darray_empty(arr) (darray_len(arr) == 0)
-#define darray_push(arr, elem)                          \
-	do                                                  \
-	{                                                   \
-		typeof(elem) _temp = elem;                      \
-		arr = _darray_push(arr, &_temp, sizeof(_temp)); \
-	} while (false)
-#define darray_pop(arr) (_darray_pop(arr), (arr)[darray_len(arr)])
-#define darray_last(arr) (arr)[darray_len(arr) - 1]
-#define darray_back darray_last
+#define arrempty(arr) (arrlen(arr) == 0)
+//#define arrlast(arr) (arr[arrlen(arr) - 1])

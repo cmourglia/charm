@@ -15,6 +15,9 @@ typedef struct Cell
 	CellType type;
 } Cell;
 
+#ifdef _WIN32
+#pragma warning(disable : 4200)
+#endif
 typedef struct String
 {
 	Cell cell;

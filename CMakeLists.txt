@@ -1,7 +1,10 @@
 cmake_minimum_required(VERSION 3.20)
 
 project(charm LANGUAGES C)
-set(CMAKE_C_STANDARD 11)
+set(CMAKE_C_STANDARD 17)
+set(CMAKE_C_STANDARD_REQUIRED ON)
+
+set(CMAKE_EXPORT_COMPILE_COMMANDS True)
 
 add_executable(${PROJECT_NAME}
     src/main.c
@@ -9,7 +12,7 @@ add_executable(${PROJECT_NAME}
     src/core/memory.h               src/core/memory.c
     src/core/value.h                src/core/value.c
     src/core/cell.h                 src/core/cell.c
-    src/core/dyn_array.h            src/core/dyn_array.c
+    src/core/dyn_array.h
     src/core/hash_table.h           src/core/hash_table.c
 
     src/ast/ast.h                   src/ast/ast.c
@@ -30,7 +33,8 @@ add_executable(${PROJECT_NAME}
 )
 
 if (MSVC)
-    target_compile_options(${PROJECT_NAME} PRIVATE /W4 /w44062 /WX)
+    target_compile_options(${PROJECT_NAME} PRIVATE /DEBUG /W4 /w44062 /WX /Zi)
+    target_link_options(${PROJECT_NAME} PRIVATE /DEBUG:FULL)
 else()
     target_compile_options(${PROJECT_NAME} PRIVATE -Wall -Werror -Werror=pointer-arith)
 endif()

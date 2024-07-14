@@ -1,5 +1,8 @@
 #include <stdio.h>
 
+#define STB_DS_IMPLEMENTATION
+#include "core/dyn_array.h"
+
 #include "core/memory.h"
 
 #include "ast/ast.h"
@@ -61,6 +64,7 @@ int main(int argc, char **argv)
 
 static void usage(int argc, char **argv)
 {
+	UNUSED(argc);
 	printf("Usage: %s <filename.charm>\n", argv[0]);
 }
 
@@ -86,7 +90,7 @@ static char *read_whole_file(const char *filename)
 		return NULL;
 	}
 
-	int read = fread(content, size, 1, file);
+	usize read = fread(content, size, 1, file);
 
 	if (read != 1)
 	{
@@ -95,6 +99,8 @@ static char *read_whole_file(const char *filename)
 		mem_free(content);
 		return NULL;
 	}
+
+	content[size] = '\0';
 
 	return content;
 }

@@ -55,7 +55,7 @@
 
 #define INDENT() printf("%*.s", (level + 1) * 2, "")
 
-static void print_expr(Expr *expr, int level)
+static void print_expr(Expr *expr, i32 level)
 {
 	switch (expr->type)
 	{
@@ -99,12 +99,12 @@ static void print_expr(Expr *expr, int level)
 		{
 			PRINT_EXPR_TYPE(Call);
 			PRINT_EXPR_CHILD(Callee, expr->as.call.callee);
-			if (darray_len(expr->as.call.arguments) > 0)
+			if (arrlen(expr->as.call.arguments) > 0)
 			{
 				printf("\n");
 				PRINT_HEADER(Arguments);
 				level += 1;
-				for (int i = 0; i < darray_len(expr->as.call.arguments); i++)
+				for (i32 i = 0; i < arrlen(expr->as.call.arguments); i++)
 				{
 					printf("\n");
 					INDENT();
@@ -143,7 +143,7 @@ static void print_expr(Expr *expr, int level)
 	}
 }
 
-static void print_stmt(Stmt *stmt, int level)
+static void print_stmt(Stmt *stmt, i32 level)
 {
 	switch (stmt->type)
 	{
@@ -181,14 +181,14 @@ static void print_stmt(Stmt *stmt, int level)
 			PRINT_IDENTIFIER(BLU, stmt->as.function_decl.name);
 			printf("\n");
 
-			int arity = darray_len(stmt->as.function_decl.args);
+			i32 arity = (i32)arrlen(stmt->as.function_decl.args);
 			PRINT_HEADER(Arity);
 			printf("%d\n", arity);
 
 			if (arity > 0)
 			{
 				PRINT_HEADER(Args);
-				for (int i = 0; i < arity; i++)
+				for (i32 i = 0; i < arity; i++)
 				{
 					if (i != 0)
 					{
@@ -209,8 +209,8 @@ static void print_stmt(Stmt *stmt, int level)
 		case STMT_BLOCK:
 		{
 			PRINT_STMT_TYPE(Block);
-			int count = darray_len(stmt->as.block.statements);
-			for (int i = 0; i < count; i++)
+			i32 count = (i32)arrlen(stmt->as.block.statements);
+			for (i32 i = 0; i < count; i++)
 			{
 				INDENT();
 				print_stmt(stmt->as.block.statements[i], level + 1);
@@ -265,8 +265,8 @@ static void print_stmt(Stmt *stmt, int level)
 
 void debug_print_program(Program program)
 {
-	int count = darray_len(program.statements);
-	for (int i = 0; i < count; i++)
+	i32 count = (i32)arrlen(program.statements);
+	for (i32 i = 0; i < count; i++)
 	{
 		print_stmt(program.statements[i], 0);
 	}

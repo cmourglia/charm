@@ -50,7 +50,7 @@ static void emit_bytes(i32 count, ...)
 	va_start(args, count);
 	for (i32 i = 0; i < count; i++)
 	{
-		chunk_write(current_chunk(), va_arg(args, int));
+		chunk_write(current_chunk(), (u8)va_arg(args, int));
 	}
 	va_end(args);
 }
@@ -58,12 +58,12 @@ static void emit_bytes(i32 count, ...)
 static usize emit_jump(u8 instruction)
 {
 	emit_bytes(3, instruction, 0xFF, 0xFF);
-	return darray_len(current_chunk()->code) - 2;
+	return arrlen(current_chunk()->code) - 2;
 }
 
 static void patch_jump(usize offset)
 {
-	usize jump = darray_len(current_chunk()->code) - offset - 2;
+	usize jump = arrlen(current_chunk()->code) - offset - 2;
 
 	assert(jump <= UINT16_MAX);
 
@@ -75,7 +75,7 @@ static void emit_loop(usize loop_start)
 {
 	emit_byte(OP_LOOP);
 
-	usize offset = darray_len(current_chunk()->code) - loop_start + 2;
+	usize offset = arrlen(current_chunk()->code) - loop_start + 2;
 	assert(offset <= UINT16_MAX);
 
 	emit_bytes(2, (offset >> 8) & 0xFF, offset & 0xFF);
@@ -109,7 +109,7 @@ CompileResult compile_program(struct Chunk *chunk, Program program)
 	compiler = (Compiler){ .local_count = 0, .scope_depth = 0 };
 	compiling_chunk = chunk;
 
-	int count = darray_len(program.statements);
+	i32 count = (i32)arrlen(program.statements);
 
 	CompileResult result = COMPILE_OK;
 
@@ -209,7 +209,11 @@ static CompileResult compile_stmt(Stmt *stmt)
 
 			declare_variable(name);
 
-			u8 ident = compiler.scope_depth > 0 ? 0 : identifier_constant(name);
+			u8 ident = 0;
+			if (compiler.scope_depth == 0)
+			{
+				ident = (u8)identifier_constant(name);
+			}
 
 			if (stmt->as.var_decl.expr != NULL)
 			{
@@ -228,7 +232,7 @@ static CompileResult compile_stmt(Stmt *stmt)
 		{
 			begin_scope();
 
-			for (int i = 0; i < darray_len(stmt->as.block.statements); i++)
+			for (int i = 0; i < arrlen(stmt->as.block.statements); i++)
 			{
 				compile_stmt(stmt->as.block.statements[i]);
 			}
@@ -263,7 +267,7 @@ static CompileResult compile_stmt(Stmt *stmt)
 
 		case STMT_WHILE:
 		{
-			usize loop_start = darray_len(current_chunk()->code);
+			usize loop_start = arrlen(current_chunk()->code);
 			compile_expr(stmt->as.while_stmt.cond);
 
 			usize exit_jump = emit_jump(OP_JUMP_IF_FALSE);
@@ -296,7 +300,7 @@ static u16 resolve_local(String *name)
 		Local *local = &compiler.locals[i];
 		if (name == local->name)
 		{
-			return i;
+			return (u16)i;
 		}
 	}
 

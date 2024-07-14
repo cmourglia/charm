@@ -34,4 +34,8 @@ typedef double f64;
 			__FUNCTION__, __FILE__, __LINE__);                            \
 	exit(43);
 
+#ifdef _WIN32
+#define NODISCARD
+#else
 #define NODISCARD __attribute__((warn_unused_result))
+#endif
