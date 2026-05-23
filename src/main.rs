@@ -1,3 +1,10 @@
+use crate::lexer::lex;
+
+mod lexer;
+mod token;
+
 fn main() {
-    println!("Hello, world!");
+    let tokens = lex("azerty123");
+
+    println!("{:?}", tokens);
 }
